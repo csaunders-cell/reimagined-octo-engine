@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Impact on Supply Chain Disruption</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Styling - IMPROVED GRAPHICS (IT Focus) */
+        :root {
+            --primary-it-color: #6a0dad; /* Darker purple for IT */
+            --secondary-it-color: #FF8C00; /* Orange for urgent IT review */
+            --accent-it-color: #d9534f; /* Red for alert */
+            --bg-it-color: #f5f0f8; /* Light purple background */
+            --card-bg: #ffffff;
+            --text-color: #343a40;
+            --shadow-light: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-hover: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-it-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 30px;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 95%;
+            margin: 0 auto 30px auto;
+            background-color: var(--card-bg);
+            padding: 40px;
+            box-shadow: var(--shadow-light);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        h1 {
+            color: var(--primary-it-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary-it-color);
+            border-radius: 2px;
+        }
+
+        h2 {
+            color: var(--secondary-it-color);
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.7em;
+            font-weight: 600;
+            border-left: 5px solid var(--secondary-it-color);
+            padding-left: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 30px; /* Increased space for emoji */
+            margin-bottom: 10px;
+        }
+
+        ul li::before {
+            content: '💻'; /* IT-themed emoji bullet */
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+            line-height: 1.6; /* Align with text */
+        }
+        
+        ol {
+            padding-left: 25px;
+        }
+
+        ol.task-list li {
+            position: relative;
+            padding-left: 0;
+            margin-bottom: 10px;
+        }
+
+        .activity-section {
+            background-color: #f8f1ff; /* Lighter purple for sections */
+            border: 1px solid #e0c8f7;
+            padding: 30px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Step indicator */
+        .activity-section::before {
+            content: 'Step ' attr(id);
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--primary-it-color);
+            color: white;
+            padding: 5px 15px;
+            border-bottom-left-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9em;
+            z-index: 1;
+        }
+
+        .activity-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        button {
+            background-color: var(--primary-it-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1em;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(106, 13, 173, 0.2);
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #550a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(106, 13, 173, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .it-alert {
+            font-weight: 700;
+            color: var(--accent-it-color);
+            padding: 10px;
+            background-color: #f2dede;
+            border-left: 5px solid var(--accent-it-color);
+            border-radius: 3px;
+            margin-top: 15px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            body {
+                padding-top: 0;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            .activity-section {
+                padding: 20px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+            .activity-section::before {
+                border-bottom-left-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>IT Impact Review: GlobalTech's Supply Chain Crisis 💾</h1>
+        <p>This activity explores the immediate demands placed upon the **IT Department** at GlobalTech Electronics following the Force Majeure geopolitical event that halted the 'NovaChip' supply chain.</p>
+
+        <div id="step1" class="activity-section">
+            <h2>Step 1: Core Systems & Data Integrity 📊</h2>
+            <p>The sudden shutdown of the Veridia fabrication plant and the closure of the Strait of Kaelen trigger several system alarms:</p>
+            <ul>
+                <li>The **ERP (SAP/Oracle)** system attempts to process inbound material shipments from Aethel that will never arrive, leading to inventory discrepancies.</li>
+                <li>The **SCM (Supply Chain Management)** software's automated reordering logic for Rare Earths in Aethel enters an infinite loop, continuously attempting and failing to place orders.</li>
+                <li>The **WMS (Warehouse Management System)** at the Terra assembly plant shows a projected material run-out in 48 hours, causing a flood of urgent, manual inquiries from Production Managers.</li>
+            </ul>
+            <p class="it-alert">**IT Challenge:** How does IT prevent cascading system errors and provide accurate, real-time status updates to the executive team?</p>
+            <button onclick="showStep(2)">Analyze Network & Security Impacts</button>
+        </div>
+
+        <div id="step2" class="activity-section hidden">
+            <h2>Step 2: Network & Geopolitical Risks 🔒</h2>
+            <p>The geopolitical conflict has a direct physical and digital impact:</p>
+            <ol class="task-list">
+                <li>**Connectivity Loss:** The primary leased line (MPLS) providing dedicated, secure network connectivity to the **Veridia Fabrication Plant** is **physically severed** due to the conflict. IT must instantly reroute all necessary functions (e.g., remote server access, data backups) via expensive satellite links or cloud-based recovery zones.</li>
+                <li>**Data Sovereignty Risk:** Due to government actions in Aethel and Veridia, GlobalTech's IT team must immediately verify that no sensitive corporate or customer data resides on servers or cloud instances physically located within the conflict zones. They initiate an emergency **Data Migration** to a safer geographical region (e.g., Europe or North America).</li>
+                <li>**Cybersecurity Alert:** State-sponsored hacking groups often exploit global crises. IT security must implement **zero-trust protocols**, enhance firewall monitoring, and scrutinize all inbound network traffic for phishing attempts related to "emergency shipping updates" or "supplier change notices."</li>
+            </ol>
+            <button onclick="showStep(3)">Review Stakeholder Communications</button>
+        </div>
+
+        <div id="step3" class="activity-section hidden">
+            <h2>Step 3: The IT Service Desk & Business Function Awareness 📞</h2>
+            <p>The business crisis turns into an **IT support crisis** as hundreds of employees demand information and workarounds:</p>
+            <ul>
+                <li>**Sales Team:** Calls reporting the inability to promise new delivery dates, demanding IT instantly update the **CRM (Customer Relationship Management)** system with accurate inventory projections (which are currently impossible).</li>
+                <li>**Procurement Team:** Needs urgent access to new **supplier databases** and tools for sourcing alternative materials outside of Aethel. They need the IT infrastructure to support a sudden, massive increase in due diligence and vendor screening.</li>
+                <li>**Logistics Team:** Requires IT to immediately deploy a new **Tracking & Visibility platform** to monitor alternative, multi-modal (air/sea/rail) shipping routes, bypassing the closed Strait of Kaelen.</li>
+            </ul>
+            <p>The ability of GlobalTech to adapt depends on IT's ability to **rapidly understand the business impact** and provide new solutions, not just fix existing problems.</p>
+            <button onclick="alert('Activity Complete! Consider how IT acted as a strategic partner to the business during this crisis, not just a service provider.')">Complete Activity</button>
+        </div>
+
+    </div>
+
+    <script>
+        /* JavaScript for Interactivity */
+        /**
+         * Hides all activity sections and then shows the specified step.
+         * @param {number} stepNumber - The ID number of the step to show.
+         */
+        function showStep(stepNumber) {
+            // Get all sections
+            const allSections = document.querySelectorAll('.activity-section');
+            
+            // Hide all sections
+            allSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show the requested section
+            const targetSection = document.getElementById('step' + stepNumber);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+        }
+
+        // Initial call to ensure only step 1 is shown on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            showStep(1);
+        });
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Disruption: Force Majeure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS for Styling - IMPROVED GRAPHICS */
+        :root {
+            --primary-color: #007bff; /* Blue */
+            --secondary-color: #28a745; /* Green */
+            --accent-color: #d9534f; /* Red for disruption */
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #343a40;
+            --shadow-light: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-hover: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 30px;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 95%;
+            margin: 0 auto 30px auto;
+            background-color: var(--card-bg);
+            padding: 40px;
+            box-shadow: var(--shadow-light);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.7em;
+            font-weight: 600;
+            border-left: 5px solid var(--secondary-color);
+            padding-left: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+        }
+
+        ul li::before {
+            content: '•'; /* Custom bullet */
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+            line-height: 1;
+        }
+        
+        ol {
+            padding-left: 25px;
+        }
+
+        ol li {
+            margin-bottom: 10px;
+        }
+
+        .activity-section {
+            background-color: #e8f7fa; /* Lighter background for sections */
+            border: 1px solid #cce5ff;
+            padding: 30px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Step indicator */
+        .activity-section::before {
+            content: 'Step ' attr(id); /* Displays Step 1, Step 2, etc. */
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-bottom-left-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9em;
+            z-index: 1;
+        }
+
+        .activity-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1em;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent-color);
+            background-color: #ffebe8;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            body {
+                padding-top: 0;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            .activity-section {
+                padding: 20px;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+            .activity-section::before {
+                border-bottom-left-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Supply Chain Disruption: The "Force Majeure" Event 🌍</h1>
+        <p>This interactive activity presents a fictional case study of a supply chain disruption caused by a Force Majeure event. Review the information below, progressing through the sections to understand the scenario.</p>
+
+        <div id="step1" class="activity-section">
+            <h2>Step 1: The Company and Initial Setup 🏭</h2>
+            <p><strong>Company:</strong> **GlobalTech Electronics**</p>
+            <p><strong>Product:</strong> The **'NovaChip'**, a proprietary microchip essential for consumer electronics (smartphones, laptops).</p>
+            <p><strong>Supply Chain Setup:</strong></p>
+            <ul>
+                <li>**Raw Materials (Rare Earths):** Sourced from the nation of **'Aethel'**.</li>
+                <li>**Semiconductor Fabrication:** Located in the nearby nation of **'Veridia'**.</li>
+                <li>**Assembly & Final Product:** Completed in a facility in **'Terra'**.</li>
+                <li>**Key Logistics Route:** All materials and components pass through the **'Strait of Kaelen'**, a narrow international shipping lane separating Aethel and Veridia.</li>
+            </ul>
+            <button onclick="showStep(2)">Proceed to Disruption Event</button>
+        </div>
+
+        <div id="step2" class="activity-section hidden">
+            <h2>Step 2: The Force Majeure Disruption 🚨</h2>
+            <p><strong>Event:</strong> **Geopolitical Conflict**</p>
+            <p>A sudden, **unforeseen political crisis** escalates rapidly between the nations of Aethel and Veridia, leading to **military skirmishes** near the shared border and, critically, near the **Strait of Kaelen**.</p>
+            <p class="highlight"><strong>Disruption Impact:</strong></p>
+            <ul>
+                <li>The **Strait of Kaelen** is declared a **No-Go Zone** for international commercial shipping. Insurance companies immediately revoke coverage.</li>
+                <li>The Aethel government imposes an **embargo** on all **Rare Earth** exports.</li>
+                <li>Veridia's **Semiconductor Fabrication** plant is forced to shut down temporarily due to government-mandated safety evacuations.</li>
+            </ul>
+            <p>This event is classified as **Force Majeure**—an unforeseeable circumstance preventing a party from fulfilling a contract.</p>
+            <button onclick="showStep(3)">Analyze the Immediate Impact</button>
+        </div>
+
+        <div id="step3" class="activity-section hidden">
+            <h2>Step 3: Immediate Consequences for GlobalTech 🛑</h2>
+            <p>GlobalTech's supply chain is frozen. Consider the immediate and downstream effects:</p>
+            <ol>
+                <li>**Input Shortage:** No Rare Earths (from Aethel) can reach the Fabrication Plant (in Veridia) or the Assembly Plant (in Terra).</li>
+                <li>**Manufacturing Halt:** The Fabrication Plant is offline. Even if it could restart, it has no raw materials.</li>
+                <li>**Logistics Failure:** The primary shipping route (Strait of Kaelen) is closed, meaning existing inventory is stuck, and alternative, longer, and more expensive air/sea routes must be sought.</li>
+                <li>**Contractual Issues:** GlobalTech's contracts with suppliers and customers likely contain **Force Majeure clauses**. They must now invoke these clauses, halting production and delaying customer orders without immediate penalty, but still damaging long-term relationships.</li>
+            </ol>
+            <p>This is the foundation for your further analysis: **How does GlobalTech recover, mitigate losses, and prepare for future events?**</p>
+            <button onclick="alert('Activity Complete! Review this information for your upcoming assignment on supply chain risk management. Check out the IT Impact activity next!')">Complete Activity</button>
+        </div>
+
+    </div>
+
+    <script>
+        /* JavaScript for Interactivity */
+        /**
+         * Hides all activity sections and then shows the specified step.
+         * @param {number} stepNumber - The ID number of the step to show.
+         */
+        function showStep(stepNumber) {
+            // Get all sections
+            const allSections = document.querySelectorAll('.activity-section');
+            
+            // Hide all sections
+            allSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show the requested section
+            const targetSection = document.getElementById('step' + stepNumber);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+        }
+
+        // Initial call to ensure only step 1 is shown on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            showStep(1);
+        });
+
+    </script>
+
+</body>
+</html>
