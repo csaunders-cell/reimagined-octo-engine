@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Beginner's Journey Through Wi-Fi Security: From WEP to WPA3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #004a7c;
+            text-align: center;
+            border-bottom: 2px solid #004a7c;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #0077b6;
+            margin-top: 25px;
+        }
+
+        .accordion-item {
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background-color: #e9ecef;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background-color 0.2s;
+        }
+
+        .accordion-header:hover {
+            background-color: #cfd8dc;
+        }
+
+        .accordion-content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            background-color: #fff;
+        }
+
+        .accordion-content.active {
+            max-height: 1000px; /* Large enough to show all content */
+            padding: 15px;
+        }
+
+        .arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+
+        .accordion-header.active .arrow {
+            transform: rotate(90deg);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #004a7c;
+            color: white;
+        }
+
+        .security-status-table td:nth-child(4) {
+            font-weight: bold;
+        }
+        
+        .security-status-table tr:nth-child(1) td:nth-child(4) { color: red; }
+        .security-status-table tr:nth-child(2) td:nth-child(4) { color: orange; }
+        .security-status-table tr:nth-child(3) td:nth-child(4) { color: blue; }
+        .security-status-table tr:nth-child(4) td:nth-child(4) { color: green; }
+
+        .recommendation {
+            border: 2px solid #28a745;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #e9f7eb;
+            border-radius: 4px;
+        }
+        
+        .recommendation h3 {
+            color: #28a745;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>A Beginner's Journey Through Wi-Fi Security: From WEP to WPA3</h1>
+
+    <p>Imagine your Wi-Fi as an open window into your home or business. Without a secure lock, anyone with the right know-how could peer inside, exposing confidential data, financial information, and personal communications. This is the reality of an unsecured wireless network. This document provides a clear, chronological overview of the evolution of Wi-Fi security protocols.</p>
+
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            1. The First Attempt: Wired Equivalent Privacy (WEP) <span class="arrow">&gt;</span>
+        </div>
+        <div class="accordion-content">
+            <h2>The First Attempt: Wired Equivalent Privacy (WEP)</h2>
+            <p>Introduced in <strong>1997</strong>, Wired Equivalent Privacy (WEP) was the first encryption algorithm created for wireless networks. Its primary goal was straightforward: to provide a level of security and privacy comparable to what users expected from a traditional wired network connection. To achieve this, WEP utilized the <strong>RC4 encryption algorithm</strong>. However, fundamental design flaws were discovered soon after its release, rendering it insecure against modern attacks.</p>
+
+            <h3>Why WEP Failed</h3>
+            <p>WEP's security was critically undermined by several weaknesses, most notably its use of <strong>weak initialization vectors</strong>. These flaws made it possible for attackers to crack a WEP-protected network's password with readily available tools in a matter of minutes. Its vulnerabilities were so severe that it became completely <strong>obsolete</strong>, creating an urgent need for a more secure replacement.</p>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            2. The Necessary Upgrade: Wi-Fi Protected Access (WPA) <span class="arrow">&gt;</span>
+        </div>
+        <div class="accordion-content">
+            <h2>The Necessary Upgrade: Wi-Fi Protected Access (WPA)</h2>
+            <p>Launched in <strong>2003</strong>, Wi-Fi Protected Access (WPA) was developed by the Wi-Fi Alliance as a direct successor to WEP, specifically designed to fix its most critical vulnerabilities. WPA's main security improvement was the introduction of the <strong>Temporal Key Integrity Protocol (TKIP)</strong>. TKIP provided much stronger dynamic key management and integrity checks than WEP's static key system, making it significantly more difficult for attackers to compromise the network.</p>
+            
+            <h3>WPA Modes</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>WPA Mode</th>
+                        <th>Primary Use & Authentication Method</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WPA-Personal</strong></td>
+                        <td>Designed for home networks, using a pre-shared key (PSK) for authentication.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WPA-Enterprise</strong></td>
+                        <td>Designed for businesses, using a central RADIUS server for user authentication.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Although WPA was a major step forward, it was always intended as an <strong>interim solution</strong> to provide better security while a more robust, long-term standard was finalized.</p>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            3. The Long-Standing Standard: Wi-Fi Protected Access II (WPA2) <span class="arrow">&gt;</span>
+        </div>
+        <div class="accordion-content">
+            <h2>The Long-Standing Standard: Wi-Fi Protected Access II (WPA2)</h2>
+            <p>The next generation of wireless security arrived in <strong>2004</strong> with the release of Wi-Fi Protected Access II (WPA2). The single most important improvement in WPA2 was the mandatory implementation of the <strong>Advanced Encryption Standard (AES)</strong>. AES is a far more robust and secure encryption algorithm than the technologies used in WEP (RC4) and WPA (TKIP). Because of its powerful security, WPA2 was widely adopted and remained the industry standard for well over ten years.</p>
+            
+            <h3>Known Vulnerabilities</h3>
+            <p>Researchers eventually discovered that WPA2 is vulnerable to specific, sophisticated threats. These include the <strong>Key Reinstallation Attack (KRACK)</strong> and **offline dictionary attacks** against its password, possible because an attacker can capture the initial WPA2 connection "handshake."</p>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            4. The Modern Era: Wi-Fi Protected Access III (WPA3) <span class="arrow">&gt;</span>
+        </div>
+        <div class="accordion-content">
+            <h2>The Modern Era: Wi-Fi Protected Access III (WPA3)</h2>
+            <p>Launched in <strong>2018</strong>, Wi-Fi Protected Access III (WPA3) is the latest security standard, designed to provide cutting-edge protection against modern threats and address the known vulnerabilities in WPA2.</p>
+            
+            <h3>Key Benefits of WPA3</h3>
+            <ul>
+                <li><strong>Simultaneous Authentication of Equals (SAE):</strong> This replaces the vulnerable Pre-Shared Key (PSK) handshake used in WPA2, providing robust protection against **offline dictionary attacks**.</li>
+                <li><strong>Enhanced Encryption:</strong> WPA3-Enterprise mode increases security for business networks by utilizing powerful <strong>192-bit cryptographic strength</strong>.</li>
+                <li><strong>Forward Secrecy:</strong> Ensures that even if an attacker compromises your password in the future, they cannot use it
