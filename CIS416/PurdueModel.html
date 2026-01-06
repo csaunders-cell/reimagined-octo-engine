@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purdue Model Lab</title>
+    <style>
+        :root {
+            --it-color: #e3f2fd;
+            --dmz-color: #fff9c4;
+            --ot-color: #e8f5e9;
+            --focus-outline: 3px solid #0056b3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { color: #333; }
+        
+        .instruction {
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #0277bd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+
+        /* LAYOUT FIX: Use Wrap so it doesn't cut off on small screens */
+        .game-container {
+            display: flex;
+            flex-wrap: wrap; /* This allows items to stack if screen is small */
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            align-items: flex-start; /* Prevents stretching */
+        }
+
+        .sidebar {
+            flex: 1;
+            min-width: 280px; /* Slightly wider */
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            /* Keep sidebar visible if possible, but allow scrolling */
+            max-height: 80vh; 
+            overflow-y: auto; 
+        }
+
+        .draggable-item {
+            background-color: #37474f;
+            color: #fff;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            justify-content: space-between;
+            border: 2px solid transparent;
+            width: 100%;
+            text-align: left;
+        }
+
+        .draggable-item:focus {
+            outline: var(--focus-outline);
+            outline-offset: 2px;
+        }
+
+        .draggable-item.is-selected {
+            background-color: #0277bd;
+            border: 3px solid #000;
+        }
+
+        .draggable-item[aria-disabled="true"] {
+            background-color: #2e7d32;
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .model-container {
+            flex: 3;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            /* FIX: Ensure there is room at the bottom to scroll */
+            padding-bottom: 50px; 
+        }
+
+        .zone-label {
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #444;
+            margin-top: 10px;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        .layer {
+            border: 2px dashed #999;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 100px;
+            position: relative;
+            background-color: #fff;
+        }
+
+        .layer:focus {
+            outline: var(--focus-outline);
+            background-color: #f0f0f0;
+        }
+
+        .layer-title {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-weight: bold;
+            color: #666;
+            pointer-events: none;
+            font-size: 0.8em;
+        }
+
+        /* Colors */
+        #lvl4 { background-color: var(--it-color); border-color: #1565c0; }
+        #lvl3 { background-color: var(--dmz-color); border-color: #f9a825; }
+        #lvl2, #lvl1, #lvl0 { background-color: var(--ot-color); border-color: #2e7d32; }
+
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+            clip: rect(0, 0, 0, 0); border: 0;
+        }
+
+        .status-msg {
+            margin-top: 20px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ICS Architecture Lab</h1>
+    
+    <div class="instruction">
+        <p><strong>Instructions:</strong></p>
+        <p><strong>Mouse:</strong> Drag items to the correct layer.</p>
+        <p><strong>Keyboard:</strong> Tab to a device -> Press <strong>Enter</strong> to select -> Tab to the Layer -> Press <strong>Enter</strong> to drop.</p>
+    </div>
+
+    <div id="live-region" class="sr-only" aria-live="polite"></div>
+
+    <div class="game-container">
+        <div class="sidebar">
+            <h3>Device Bank</h3>
+            <div id="device-bank">
+                </div>
+            
+            <div id="score-board" aria-live="polite" style="margin-top: 20px; font-weight: bold;">
+                Score: 0 / 10
+            </div>
+            <div id="visual-status" class="status-msg"></div>
+        </div>
+
+        <div class="model-container">
+            
+            <div class="zone-label">Enterprise Zone (IT)</div>
+            <div class="layer" id="lvl4" data-level="4" tabindex="0" role="region" aria-label="Level 4 Enterprise">
+                <span class="layer-title">Level 4: Enterprise Business</span>
+            </div>
+
+            <div class="zone-label">Manufacturing Operations (Site)</div>
+            <div class="layer" id="lvl3" data-level="3" tabindex="0" role="region" aria-label="Level 3 Site Ops">
+                <span class="layer-title">Level 3: Site Operations</span>
+            </div>
+
+            <div class="zone-label">Control Zone (OT)</div>
+            <div class="layer" id="lvl2" data-level="2" tabindex="0" role="region" aria-label="Level 2 Supervisory">
+                <span class="layer-title">Level 2: Supervisory Control</span>
+            </div>
+            <div class="layer" id="lvl1" data-level="1" tabindex="0" role="region" aria-label="Level 1 Basic Control">
+                <span class="layer-title">Level 1: Basic Control</span>
+            </div>
+            <div class="layer" id="lvl0" data-level="0" tabindex="0" role="region" aria-label="Level 0 Process">
+                <span class="layer-title">Level 0: The Process</span>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const devices = [
+                { id: 'd1', name: 'ERP System (SAP)', level: 4, icon: '🏢' },
+                { id: 'd2', name: 'Corporate Email', level: 4, icon: '📧' },
+                { id: 'd3', name: 'Plant Historian', level: 3, icon: '📊' },
+                { id: 'd4', name: 'Patch Server', level: 3, icon: '🛡️' },
+                { id: 'd5', name: 'HMI Screen', level: 2, icon: '🖥️' },
+                { id: 'd6', name: 'Eng. Workstation', level: 2, icon: '💻' },
+                { id: 'd7', name: 'PLC', level: 1, icon: '⚙️' },
+                { id: 'd8', name: 'PID Controller', level: 1, icon: '🎛️' },
+                { id: 'd9', name: 'Temp Sensor', level: 0, icon: '🌡️' },
+                { id: 'd10', name: 'Robotic Arm', level: 0, icon: '🦾' }
+            ];
+
+            let score = 0;
+            let selectedItem = null; 
+
+            function announce(message) {
+                document.getElementById('live-region').textContent = message;
+            }
+
+            const bank = document.getElementById('device-bank');
+
+            // Initialize Devices
+            devices.sort(() => Math.random() - 0.5);
+            devices.forEach(device => {
+                const el = document.createElement('button');
+                el.classList.add('draggable-item');
+                el.setAttribute('id', device.id);
+                el.setAttribute('draggable', 'true');
+                el.setAttribute('data-target-level', device.level);
+                el.setAttribute('aria-label', `Device: ${device.name}. Press Enter to select.`);
+                el.innerHTML = `<span aria-hidden="true">${device.icon}</span> ${device.name}`;
+                
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('click', handleSelect);
+                bank.appendChild(el);
+            });
+
+            // Initialize Layers
+            document.querySelectorAll('.layer').forEach(layer => {
+                layer.addEventListener('dragover', allowDrop);
+                layer.addEventListener('drop', handleDrop);
+                layer.addEventListener('click', handleZoneClick); 
+                layer.addEventListener('keydown', (e) => {
+                   if(e.key === 'Enter') handleZoneClick(e);
+                });
+            });
+
+            // Handlers
+            function handleDragStart(ev) {
+                ev.dataTransfer.setData("text", ev.target.id);
+                ev.dataTransfer.setData("targetLevel", ev.target.getAttribute('data-target-level'));
+            }
+
+            function allowDrop(ev) { ev.preventDefault(); }
+
+            function handleDrop(ev) {
+                ev.preventDefault();
+                const dataId = ev.dataTransfer.getData("text");
+                const correctLevel = ev.dataTransfer.getData("targetLevel");
+                validateMove(dataId, correctLevel, ev.target.closest('.layer'));
+            }
+
+            function handleSelect(e) {
+                const target = e.target.closest('.draggable-item');
+                if (target.getAttribute('aria-disabled') === 'true') return;
+
+                if (selectedItem === target) {
+                    selectedItem.classList.remove('is-selected');
+                    selectedItem = null;
+                    announce("Selection cancelled.");
+                    return;
+                }
+                if (selectedItem) selectedItem.classList.remove('is-selected');
+                selectedItem = target;
+                selectedItem.classList.add('is-selected');
+                announce(`${target.textContent.trim()} selected. Select a layer.`);
+            }
+
+            function handleZoneClick(e) {
+                if (!selectedItem) return;
+                const layer = e.target.closest('.layer');
+                const correctLevel = selectedItem.getAttribute('data-target-level');
+                const itemId = selectedItem.id;
+                validateMove(itemId, correctLevel, layer);
+            }
+
+            function validateMove(itemId, correctLevel, layerElement) {
+                const droppedLevel = layerElement.getAttribute('data-level');
+                const itemElement = document.getElementById(itemId);
+
+                if (correctLevel === droppedLevel) {
+                    itemElement.style.backgroundColor = "#2e7d32"; 
+                    itemElement.setAttribute('draggable', 'false');
+                    itemElement.setAttribute('aria-disabled', 'true');
+                    itemElement.classList.remove('is-selected');
+                    itemElement.innerHTML += ' ✅';
+                    layerElement.appendChild(itemElement);
+                    
+                    document.getElementById('visual-status').innerText = "✅ Correct!";
+                    document.getElementById('visual-status').style.color = "green";
+                    announce("Correct placement.");
+                    
+                    selectedItem = null;
+                    score++;
+                    document.getElementById('score-board').innerText = `Score: ${score} / ${devices.length}`;
+                } else {
+                    document.getElementById('visual-status').innerText = "🚫 Wrong Zone!";
+                    document.getElementById('visual-status').style.color = "#d32f2f";
+                    announce("Incorrect zone.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
