@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purdue Model Lab</title>
+    <title>ICS Architecture Lab</title>
     <style>
         :root {
             --it-color: #e3f2fd;
@@ -22,7 +22,7 @@
             align-items: center;
         }
 
-        h1 { color: #333; }
+        h1 { color: #333; margin-bottom: 10px; }
         
         .instruction {
             margin-bottom: 20px;
@@ -32,30 +32,42 @@
             border-left: 5px solid #0277bd;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             max-width: 800px;
+            line-height: 1.6;
         }
 
-        /* LAYOUT FIX: Use Wrap so it doesn't cut off on small screens */
+        /* Layout Container */
         .game-container {
             display: flex;
-            flex-wrap: wrap; /* This allows items to stack if screen is small */
+            flex-wrap: wrap; 
             gap: 20px;
             width: 100%;
             max-width: 1200px;
-            align-items: flex-start; /* Prevents stretching */
+            align-items: flex-start; 
         }
 
+        /* Sidebar (Devices) */
         .sidebar {
             flex: 1;
-            min-width: 280px; /* Slightly wider */
+            min-width: 280px;
             background: #fff;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            /* Keep sidebar visible if possible, but allow scrolling */
-            max-height: 80vh; 
+            max-height: 85vh; 
             overflow-y: auto; 
         }
 
+        .status-msg {
+            margin-top: 15px;
+            font-weight: bold;
+            padding: 10px;
+            background: #eee;
+            border-radius: 4px;
+            text-align: center;
+            min-height: 1.5em;
+        }
+
+        /* Buttons */
         .draggable-item {
             background-color: #37474f;
             color: #fff;
@@ -66,9 +78,15 @@
             font-size: 1em;
             display: flex;
             justify-content: space-between;
-            border: 2px solid transparent;
+            border: 3px solid transparent; /* Prepare for border change */
             width: 100%;
             text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .draggable-item:hover {
+            background-color: #455a64;
+            transform: translateY(-2px);
         }
 
         .draggable-item:focus {
@@ -76,24 +94,30 @@
             outline-offset: 2px;
         }
 
+        /* Selected State */
         .draggable-item.is-selected {
-            background-color: #0277bd;
-            border: 3px solid #000;
+            background-color: #0277bd; /* Bright Blue */
+            border-color: #000;
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+            font-weight: bold;
         }
 
+        /* Finished State */
         .draggable-item[aria-disabled="true"] {
-            background-color: #2e7d32;
+            background-color: #2e7d32; /* Green */
             cursor: default;
             opacity: 0.9;
+            transform: none;
+            border-color: transparent;
         }
 
+        /* Model Layers */
         .model-container {
             flex: 3;
             min-width: 300px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            /* FIX: Ensure there is room at the bottom to scroll */
             padding-bottom: 50px; 
         }
 
@@ -113,11 +137,18 @@
             min-height: 100px;
             position: relative;
             background-color: #fff;
+            transition: background-color 0.2s;
+        }
+
+        .layer:hover {
+            border-color: #666;
+            background-color: #fafafa;
+            cursor: pointer;
         }
 
         .layer:focus {
             outline: var(--focus-outline);
-            background-color: #f0f0f0;
+            background-color: #e1f5fe;
         }
 
         .layer-title {
@@ -130,33 +161,30 @@
             font-size: 0.8em;
         }
 
-        /* Colors */
+        /* Specific Colors */
         #lvl4 { background-color: var(--it-color); border-color: #1565c0; }
         #lvl3 { background-color: var(--dmz-color); border-color: #f9a825; }
         #lvl2, #lvl1, #lvl0 { background-color: var(--ot-color); border-color: #2e7d32; }
 
+        /* Screen Reader Utility */
         .sr-only {
             position: absolute;
             width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
             clip: rect(0, 0, 0, 0); border: 0;
         }
-
-        .status-msg {
-            margin-top: 20px;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 4px;
-        }
     </style>
 </head>
 <body>
 
-    <h1>ICS Architecture Lab</h1>
+    <h1>ICS Architecture Lab: Purdue Model</h1>
     
     <div class="instruction">
-        <p><strong>Instructions:</strong></p>
-        <p><strong>Mouse:</strong> Drag items to the correct layer.</p>
-        <p><strong>Keyboard:</strong> Tab to a device -> Press <strong>Enter</strong> to select -> Tab to the Layer -> Press <strong>Enter</strong> to drop.</p>
+        <h3>Instructions:</h3>
+        <ol>
+            <li><strong>Step 1:</strong> Click (or Tab to) a <strong>Device</strong> in the left list to select it.</li>
+            <li><strong>Step 2:</strong> Click (or Enter on) the correct <strong>Security Level</strong> box on the right.</li>
+        </ol>
+        <p><em>Goal: Segregate IT and OT systems correctly.</em></p>
     </div>
 
     <div id="live-region" class="sr-only" aria-live="polite"></div>
@@ -167,32 +195,34 @@
             <div id="device-bank">
                 </div>
             
-            <div id="score-board" aria-live="polite" style="margin-top: 20px; font-weight: bold;">
+            <div class="status-msg">
+                <span id="visual-status">Select a device to begin.</span>
+            </div>
+            <div id="score-board" style="text-align:center; margin-top:10px; font-weight:bold; color:#555;">
                 Score: 0 / 10
             </div>
-            <div id="visual-status" class="status-msg"></div>
         </div>
 
         <div class="model-container">
             
             <div class="zone-label">Enterprise Zone (IT)</div>
-            <div class="layer" id="lvl4" data-level="4" tabindex="0" role="region" aria-label="Level 4 Enterprise">
+            <div class="layer" id="lvl4" data-level="4" tabindex="0" role="region" aria-label="Level 4 Enterprise Zone">
                 <span class="layer-title">Level 4: Enterprise Business</span>
             </div>
 
             <div class="zone-label">Manufacturing Operations (Site)</div>
-            <div class="layer" id="lvl3" data-level="3" tabindex="0" role="region" aria-label="Level 3 Site Ops">
+            <div class="layer" id="lvl3" data-level="3" tabindex="0" role="region" aria-label="Level 3 Site Operations">
                 <span class="layer-title">Level 3: Site Operations</span>
             </div>
 
             <div class="zone-label">Control Zone (OT)</div>
-            <div class="layer" id="lvl2" data-level="2" tabindex="0" role="region" aria-label="Level 2 Supervisory">
+            <div class="layer" id="lvl2" data-level="2" tabindex="0" role="region" aria-label="Level 2 Supervisory Control">
                 <span class="layer-title">Level 2: Supervisory Control</span>
             </div>
             <div class="layer" id="lvl1" data-level="1" tabindex="0" role="region" aria-label="Level 1 Basic Control">
                 <span class="layer-title">Level 1: Basic Control</span>
             </div>
-            <div class="layer" id="lvl0" data-level="0" tabindex="0" role="region" aria-label="Level 0 Process">
+            <div class="layer" id="lvl0" data-level="0" tabindex="0" role="region" aria-label="Level 0 Physical Process">
                 <span class="layer-title">Level 0: The Process</span>
             </div>
 
@@ -208,7 +238,7 @@
                 { id: 'd4', name: 'Patch Server', level: 3, icon: '🛡️' },
                 { id: 'd5', name: 'HMI Screen', level: 2, icon: '🖥️' },
                 { id: 'd6', name: 'Eng. Workstation', level: 2, icon: '💻' },
-                { id: 'd7', name: 'PLC', level: 1, icon: '⚙️' },
+                { id: 'd7', name: 'PLC Controller', level: 1, icon: '⚙️' },
                 { id: 'd8', name: 'PID Controller', level: 1, icon: '🎛️' },
                 { id: 'd9', name: 'Temp Sensor', level: 0, icon: '🌡️' },
                 { id: 'd10', name: 'Robotic Arm', level: 0, icon: '🦾' }
@@ -217,6 +247,7 @@
             let score = 0;
             let selectedItem = null; 
 
+            // Accessibility Announcer
             function announce(message) {
                 document.getElementById('live-region').textContent = message;
             }
@@ -224,16 +255,19 @@
             const bank = document.getElementById('device-bank');
 
             // Initialize Devices
-            devices.sort(() => Math.random() - 0.5);
+            devices.sort(() => Math.random() - 0.5); // Shuffle
+            
             devices.forEach(device => {
                 const el = document.createElement('button');
                 el.classList.add('draggable-item');
                 el.setAttribute('id', device.id);
+                // Keep draggable true for desktop users who might still want it
                 el.setAttribute('draggable', 'true');
                 el.setAttribute('data-target-level', device.level);
-                el.setAttribute('aria-label', `Device: ${device.name}. Press Enter to select.`);
+                el.setAttribute('aria-pressed', 'false');
                 el.innerHTML = `<span aria-hidden="true">${device.icon}</span> ${device.name}`;
                 
+                // Add Events
                 el.addEventListener('dragstart', handleDragStart);
                 el.addEventListener('click', handleSelect);
                 bank.appendChild(el);
@@ -249,7 +283,9 @@
                 });
             });
 
-            // Handlers
+            // --- Handlers ---
+
+            // 1. Mouse Dragging (Optional feature)
             function handleDragStart(ev) {
                 ev.dataTransfer.setData("text", ev.target.id);
                 ev.dataTransfer.setData("targetLevel", ev.target.getAttribute('data-target-level'));
@@ -264,20 +300,35 @@
                 validateMove(dataId, correctLevel, ev.target.closest('.layer'));
             }
 
+            // 2. Click & Keyboard (Primary feature)
             function handleSelect(e) {
                 const target = e.target.closest('.draggable-item');
                 if (target.getAttribute('aria-disabled') === 'true') return;
 
+                // If unselecting
                 if (selectedItem === target) {
                     selectedItem.classList.remove('is-selected');
+                    selectedItem.setAttribute('aria-pressed', 'false');
                     selectedItem = null;
-                    announce("Selection cancelled.");
+                    document.getElementById('visual-status').innerText = "Selection cancelled.";
+                    document.getElementById('visual-status').style.color = "black";
                     return;
                 }
-                if (selectedItem) selectedItem.classList.remove('is-selected');
+
+                // If selecting new
+                if (selectedItem) {
+                    selectedItem.classList.remove('is-selected');
+                    selectedItem.setAttribute('aria-pressed', 'false');
+                }
+                
                 selectedItem = target;
                 selectedItem.classList.add('is-selected');
-                announce(`${target.textContent.trim()} selected. Select a layer.`);
+                selectedItem.setAttribute('aria-pressed', 'true');
+                
+                const msg = `${target.textContent.trim()} selected. Now click a Level.`;
+                document.getElementById('visual-status').innerText = msg;
+                document.getElementById('visual-status').style.color = "#0277bd";
+                announce(msg);
             }
 
             function handleZoneClick(e) {
@@ -288,29 +339,37 @@
                 validateMove(itemId, correctLevel, layer);
             }
 
+            // 3. Validation Logic
             function validateMove(itemId, correctLevel, layerElement) {
                 const droppedLevel = layerElement.getAttribute('data-level');
                 const itemElement = document.getElementById(itemId);
 
                 if (correctLevel === droppedLevel) {
+                    // Success
                     itemElement.style.backgroundColor = "#2e7d32"; 
                     itemElement.setAttribute('draggable', 'false');
                     itemElement.setAttribute('aria-disabled', 'true');
                     itemElement.classList.remove('is-selected');
                     itemElement.innerHTML += ' ✅';
+                    
                     layerElement.appendChild(itemElement);
                     
-                    document.getElementById('visual-status').innerText = "✅ Correct!";
+                    document.getElementById('visual-status').innerText = "✅ Correct! Device Secured.";
                     document.getElementById('visual-status').style.color = "green";
                     announce("Correct placement.");
                     
                     selectedItem = null;
                     score++;
                     document.getElementById('score-board').innerText = `Score: ${score} / ${devices.length}`;
+                    
+                    if(score === devices.length) {
+                        document.getElementById('visual-status').innerText = "🎉 All Systems Validated!";
+                    }
                 } else {
-                    document.getElementById('visual-status').innerText = "🚫 Wrong Zone!";
+                    // Fail
+                    document.getElementById('visual-status').innerText = "🚫 Access Denied: Wrong Zone!";
                     document.getElementById('visual-status').style.color = "#d32f2f";
-                    announce("Incorrect zone.");
+                    announce("Incorrect zone. Try again.");
                 }
             }
         });
