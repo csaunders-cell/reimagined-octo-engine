@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCADA Level 3: Firewall Defense</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --accent: #00e676; /* Green for defense */
+            --danger: #ff5252;
+            --modbus: #ffca28;
+            --blocked: #757575;
+        }
+        body { font-family: 'Consolas', 'Courier New', monospace; margin: 0; padding: 20px; background: var(--bg-color); color: var(--text-color); display: flex; gap: 20px; height: 95vh; }
+        
+        /* Layout */
+        .left-col { flex: 2; display: flex; flex-direction: column; gap: 20px; }
+        .right-col { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+
+        /* Network Map */
+        .network-map { background: var(--panel-bg); padding: 15px; border-radius: 8px; border: 1px solid #444; height: 30%; position: relative; }
+        .device {
+            display: inline-block; width: 100px; padding: 10px; background: #333; border: 2px solid #555;
+            text-align: center; border-radius: 6px; margin: 10px; font-size: 0.8rem;
+        }
+        .device.active { border-color: #29b6f6; background: #01579b; }
+        .device.blocked { border-color: #777; background: #444; opacity: 0.5; }
+
+        /* Traffic Log */
+        .log-panel { flex: 1; background: black; border-radius: 8px; border: 1px solid #444; overflow-y: auto; padding: 10px; font-size: 0.8rem; }
+        .log-entry { margin-bottom: 4px; padding-left: 5px; border-left: 3px solid transparent; }
+        .log-entry.allowed { border-color: var(--accent); color: #fff; }
+        .log-entry.blocked { border-color: var(--danger); color: #ef5350; text-decoration: line-through; opacity: 0.7; }
+        .timestamp { color: #888; margin-right: 10px; }
+
+        /* Firewall Panel */
+        .firewall-panel { background: #263238; padding: 20px; border-radius: 8px; border: 2px solid #546e7a; flex: 1; display: flex; flex-direction: column; }
+        .fw-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { text-align: left; color: #90a4ae; padding-bottom: 5px; border-bottom: 1px solid #455a64; }
+        td { padding: 8px 0; border-bottom: 1px solid #37474f; }
+        
+        input, select {
+            background: #1e1e1e; border: 1px solid #555; color: white; padding: 5px;
+            font-family: inherit; width: 90%;
+        }
+        
+        /* Buttons */
+        .btn { padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; margin-top: 5px; width: 100%; }
+        .btn-run { background: #0288d1; }
+        .btn-run:hover { background: #039be5; }
+        .btn-attack { background: #c62828; margin-bottom: 5px; }
+        .btn-attack:hover { background: #d32f2f; }
+        .btn-apply { background: var(--accent); color: black; margin-top: auto; }
+        
+    </style>
+</head>
+<body>
+
+    <div class="left-col">
+        <div class="network-map">
+            <h3 style="margin:0 0 10px 0; color: #90a4ae;">Live Network Map</h3>
+            <div style="display:flex; justify-content: space-around;">
+                <div class="device" id="hmi">HMI<br><span style="color:#aaa">192.168.1.10</span></div>
+                <div class="device" id="eng">Eng. Station<br><span style="color:#aaa">192.168.1.15</span></div>
+                <div class="device" id="rogue" style="border-color: #ff5252;">UNKNOWN<br><span style="color:#ff8a80">192.168.1.200</span></div>
+            </div>
+            <div style="text-align:center; margin-top: 20px;">
+                <div style="height: 30px; border-left: 2px dashed #555; margin: 0 auto; width: 0;"></div>
+                <div class="device" id="plc">PLC (Master)<br><span style="color:#aaa">192.168.1.50</span></div>
+            </div>
+        </div>
+
+        <div class="log-panel" id="logs">
+            <div style="color: #666; margin-bottom: 10px;">--- TRAFFIC LOG (Allow/Block decisions) ---</div>
+        </div>
+    </div>
+
+    <div class="right-col">
+        
+        <div>
+            <h3 style="margin-top:0;">1. Generate Traffic</h3>
+            <button class="btn btn-run" onclick="generateTraffic('normal')">▶ Run Normal Ops (HMI Poll)</button>
+            <button class="btn btn-attack" onclick="generateTraffic('dos')">☠ Attack: DoS Flood</button>
+            <button class="btn btn-attack" onclick="generateTraffic('exploit')">☠ Attack: Eng Station Exploit</button>
+        </div>
+
+        <div class="firewall-panel">
+            <div class="fw-header">
+                <h3 style="margin:0;">2. Firewall Rules</h3>
+                <span style="font-size: 0.8rem; color: #00e676;">STATUS: ACTIVE</span>
+            </div>
+            <p style="font-size: 0.75rem; color: #b0bec5; margin-top:0;">
+                Rules are processed Top-to-Bottom. <br>Default Policy: <b>DENY ALL</b> (Implicit)
+            </p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Source IP</th>
+                        <th>Dest IP</th>
+                        <th>Port</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="rule-table">
+                    </tbody>
+            </table>
+            
+            <button class="btn btn-apply" onclick="applyRules()">↻ Reload Firewall Rules</button>
+        </div>
+    </div>
+
+    <script>
+        // Initial Default Rules (Allow All for demo, but we will switch to strict)
+        // Students must edit these to secure the system.
+        let rules = [
+            { src: "192.168.1.10", dst: "192.168.1.50", port: "502", action: "ALLOW" }, // HMI -> PLC (Modbus)
+            { src: "*", dst: "*", port: "*", action: "ALLOW" } // Insecure "Any Any" rule
+        ];
+
+        function renderRules() {
+            const tbody = document.getElementById('rule-table');
+            tbody.innerHTML = '';
+            rules.forEach((rule, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${rule.src}" id="r${index}-src"></td>
+                    <td><input type="text" value="${rule.dst}" id="r${index}-dst"></td>
+                    <td><input type="text" value="${rule.port}" id="r${index}-port"></td>
+                    <td>
+                        <select id="r${index}-act" style="color: ${rule.action === 'ALLOW' ? '#69f0ae' : '#ff5252'}">
+                            <option value="ALLOW" ${rule.action === 'ALLOW' ? 'selected' : ''}>ALLOW</option>
+                            <option value="DENY" ${rule.action === 'DENY' ? 'selected' : ''}>DENY</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            // Add an empty slot at bottom for new rules
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td colspan="4" style="text-align:center; font-size:0.8rem; color:#555; padding-top:10px;">
+                    (Edit top inputs to change policy)
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function applyRules() {
+            // Read inputs back into rules array
+            rules = [];
+            for(let i=0; i<2; i++) { // Keeping it to 2 rows for simplicity in this demo
+                rules.push({
+                    src: document.getElementById(`r${i}-src`).value,
+                    dst: document.getElementById(`r${i}-dst`).value,
+                    port: document.getElementById(`r${i}-port`).value,
+                    action: document.getElementById(`r${i}-act`).value
+                });
+            }
+            logSystem("Firewall Rules Updated.");
+            renderRules();
+        }
+
+        function checkFirewall(packet) {
+            for (let rule of rules) {
+                // Check Source
+                const srcMatch = rule.src === '*' || rule.src === packet.src;
+                // Check Dest
+                const dstMatch = rule.dst === '*' || rule.dst === packet.dst;
+                // Check Port
+                const portMatch = rule.port === '*' || rule.port === packet.port.toString();
+
+                if (srcMatch && dstMatch && portMatch) {
+                    return rule.action; // Return first match
+                }
+            }
+            return "DENY"; // Default implicit deny
+        }
+
+        function logSystem(msg) {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.style.color = "#888"; div.style.fontStyle = "italic";
+            div.innerText = `[SYS] ${msg}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        async function generateTraffic(scenario) {
+            let packets = [];
+
+            if (scenario === 'normal') {
+                packets = [
+                    { src: '192.168.1.10', dst: '192.168.1.50', port: 502, protocol: 'MODBUS', info: 'Read Holding Regs' },
+                    { src: '192.168.1.50', dst: '192.168.1.10', port: 502, protocol: 'MODBUS', info: 'Response Data OK' }
+                ];
+            } else if (scenario === 'dos') {
+                // Rogue IP flooding
+                for(let i=0; i<5; i++) {
+                    packets.push({ src: '192.168.1.200', dst: '192.168.1.50', port: 502, protocol: 'MODBUS', info: 'FLOOD SEQ:' + i });
+                }
+            } else if (scenario === 'exploit') {
+                // Engineering station using Modbus (Should usually use CIP, so this is suspicious)
+                packets.push({ src: '192.168.1.15', dst: '192.168.1.50', port: 502, protocol: 'MODBUS', info: 'Exploit Payload [buffer_overflow]' });
+            }
+
+            // Process packets
+            for (let pkt of packets) {
+                const decision = checkFirewall(pkt);
+                const logs = document.getElementById('logs');
+                const row = document.createElement('div');
+                
+                if (decision === 'ALLOW') {
+                    row.className = 'log-entry allowed';
+                    row.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span> PASS: ${pkt.src} &rarr; ${pkt.dst}:${pkt.port} [${pkt.info}]`;
+                    flashDevice(pkt.src === '192.168.1.10' ? 'hmi' : (pkt.src === '192.168.1.15' ? 'eng' : 'rogue'), 'active');
+                } else {
+                    row.className = 'log-entry blocked';
+                    row.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span> BLOCK: ${pkt.src} &rarr; ${pkt.dst}:${pkt.port} [${pkt.info}]`;
+                    flashDevice(pkt.src === '192.168.1.10' ? 'hmi' : (pkt.src === '192.168.1.15' ? 'eng' : 'rogue'), 'blocked');
+                }
+                
+                logs.appendChild(row);
+                logs.scrollTop = logs.scrollHeight;
+                await new Promise(r => setTimeout(r, 400));
+            }
+        }
+
+        function flashDevice(id, cls) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.classList.add(cls);
+                setTimeout(() => el.classList.remove(cls), 300);
+            }
+        }
+
+        // Init
+        renderRules();
+    </script>
+</body>
+</html>
