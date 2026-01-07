@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCADA Level 2: Traffic Analyzer</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --accent: #00bcd4;
+            --danger: #ff5252;
+            --success: #69f0ae;
+            --modbus: #ffca28;
+            --dnp3: #ab47bc;
+        }
+        body { font-family: 'Consolas', 'Courier New', monospace; margin: 0; padding: 20px; background: var(--bg-color); color: var(--text-color); display: flex; gap: 20px; height: 95vh; }
+        
+        /* Layout Grid */
+        .main-col { flex: 2; display: flex; flex-direction: column; gap: 20px; }
+        .sidebar { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+
+        /* Diagram Styling */
+        .diagram-box { background: var(--panel-bg); padding: 20px; border-radius: 8px; position: relative; border: 1px solid #444; }
+        .level-label { position: absolute; top: 10px; left: 10px; font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .network-level { display: flex; justify-content: center; gap: 40px; margin: 30px 0; position: relative; }
+        
+        .device {
+            width: 140px; padding: 15px; background: #333; border: 2px solid #555;
+            text-align: center; border-radius: 6px; cursor: default;
+            transition: all 0.3s; position: relative; z-index: 2;
+        }
+        .device .ip { display: block; font-size: 0.7rem; color: #888; margin-top: 5px; }
+        .device.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 188, 212, 0.3); background: #3a3a3a; }
+        .device.compromised { border-color: var(--danger); box-shadow: 0 0 15px rgba(255, 82, 82, 0.3); }
+
+        /* Connecting Lines */
+        .connector { position: absolute; width: 2px; background: #555; height: 30px; left: 50%; bottom: -30px; z-index: 1; }
+
+        /* Controls */
+        .control-panel { background: var(--panel-bg); padding: 20px; border-radius: 8px; border: 1px solid #444; }
+        button {
+            width: 100%; padding: 12px; margin-bottom: 10px; border: none; border-radius: 4px;
+            font-family: inherit; font-weight: bold; cursor: pointer; transition: 0.2s;
+            background: #444; color: white; text-align: left;
+        }
+        button:hover { background: #555; }
+        button.action-btn { border-left: 4px solid var(--accent); }
+        button.attack-btn { border-left: 4px solid var(--danger); }
+        button:active { transform: scale(0.98); }
+
+        /* Network Log */
+        .log-panel { flex: 1; background: black; border-radius: 8px; border: 1px solid #444; overflow: hidden; display: flex; flex-direction: column; }
+        .log-header { padding: 10px; background: #333; border-bottom: 1px solid #555; font-size: 0.9rem; display: flex; justify-content: space-between; }
+        .log-content { flex: 1; padding: 10px; overflow-y: auto; font-size: 0.8rem; line-height: 1.6; }
+        
+        .log-entry { margin-bottom: 5px; padding-left: 10px; border-left: 3px solid transparent; animation: fadeIn 0.3s ease; }
+        .log-entry.modbus { border-color: var(--modbus); color: #ffe082; }
+        .log-entry.dnp3 { border-color: var(--dnp3); color: #ce93d8; }
+        .log-entry.alert { border-color: var(--danger); color: #ff8a80; background: rgba(255, 82, 82, 0.1); }
+        .timestamp { color: #888; margin-right: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="main-col">
+        <div class="diagram-box">
+            <h2 style="margin-top:0;">ICS Network Architecture</h2>
+            
+            <div class="level-label">Level 2: Supervisory</div>
+            <div class="network-level">
+                <div class="device" id="hmi">
+                    HMI
+                    <span class="ip">192.168.1.10</span>
+                </div>
+                <div class="device" id="eng">
+                    Eng. Workstation
+                    <span class="ip">192.168.1.15</span>
+                </div>
+            </div>
+
+            <div class="level-label" style="top: 160px;">Level 1: Control</div>
+            <div class="network-level">
+                <div class="device" id="plc">
+                    PLC (Master)
+                    <span class="ip">192.168.1.50</span>
+                </div>
+            </div>
+
+            <div class="level-label" style="top: 300px;">Level 0: Field</div>
+            <div class="network-level">
+                <div class="device" id="sensor">
+                    Flow Sensor
+                    <span class="ip">4-20mA Loop</span>
+                </div>
+                <div class="device" id="valve">
+                    Valve Actuator
+                    <span class="ip">Digital Out</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-panel">
+            <div class="log-header">
+                <span>NETWORK TRAFFIC CAPTURE (Live)</span>
+                <span style="color: #69f0ae;">● REC</span>
+            </div>
+            <div class="log-content" id="log-display">
+                <div class="log-entry"><span class="timestamp">00:00:00</span>System Initialized. Listening on interface eth0...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="control-panel">
+            <h3>1. Normal Operations</h3>
+            <p style="font-size: 0.85rem; color:#aaa;">Generate standard traffic to establish a baseline.</p>
+            <button class="action-btn" onclick="runScenario('poll')">▶ Run Status Poll (HMI -> PLC)</button>
+            <button class="action-btn" onclick="runScenario('setpoint')">▶ Update Setpoint (HMI -> PLC)</button>
+            <button class="action-btn" onclick="runScenario('upload')">▶ Upload Logic (Eng -> PLC)</button>
+        </div>
+
+        <div class="control-panel" style="border-color: var(--danger);">
+            <h3 style="color: var(--danger);">2. Attack Scenarios</h3>
+            <p style="font-size: 0.85rem; color:#aaa;">Simulate malicious traffic. Watch the logs change.</p>
+            <button class="attack-btn" onclick="runScenario('flood')">☠ DoS Flood (Modbus)</button>
+            <button class="attack-btn" onclick="runScenario('injection')">☠ Command Injection (Stop PLC)</button>
+        </div>
+        
+        <div class="control-panel">
+            <h3>Instructions</h3>
+            <p style="font-size: 0.9rem; line-height: 1.5;">
+                1. Click <b>Normal Operations</b> to see what Modbus TCP and CIP traffic looks like.<br><br>
+                2. Click <b>Attack Scenarios</b> to see how patterns change (e.g., high volume or dangerous function codes).<br><br>
+                3. Compare the "Function Codes" in the log window.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const logs = document.getElementById('log-display');
+
+        // Helper to scroll to bottom
+        function scrollLog() {
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        // Helper to get time
+        function getTime() {
+            const now = new Date();
+            return now.toISOString().split('T')[1].slice(0,8);
+        }
+
+        // Flash elements to show activity
+        function flashDevice(id, color='active') {
+            const el = document.getElementById(id);
+            el.classList.add(color);
+            setTimeout(() => el.classList.remove(color), 400);
+        }
+
+        function addLog(src, dst, proto, info, type='normal') {
+            const row = document.createElement('div');
+            row.className = `log-entry ${type === 'alert' ? 'alert' : ''} ${proto === 'MODBUS' ? 'modbus' : ''}`;
+            row.innerHTML = `<span class="timestamp">${getTime()}</span> <b>${src}</b> &rarr; <b>${dst}</b> | [${proto}] ${info}`;
+            logs.appendChild(row);
+            scrollLog();
+        }
+
+        async function runScenario(type) {
+            if (type === 'poll') {
+                // Normal HMI Polling
+                flashDevice('hmi');
+                await new Promise(r => setTimeout(r, 100));
+                flashDevice('plc');
+                addLog('192.168.1.10', '192.168.1.50', 'MODBUS', 'FC:03 (Read Holding Registers) - Polling Sensor Data');
+                
+                await new Promise(r => setTimeout(r, 300));
+                flashDevice('plc');
+                await new Promise(r => setTimeout(r, 100));
+                flashDevice('hmi');
+                addLog('192.168.1.50', '192.168.1.10', 'MODBUS', 'RESPONSE: Data [245, 246, 244] OK');
+            
+            } else if (type === 'setpoint') {
+                // Operator changing value
+                flashDevice('hmi');
+                addLog('192.168.1.10', '192.168.1.50', 'MODBUS', 'FC:06 (Write Single Register) - Set Valve=80%');
+                await new Promise(r => setTimeout(r, 200));
+                flashDevice('plc');
+                flashDevice('valve');
+                addLog('192.168.1.50', 'Valve_Actuator', 'Analog', 'Output Voltage: 8V (Open 80%)');
+
+            } else if (type === 'upload') {
+                // Engineering Workstation Logic
+                flashDevice('eng');
+                addLog('192.168.1.15', '192.168.1.50', 'CIP/ENIP', 'Session Registration Success');
+                await new Promise(r => setTimeout(r, 200));
+                flashDevice('plc');
+                addLog('192.168.1.15', '192.168.1.50', 'CIP', 'Service: 0x4D (Write Tag) - Firmware Update Block 1');
+
+            } else if (type === 'flood') {
+                // DoS Attack
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        flashDevice('hmi', 'compromised'); // Simulating compromised HMI or spoofed IP
+                        flashDevice('plc', 'compromised');
+                        addLog('192.168.1.10', '192.168.1.50', 'MODBUS', 'FC:03 (Read) - SEQ:' + Math.floor(Math.random()*99999), 'alert');
+                    }, i * 100);
+                }
+                setTimeout(() => {
+                    addLog('SYSTEM', 'ALERT', 'IDS', 'High traffic volume detected from 192.168.1.10', 'alert');
+                }, 1200);
+
+            } else if (type === 'injection') {
+                // Command Injection (Force Stop)
+                flashDevice('eng', 'compromised');
+                addLog('192.168.1.15', '192.168.1.50', 'MODBUS', 'FC:05 (Write Coil) - Address: 0x0001 (E-STOP)', 'alert');
+                await new Promise(r => setTimeout(r, 300));
+                flashDevice('plc', 'compromised');
+                flashDevice('valve', 'compromised');
+                addLog('192.168.1.50', 'SYSTEM', 'CRITICAL', 'PLC PROCESS HALTED BY REMOTE COMMAND', 'alert');
+            }
+        }
+    </script>
+</body>
+</html>
