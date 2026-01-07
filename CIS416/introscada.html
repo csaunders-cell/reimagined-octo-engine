@@ -3,160 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive SCADA Architecture Explorer</title>
+    <title> SCADA Architecture Explorer</title>
     <style>
         :root {
             --level-3: #e3f2fd;
             --level-2: #e8f5e9;
             --level-1: #fff3e0;
             --level-0: #fce4ec;
-            --text-dark: #333;
+            --focus-ring: #005fcc; /* High contrast focus color */
         }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f4f4f9; display: flex; gap: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f4f4f9; display: flex; gap: 20px; flex-wrap: wrap; }
         
-        /* Layout */
-        .diagram-container { flex: 2; display: flex; flex-direction: column; gap: 15px; }
-        .info-panel { flex: 1; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: fit-content; sticky: top; top: 20px; border-left: 5px solid #2196F3; }
+        /* High Contrast Focus States for Accessibility */
+        button:focus {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        .diagram-container { flex: 2; min-width: 300px; display: flex; flex-direction: column; gap: 15px; }
+        .info-panel { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #2196F3; }
         
-        /* Purdue Levels */
-        .purdue-level { border: 1px dashed #999; padding: 15px; border-radius: 8px; position: relative; }
-        .label { position: absolute; top: -10px; left: 15px; background: #333; color: white; padding: 2px 8px; font-size: 0.8rem; border-radius: 4px; text-transform: uppercase; font-weight: bold; }
+        .purdue-level { border: 2px solid #757575; padding: 20px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 10px; }
+        .level-header { position: absolute; top: -12px; left: 15px; background: #333; color: white; padding: 4px 10px; font-size: 0.9rem; border-radius: 4px; font-weight: bold; }
         
-        /* Level Colors */
         #lvl-3 { background-color: var(--level-3); }
         #lvl-2 { background-color: var(--level-2); }
         #lvl-1 { background-color: var(--level-1); }
         #lvl-0 { background-color: var(--level-0); }
 
-        /* Components */
-        .component-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
-        .device {
-            width: 120px; height: 80px;
-            background: white; border: 2px solid #555;
+        .component-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 5px; }
+        
+        /* Changing Divs to Buttons for Accessibility */
+        .device-btn {
+            width: 140px; min-height: 80px;
+            background: white; border: 2px solid #333;
             display: flex; align-items: center; justify-content: center;
-            text-align: center; font-weight: bold; font-size: 0.9rem;
-            cursor: pointer; transition: all 0.2s;
-            border-radius: 6px; box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            text-align: center; font-weight: bold; font-size: 1rem;
+            cursor: pointer; border-radius: 6px; 
+            color: #000; /* Ensure high contrast */
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
         }
-        .device:hover { transform: translateY(-3px); box-shadow: 4px 4px 0px rgba(0,0,0,0.2); background: #fafafa; border-color: #2196F3; }
-        .device.active { background: #2196F3; color: white; border-color: #0d47a1; }
+        .device-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
+        .device-btn[aria-pressed="true"] { 
+            background: #2196F3; color: white; border-color: #004ba0; 
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+        }
 
-        /* Connections */
-        .line { height: 15px; border-left: 2px dashed #555; margin: 0 auto; width: 0; }
-
-        /* Info Panel Text */
-        h2 { margin-top: 0; }
-        .risk-box { background: #ffebee; border: 1px solid #ef5350; padding: 10px; border-radius: 4px; margin-top: 15px; }
-        .hidden { display: none; }
+        .line { height: 15px; border-left: 3px dashed #333; margin: 0 auto; width: 0; }
+        .risk-box { background: #ffebee; border: 1px solid #c62828; padding: 15px; border-radius: 4px; margin-top: 15px; color: #b71c1c; }
     </style>
 </head>
 <body>
 
-    <div class="diagram-container">
-        <h1>ICS/SCADA Architecture Map</h1>
-        <p>Click on any device to view its function and security profile.</p>
+    <main class="diagram-container">
+        <h1>ICS/SCADA Architecture </h1>
+        <p>Instructions: Use <b>Tab</b> to move between devices. Press <b>Enter</b> or <b>Space</b> to select a device. Details will appear in the panel to the right.</p>
 
-        <div id="lvl-3" class="purdue-level">
-            <span class="label">Level 3: Operations Management</span>
+        <section id="lvl-3" class="purdue-level" aria-labelledby="label-lvl3">
+            <span id="label-lvl3" class="level-header">Level 3: Operations Management</span>
             <div class="component-row">
-                <div class="device" onclick="showInfo('historian', this)">Data Historian</div>
-                <div class="device" onclick="showInfo('scada-server', this)">SCADA Server (MTU)</div>
+                <button class="device-btn" onclick="updateInfo('historian', this)">Data Historian</button>
+                <button class="device-btn" onclick="updateInfo('scada-server', this)">SCADA Server (MTU)</button>
             </div>
-        </div>
+        </section>
 
-        <div class="line"></div>
+        <div class="line" aria-hidden="true"></div>
 
-        <div id="lvl-2" class="purdue-level">
-            <span class="label">Level 2: Supervisory Control</span>
+        <section id="lvl-2" class="purdue-level" aria-labelledby="label-lvl2">
+            <span id="label-lvl2" class="level-header">Level 2: Supervisory Control</span>
             <div class="component-row">
-                <div class="device" onclick="showInfo('hmi', this)">Human Machine Interface (HMI)</div>
-                <div class="device" onclick="showInfo('eng-workstation', this)">Engineering Workstation</div>
+                <button class="device-btn" onclick="updateInfo('hmi', this)">Human Machine Interface</button>
+                <button class="device-btn" onclick="updateInfo('eng-workstation', this)">Engineering Workstation</button>
             </div>
-        </div>
+        </section>
 
-        <div class="line"></div>
+        <div class="line" aria-hidden="true"></div>
 
-        <div id="lvl-1" class="purdue-level">
-            <span class="label">Level 1: Local Control</span>
+        <section id="lvl-1" class="purdue-level" aria-labelledby="label-lvl1">
+            <span id="label-lvl1" class="level-header">Level 1: Local Control</span>
             <div class="component-row">
-                <div class="device" onclick="showInfo('plc', this)">PLC / RTU</div>
-                <div class="device" onclick="showInfo('ied', this)">IED (Protection Relay)</div>
+                <button class="device-btn" onclick="updateInfo('plc', this)">PLC / RTU</button>
+                <button class="device-btn" onclick="updateInfo('ied', this)">IED (Relay)</button>
             </div>
-        </div>
+        </section>
 
-        <div class="line"></div>
+        <div class="line" aria-hidden="true"></div>
 
-        <div id="lvl-0" class="purdue-level">
-            <span class="label">Level 0: Field Devices</span>
+        <section id="lvl-0" class="purdue-level" aria-labelledby="label-lvl0">
+            <span id="label-lvl0" class="level-header">Level 0: Field Devices</span>
             <div class="component-row">
-                <div class="device" onclick="showInfo('sensor', this)">Sensors</div>
-                <div class="device" onclick="showInfo('actuator', this)">Actuators (Motors/Pumps)</div>
+                <button class="device-btn" onclick="updateInfo('sensor', this)">Sensors</button>
+                <button class="device-btn" onclick="updateInfo('actuator', this)">Actuators</button>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <div class="info-panel">
-        <h2 id="title">Select a Component</h2>
-        <div id="content">
-            <p>Click on a block in the diagram to identify the component, understand its role in the process, and learn about its specific vulnerabilities.</p>
+    <aside class="info-panel" aria-live="polite" aria-atomic="true">
+        <h2 id="info-title">Select a Component</h2>
+        <div id="info-content">
+            <p>Select a block in the diagram to identify the component, understand its role, and learn about vulnerabilities.</p>
         </div>
-    </div>
+    </aside>
 
     <script>
         const data = {
             'historian': {
                 title: "Data Historian",
                 desc: "A centralized database that stores historical process data (temperature, pressure, flow rates) for analysis and auditing.",
-                risk: "<strong>Risk:</strong> Often dual-homed (connected to both IT and OT networks) to share data with business analysts. This makes it a prime pivot point for attackers moving from Corporate IT into the ICS network."
+                risk: "<strong>Risk:</strong> Often dual-homed (connected to both IT and OT networks), making it a pivot point for attackers."
             },
             'scada-server': {
                 title: "SCADA Server (MTU)",
                 desc: "The Master Terminal Unit. It acts as the 'brain,' polling PLCs for data and sending high-level commands.",
-                risk: "<strong>Risk:</strong> If compromised, an attacker has 'God-mode' visibility and control over the entire process. Often runs on standard Windows OS which may be unpatched due to uptime requirements."
+                risk: "<strong>Risk:</strong> If compromised, an attacker has full control over the process."
             },
             'hmi': {
                 title: "Human Machine Interface (HMI)",
                 desc: "A graphical dashboard that operators use to monitor the process and adjust setpoints.",
-                risk: "<strong>Risk:</strong> Weak authentication. Attackers often target HMIs to trick operators with false data (e.g., showing a tank is empty when it is overflowing)."
+                risk: "<strong>Risk:</strong> Attackers can trick operators by displaying false data (e.g., showing a tank is empty when it is overflowing)."
             },
             'eng-workstation': {
                 title: "Engineering Workstation",
-                desc: "A laptop or PC with specialized software used to program PLCs and configure the control system.",
-                risk: "<strong>Risk:</strong> The 'Keys to the Kingdom.' Contains logic project files. If infected (e.g., via USB or email), it can push malicious firmware or ladder logic to the controllers (like in Stuxnet)."
+                desc: "A laptop or PC used to program PLCs and configure the control system.",
+                risk: "<strong>Risk:</strong> Contains logic files. If infected, it can push malicious firmware to controllers (like in Stuxnet)."
             },
             'plc': {
                 title: "PLC (Programmable Logic Controller)",
-                desc: "Ruggedized industrial computer that directly monitors inputs and controls outputs based on programmed logic.",
-                risk: "<strong>Risk:</strong> Lack of integrity checks. Many older PLCs accept any command sent to them without password authentication or encryption."
+                desc: "Ruggedized industrial computer that directly monitors inputs and controls outputs.",
+                risk: "<strong>Risk:</strong> Many older PLCs accept any command sent to them without authentication."
             },
             'ied': {
                 title: "IED (Intelligent Electronic Device)",
-                desc: "Smart device often found in power grids (substations) that can issue protection commands, like tripping a circuit breaker.",
-                risk: "<strong>Risk:</strong> Susceptible to protocol-based attacks (e.g., DNP3 or IEC 61850) which often lack encryption, allowing attackers to replay 'trip' commands causing blackouts."
+                desc: "Smart device found in power grids that can issue protection commands, like tripping a breaker.",
+                risk: "<strong>Risk:</strong> Susceptible to protocol-based attacks (DNP3/IEC 61850) causing blackouts."
             },
             'sensor': {
                 title: "Sensors (Input)",
-                desc: "Devices that measure physical properties (Temperature, Pressure, Level, Flow) and convert them to electrical signals.",
-                risk: "<strong>Risk:</strong> Signal spoofing. An attacker with physical access can manipulate the environment or the wire to feed false data to the PLC."
+                desc: "Devices that measure physical properties (Temperature, Pressure, Flow).",
+                risk: "<strong>Risk:</strong> Signal spoofing. Feeding false data to the PLC."
             },
             'actuator': {
                 title: "Actuators (Output)",
-                desc: "Motors, pumps, valves, and robotic arms that perform the physical work based on PLC commands.",
-                risk: "<strong>Risk:</strong> Physical damage. Rapidly cycling a pump or closing a valve too fast can cause kinetic damage, fire, or explosion."
+                desc: "Motors, pumps, and valves that perform physical work.",
+                risk: "<strong>Risk:</strong> Rapid cycling can cause physical damage, fire, or explosion."
             }
         };
 
-        function showInfo(key, element) {
+        function updateInfo(key, btnElement) {
             // Update Text
-            document.getElementById('title').innerText = data[key].title;
-            document.getElementById('content').innerHTML = `
-                <p>${data[key].desc}</p>
-                <div class="risk-box">${data[key].risk}</div>
+            const info = data[key];
+            document.getElementById('info-title').innerText = info.title;
+            document.getElementById('info-content').innerHTML = `
+                <p>${info.desc}</p>
+                <div class="risk-box">${info.risk}</div>
             `;
 
-            // Update Active State
-            document.querySelectorAll('.device').forEach(div => div.classList.remove('active'));
-            element.classList.add('active');
+            // Accessibility: Manage focus state
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.setAttribute('aria-pressed', 'false');
+            });
+            btnElement.setAttribute('aria-pressed', 'true');
         }
     </script>
 </body>
