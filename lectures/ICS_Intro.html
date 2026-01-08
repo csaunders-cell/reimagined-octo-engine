@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Industrial Networks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease-out;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-size: 3em;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #2a5298;
+            padding-bottom: 15px;
+        }
+
+        h2 {
+            color: #2a5298;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #1e3c72;
+            font-size: 1.6em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p, li {
+            color: #333;
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #2a5298;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            color: #1565c0;
+            font-weight: 500;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .column-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #2a5298;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-number {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(42, 82, 152, 0.9);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .objectives-list {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .objectives-list li {
+            color: #1e3c72;
+            font-weight: 500;
+        }
+
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .sector-item {
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #2a5298;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .comparison-table td {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            h2 {
+                font-size: 1.6em;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-number" id="slideNumber">Slide 1 of 15</div>
+    
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Introduction to Industrial Networks</h1>
+            <h2>Week 1: Understanding Industrial Control Systems</h2>
+            <div style="margin-top: 60px;">
+                <p style="font-size: 1.4em; color: #2a5298; font-weight: 600;">Industrial Architecture </p>
+                <p style="font-size: 1.2em; color: #666; margin-top: 20px;">Exploring the foundation of critical infrastructure control systems</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Learning Objectives -->
+        <div class="slide">
+            <h1>Learning Objectives</h1>
+            <div class="objectives-list">
+                <h3>By the end of this module, you will be able to:</h3>
+                <ul>
+                    <li>Describe the functions of key industrial control components including RTU, PLC, DCS, and SCADA systems</li>
+                    <li>Explain the role of metering, telemetry, and communication buses in industrial networks</li>
+                    <li>Understand the Purdue Model (ISA 95) for industrial network architecture</li>
+                    <li>Identify common industrial safety and protection systems</li>
+                    <li>Recognize the unique cybersecurity requirements of industrial control systems</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 3: What is Industrial Processing? -->
+        <div class="slide">
+            <h1>What is Industrial Processing?</h1>
+            <div class="highlight-box">
+                <p style="font-size: 1.3em;">Industrial Control Systems (ICS) are designed to control variables in the physical world, while IT systems are designed to manage data.</p>
+            </div>
+            <h3>Critical Infrastructure Sectors</h3>
+            <div class="sector-grid">
+                <div class="sector-item">Chemical Sector</div>
+                <div class="sector-item">Commercial Facilities</div>
+                <div class="sector-item">Communications</div>
+                <div class="sector-item">Critical Manufacturing</div>
+                <div class="sector-item">Dams</div>
+                <div class="sector-item">Defense Industrial Base</div>
+                <div class="sector-item">Emergency Services</div>
+		<div class="sector-item">Energy</div>
+		<div class="sector-item">Financial Services</div>
+		<div class="sector-item">Food and Agriculture</div>
+		<div class="sector-item">Government Services and Facilities</div>
+		<div class="sector-item">Healthcare and Public Health</div>
+		<div class="sector-item">Information Technology</div>
+		<div class="sector-item">Nuclear Reactors, Materials, and Waste</div>
+		<div class="sector-item">Transportation Systems</div>
+		<div class="sector-item">Water and Wastewater</div>
+            </div>
+        </div>
+
+        <!-- Slide 4: ICS vs IT Systems -->
+        <div class="slide">
+            <h1>ICS vs. IT Systems: Key Differences</h1>
+            <table class="comparison-table">
+                <tr>
+                    <th>Aspect</th>
+                    <th>ICS Systems</th>
+                    <th>IT Systems</th>
+                </tr>
+                <tr>
+                    <td><strong>Primary Priority</strong></td>
+                    <td>Availability & Data Integrity</td>
+                    <td>Confidentiality</td>
+                </tr>
+                <tr>
+                    <td><strong>Time Sensitivity</strong></td>
+                    <td>Real-time operations required</td>
+                    <td>Generally no timeliness constraints</td>
+                </tr>
+                <tr>
+                    <td><strong>Operating Environment</strong></td>
+                    <td>Harsh industrial conditions</td>
+                    <td>Climate-controlled offices</td>
+                </tr>
+                <tr>
+                    <td><strong>Interface</strong></td>
+                    <td>Industrial I/O ports for sensors/actuators</td>
+                    <td>User-friendly keyboards, mice, displays</td>
+                </tr>
+                <tr>
+                    <td><strong>Availability</strong></td>
+                    <td>Continuous operations (24/7/365)</td>
+                    <td>Scheduled maintenance windows acceptable</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 5: Key Requirements for ICS -->
+        <div class="slide">
+            <h1>Key Requirements for Industrial Process Controllers</h1>
+            <div class="two-column">
+                <div class="column-box">
+                    <h3>Availability</h3>
+                    <p>Many processes are continuous operations requiring high availability, reliability, and maintainability ratings.</p>
+                </div>
+                <div class="column-box">
+                    <h3>Timeliness</h3>
+                    <p>Process control requires quick response times. Front-line controllers operate on real-time operating systems.</p>
+                </div>
+            </div>
+            <div class="two-column">
+                <div class="column-box">
+                    <h3>Industrial Interfacing</h3>
+                    <p>Controllers provide industrial-style input/output ports for connecting sensors and actuators rather than user interfaces.</p>
+                </div>
+                <div class="column-box">
+                    <h3>Physical Hardening</h3>
+                    <p>Designed to operate in harsh environments like factories and outdoor installations.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Programmable Logic Controllers -->
+        <div class="slide">
+            <h1>Programmable Logic Controllers (PLCs)</h1>
+            <p>PLCs are the most common field devices in industrial and utility process control systems.</p>
+            <h3>Key PLC Module Types</h3>
+            <ul>
+                <li><strong>Power Supply Unit (PSU):</strong> Supplies power (typically 24Vac) to CPU and I/O modules through the backplane</li>
+                <li><strong>Central Processing Unit (CPU):</strong> Contains microprocessor, RAM/ROM memory, I/O interfacing, and communications support</li>
+                <li><strong>Input Modules:</strong> Analog inputs (continuous variable signals) and Digital inputs (two-state/on-off signals)</li>
+                <li><strong>Output Modules:</strong> Analog outputs (variable control signals) and Digital outputs (two-position actuators)</li>
+                <li><strong>Communication Modules:</strong> Enable communication with other devices via RS-232, RS-485, Ethernet, or wireless protocols</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Remote Telemetry Units -->
+        <div class="slide">
+            <h1>Remote Telemetry Units (RTUs)</h1>
+            <div class="highlight-box">
+                <p><strong>Telemetry:</strong> The process of using sensors to collect information in a remote location and transmitting it to another location for processing.</p>
+            </div>
+            <h3>RTU Characteristics</h3>
+            <ul>
+                <li>Small intelligent control units deployed at selective locations within a process</li>
+                <li>Gather data from different sensors</li>
+                <li>Deliver commands to control relay outputs</li>
+                <li>Ideal for geographically distributed systems</li>
+                <li>Often used in oil & gas pipelines, water distribution, and electrical substations</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Distributed Control Systems -->
+        <div class="slide">
+            <h1>Distributed Control Systems (DCS)</h1>
+            <p>When processes become too complex for a single controller, or components are geographically separated, distributed control is necessary.</p>
+            <h3>DCS Components</h3>
+            <ul>
+                <li><strong>Multiple Controllers:</strong> Distribute control functions across several devices</li>
+                <li><strong>Supervisory Layer:</strong> Coordinates activities between controllers</li>
+                <li><strong>Engineering Workstation:</strong> Programs field devices for current operations</li>
+                <li><strong>Data Historian:</strong> Database that collects and stores process values for inspection and analysis</li>
+                <li><strong>Human-Machine Interface (HMI):</strong> Enables operators to observe and control processes</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: SCADA Systems -->
+        <div class="slide">
+            <h1>SCADA Systems</h1>
+            <h2>Supervisory Control and Data Acquisition</h2>
+            <p>A SCADA system provides data acquisition and supervisory control functions for distributed processes.</p>
+            <h3>SCADA Functions</h3>
+            <ul>
+                <li><strong>Data Acquisition:</strong> Collects data from field devices (PLCs, RTUs, IEDs)</li>
+                <li><strong>Supervisory Control:</strong> Sends control commands to field devices</li>
+                <li><strong>Visualization:</strong> Provides HMI for operators to observe and control processes</li>
+                <li><strong>Historical Storage:</strong> Stores control points and process data in databases</li>
+            </ul>
+            <div class="highlight-box">
+                <p>SCADA systems are commonly used in utilities, oil & gas, water treatment, and manufacturing to monitor and control geographically dispersed assets.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Network Architecture Layers -->
+        <div class="slide">
+            <h1>Industrial Network Architecture</h1>
+            <h3>Four Distinct Network Segments</h3>
+            <ul>
+                <li><strong>Field Bus Loop:</strong> Direct interaction between local field devices, sensors, and actuators. Connects PLCs to input/output devices.</li>
+                <li><strong>Local Control/Supervisory Loop:</strong> Connects field devices to DCS components (Data Historian, Engineering Station, HMI, Supervisory Computers).</li>
+                <li><strong>Organization's Local Area Network:</strong> Provides connectivity between IT network and ICS network. Represents potential security boundary.</li>
+                <li><strong>Enterprise Network:</strong> Connects local IT network to wide area network. Creates pathway for external access and potential security risks.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11: Communication Protocols -->
+        <div class="slide">
+            <h1>Industrial Communication Protocols</h1>
+            <h3>Traditional Protocols</h3>
+            <ul>
+                <li><strong>Serial Communications:</strong> RS-232 and RS-485 for point-to-point and multi-drop connections</li>
+                <li><strong>Fieldbus Protocols:</strong> Proprietary protocols for sensor/actuator communication</li>
+            </ul>
+            <h3>Modern Protocols</h3>
+            <ul>
+                <li><strong>Ethernet TCP/IP:</strong> Standard networking becoming prevalent in ICS</li>
+                <li><strong>Wireless Technologies:</strong> Bluetooth, Zigbee, WiMAX for specific applications</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Important:</strong> Smart IED devices must communicate using the same protocol as other devices on the field bus. Non-intelligent sensors still require independent wire runs to controllers.</p>
+            </div>
+        </div>
+
+        <!-- Slide 12: The Purdue Model (ISA 95) -->
+        <div class="slide">
+            <h1>The Purdue Model (ISA 95)</h1>
+            <p>A five-level integration process standard for industrial networks:</p>
+            <ul>
+                <li><strong>Level 0 - Physical Process:</strong> The actual physical process being controlled (pumps, valves, motors)</li>
+                <li><strong>Level 1 - Intelligent Devices:</strong> Sensors, actuators, and protection devices that directly interact with the process</li>
+                <li><strong>Level 2 - Control Systems:</strong> PLCs, DCS, and SCADA systems that provide automated control</li>
+                <li><strong>Level 3 - Operations Management:</strong> HMI, Engineering Workstations, Data Historians for workflow control</li>
+                <li><strong>Level 4 - Business Systems:</strong> Plant scheduling, ERP systems, and business logistics</li>
+            </ul>
+            <div class="highlight-box">
+                <p>This model helps organizations understand security zones and appropriate segmentation strategies.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: Safety Systems Overview -->
+        <div class="slide">
+            <h1>Industrial Safety & Protection Systems</h1>
+            <p>Automated systems specifically designed to monitor and control unsafe or potentially unsafe conditions.</p>
+            <h3>Key Safety System Types</h3>
+            <ul>
+                <li><strong>Safety Instrumented Systems (SIS):</strong> Prevent hazardous events through independent protective actions</li>
+                <li><strong>Emergency Shutdown Systems (ESD):</strong> Minimize consequences of emergency conditions</li>
+                <li><strong>Fire & Gas Systems (FGS):</strong> Detect and respond to fire or gas release</li>
+                <li><strong>Leak Detection Systems:</strong> Identify fluid or gas leaks in pipelines and vessels</li>
+                <li><strong>Burner Management Systems (BMS):</strong> Control combustion processes safely</li>
+                <li><strong>Vibration Monitoring:</strong> Detect mechanical issues in rotating equipment</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14: Safety Integrity Levels -->
+        <div class="slide">
+            <h1>Safety Integrity Levels (SIL)</h1>
+            <p>SIL ratings indicate the reliability and safety level of protective systems:</p>
+            <div class="two-column">
+                <div class="column-box">
+                    <h3>SIL 1</h3>
+                    <p>Lowest safety level; highest probability of failure. Used for low-risk applications.</p>
+                </div>
+                <div class="column-box">
+                    <h3>SIL 2</h3>
+                    <p>Increased safety level; decreased failure probability. More complex and expensive than SIL 1.</p>
+                </div>
+            </div>
+            <div class="two-column">
+                <div class="column-box">
+                    <h3>SIL 3</h3>
+                    <p>Highest practical rating. Expensive to acquire and maintain; often triggers process redesign.</p>
+                </div>
+                <div class="column-box">
+                    <h3>SIL 4</h3>
+                    <p>Highest possible safety level. Too complex/costly for most industries; indicates design problems.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Summary -->
+        <div class="slide">
+            <h1>Week 1 Summary</h1>
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>ICS systems prioritize <strong>availability and timeliness</strong> over confidentiality</li>
+                <li><strong>PLCs</strong> are the workhorses of industrial control, <strong>RTUs</strong> handle remote operations</li>
+                <li><strong>DCS</strong> distributes control across multiple controllers; <strong>SCADA</strong> provides supervisory oversight</li>
+                <li>Industrial networks consist of distinct layers from field devices to enterprise systems</li>
+                <li>The <strong>Purdue Model (ISA 95)</strong> provides a framework for understanding industrial network architecture</li>
+                <li><strong>Safety systems</strong> are independent protective layers with specific integrity ratings (SIL)</li>
+            </ul>
+            <div class="highlight-box">
+                <p style="font-size: 1.3em;"><strong>Next Week:</strong> Industrial Instrumentation - Sensors, Actuators, and Measurement Devices</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('slideNumber').textContent = `Slide ${currentSlide + 1} of ${totalSlides}`;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            
+            slides[currentSlide].scrollTop = 0;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
+            if (e.key === 'ArrowRight' && currentSlide < totalSlides - 1) changeSlide(1);
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
