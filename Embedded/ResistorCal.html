@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resistor Calculations Lab</title>
+    <style>
+        :root {
+            --burgandy: #800020;
+            --blue: #003366;
+            --white: #ffffff;
+            --light-gray: #f4f4f4;
+        }
+        body { font-family: 'Arial', sans-serif; background: var(--white); margin: 0; padding: 0; }
+        header { background: var(--blue); color: white; padding: 2rem; text-align: center; border-bottom: 5px solid var(--burgandy); }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        
+        .tabs { display: flex; cursor: pointer; background: #eee; border-radius: 8px 8px 0 0; }
+        .tab { flex: 1; padding: 15px; text-align: center; font-weight: bold; border: 1px solid #ddd; }
+        .tab.active { background: var(--white); border-bottom: 3px solid var(--burgandy); color: var(--blue); }
+        
+        .content { display: none; padding: 20px; border: 1px solid #ddd; border-top: none; }
+        .content.active { display: block; }
+
+        .calc-box { background: var(--light-gray); padding: 20px; border-radius: 8px; border-left: 5px solid var(--blue); }
+        input { padding: 8px; margin: 5px; width: 80px; }
+        .result { font-size: 1.2rem; font-weight: bold; color: var(--burgandy); margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Embedded Hardware: Resistor Math</h1>
+</header>
+
+<div class="container">
+    <div class="tabs">
+        <div class="tab active" onclick="showTab(0)">The Theory</div>
+        <div class="tab" onclick="showTab(1)">Ohm's Law Calculator</div>
+        <div class="tab" onclick="showTab(2)">Knowledge Check</div>
+    </div>
+
+    <div class="content active">
+        <h2>Why do we need a resistor?</h2>
+        <p>An LED is a "non-ohmic" device. If you give it too much voltage, it will try to pull infinite current until it pops. A resistor acts as a <strong>current limiter</strong>.</p>
+        <p>On our <strong>Pico W</strong>, the GPIO pins provide <strong>3.3V</strong>. Since a Red LED only needs <strong>2.0V</strong>, the resistor must "eat" the remaining <strong>1.3V</strong>.</p>
+    </div>
+
+    <div class="content">
+        <h2>Interactive Resistor Calculator</h2>
+        <div class="calc-box">
+            <label>Source Voltage (Pico W is 3.3):</label><br>
+            <input type="number" id="vsource" value="3.3" step="0.1"><br>
+            
+            <label>LED Forward Voltage (Red is ~2.0):</label><br>
+            <input type="number" id="vled" value="2.0" step="0.1"><br>
+            
+            <label>Target Current (Amps - 0.02 is standard):</label><br>
+            <input type="number" id="curr" value="0.02" step="0.001"><br>
+            
+            <button onclick="calculateR()" style="background:var(--blue); color:white; padding:10px; border:none; border-radius:4px; cursor:pointer;">Calculate Resistance</button>
+            
+            <div id="res-result" class="result">Result: -- Ω</div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Quick Check</h2>
+        <p>If you use a 1000 Ohm resistor instead of a 220 Ohm resistor, what will happen to the LED?</p>
+        <button onclick="alert('Correct! Higher resistance means less current.')" style="display:block; width:100%; text-align:left; padding:10px; margin-bottom:5px;">A) It will be dimmer but safer.</button>
+        <button onclick="alert('Incorrect. Higher resistance restricts flow.')" style="display:block; width:100%; text-align:left; padding:10px;">B) It will explode.</button>
+    </div>
+</div>
+
+<script>
+    function showTab(index) {
+        const contents = document.querySelectorAll('.content');
+        const tabs = document.querySelectorAll('.tab');
+        contents.forEach(c => c.classList.remove('active'));
+        tabs.forEach(t => t.classList.remove('active'));
+        contents[index].classList.add('active');
+        tabs[index].classList.add('active');
+    }
+
+    function calculateR() {
+        const vs = document.getElementById('vsource').value;
+        const vl = document.getElementById('vled').value;
+        const i = document.getElementById('curr').value;
+        const resistance = (vs - vl) / i;
+        document.getElementById('res-result').innerText = "Required Resistance: " + Math.round(resistance) + " Ohms (Ω)";
+    }
+</script>
+
+</body>
+</html>
