@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Incident Command: Supply Chain Crisis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Hospital-Professional Palette */
+            --med-primary: #007f7c; /* Professional Teal */
+            --med-secondary: #005eb8; /* Clinical Blue */
+            --med-alert: #d52b1e; /* Emergency Red */
+            --med-bg: #f0f4f7;
+            --card-bg: #ffffff;
+            --text-color: #1a1a1a;
+            --focus-ring: #ffbf47; /* High visibility for accessibility */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--med-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border-top: 8px solid var(--med-primary);
+        }
+
+        h1 {
+            color: var(--med-secondary);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: var(--med-primary);
+            font-size: 1.4rem;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 10px;
+        }
+
+        .activity-section {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        /* Medical-style bullet points */
+        ul { list-style: none; padding-left: 0; }
+        ul li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+        }
+        ul li::before {
+            content: '✚';
+            position: absolute;
+            left: 0;
+            color: var(--med-primary);
+            font-weight: bold;
+        }
+
+        .alert-box {
+            background-color: #fff5f5;
+            border-left: 4px solid var(--med-alert);
+            padding: 15px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        button {
+            background-color: var(--med-secondary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* Accessibility: Clear focus states for keyboard users */
+        button:focus {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        button:hover {
+            background-color: #004a93;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" role="main" aria-live="polite">
+        <h1>Clinical IT Impact: Regional Medical Supply Crisis 🏥</h1>
+        <p>Following a massive disruption in sterile IV fluid manufacturing, the <strong>Hospital Incident Command Center</strong> has activated. Explore the IT dependencies below.</p>
+
+        <div id="step1" class="activity-section">
+            <h2>Phase 1: EHR Hard-Stops & Patient Safety 💉</h2>
+            <p>As the pharmacy inventory hits "Critical Low," the IT team must act within the <strong>Electronic Health Record (EHR)</strong>:</p>
+            <ul>
+                <li>Deploy <strong>Best Practice Advisories (BPAs)</strong> to alert physicians to use alternative oral hydration where clinically appropriate.</li>
+                <li>Disable "Auto-Refill" logic in the <strong>Pyxis Medication Cabinets</strong> to prevent stock-hoarding by specific nursing units.</li>
+                <li>Audit the <strong>Perioperative System</strong> to flag scheduled surgeries that require high-volume irrigation fluids.</li>
+            </ul>
+            <div class="alert-box">IT Challenge: How do we prevent 'Alert Fatigue' while ensuring clinicians see the shortage warnings?</div>
+            <button onclick="showStep(2)">Analyze Asset Tracking & Inter-Op</button>
+        </div>
+
+        <div id="step2" class="activity-section hidden">
+            <h2>Phase 2: RTLS Tracking & Resource Diversion 🚑</h2>
+            <p>With no new shipments for 72 hours, the hospital must find every remaining liter of fluid on-site:</p>
+            <ul>
+                <li><strong>RTLS (Real-Time Location System):</strong> IT uses Bluetooth/RFID tags to locate "lost" IV pumps and palettes tucked away in storage closets.</li>
+                <li><strong>Data Exchange:</strong> Enable emergency data-sharing with neighboring hospitals to track regional bed capacity and supply availability.</li>
+                <li><strong>Network Priority:</strong> Increase bandwidth for Telemedicine hubs as the hospital shifts stable patients to 'Hospital at Home' programs.</li>
+            </ul>
+            <button onclick="showStep(3)">Review Support & Cybersecurity</button>
+        </div>
+
+        <div id="step3" class="activity-section hidden">
+            <h2>Phase 3: The Clinical Service Desk Surge 📞</h2>
+            <p>Panic leads to a 400% increase in support tickets. The IT team pivots to frontline support:</p>
+            <ul>
+                <li><strong>Shadow IT Risk:</strong> Nurses are using personal messaging apps to coordinate supplies. IT must quickly deploy a secure, HIPAA-compliant chat solution.</li>
+                <li><strong>Cyber Vigilance:</strong> Threat actors are sending phishing emails disguised as "Alternative Supply Catalogues." IT must harden the email gateway immediately.</li>
+            </ul>
+            <button onclick="alert('Simulation Complete. IT is now recognized as a critical clinical partner in the Incident Command Structure.')">Complete Incident Report</button>
+        </div>
+    </div>
+
+    <script>
+        function showStep(num) {
+            document.querySelectorAll('.activity-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('step' + num).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+    </script>
+
+</body>
+</html>
