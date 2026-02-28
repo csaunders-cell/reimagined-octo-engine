@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rural Hospital Crisis: Proactive IT Response</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rural-green: #2d5a27; /* Forest/Nature Green for Rural context */
+            --med-blue: #005eb8;
+            --alert-gold: #b25d00; /* Cautionary orange-gold */
+            --bg-neutral: #f9fbf9;
+            --card-white: #ffffff;
+            --text-dark: #202124;
+            --focus-ring: #4d90fe;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--bg-neutral);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(45, 90, 39, 0.1);
+            border-top: 6px solid var(--rural-green);
+        }
+
+        h1 { color: var(--rural-green); font-size: 1.8rem; margin-top: 0; }
+        h2 { color: var(--med-blue); font-size: 1.3rem; margin-top: 25px; border-left: 4px solid var(--rural-green); padding-left: 10px; }
+
+        .activity-section {
+            border: 1px solid #e0e6e0;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        ul { list-style: none; padding-left: 0; }
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+        }
+        ul li::before {
+            content: '👉';
+            position: absolute;
+            left: 0;
+        }
+
+        .proactive-tip {
+            background-color: #f0f7ff;
+            border: 1px dashed var(--med-blue);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+        }
+
+        button {
+            background-color: var(--rural-green);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:focus { outline: 3px solid var(--focus-ring); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container" role="main" aria-live="polite">
+        <h1>IT Resilience: Rural Supply Chain Disruption 🌲</h1>
+        <p>A regional landslide has closed the only highway to <strong>North Creek Community Hospital</strong>. No medical deliveries will arrive for 5 days. Here is how IT shifts from "fixing computers" to "sustaining care."</p>
+
+        <div id="step1" class="activity-section">
+            <h2>Phase 1: Real-Time Resource Visibility</h2>
+            <p>Without a proactive system, the hospital wouldn't know they are out of oxygen sensors until a nurse reaches for an empty box. IT enables visibility:</p>
+            <ul>
+                <li><strong>Inventory Interfacing:</strong> IT links the Warehouse Management System (WMS) directly to the EHR dashboard so doctors see "Low Stock" icons while writing orders.</li>
+                <li><strong>Predictive Analytics:</strong> Using historical data, IT generates a report showing which supplies will run out first based on current patient acuity.</li>
+            </ul>
+            <div class="proactive-tip">
+                <strong>Proactive Move:</strong> IT sets up automated "PAR level" alerts that text the Incident Command team the moment life-saving supplies drop below 20%.
+            </div>
+            <button onclick="showStep(2)">Step 2: Virtualizing Care</button>
+        </div>
+
+        <div id="step2" class="activity-section hidden">
+            <h2>Phase 2: Stretching Physical Resources</h2>
+            <p>When physical supplies are stuck, IT uses digital solutions to "extend" what is available:</p>
+            <ul>
+                <li><strong>Tele-Specialist Activation:</strong> Since onsite specialists can't travel to the hospital, IT spins up high-def video carts for remote neurology and cardiology consults.</li>
+                <li><strong>Remote Patient Monitoring (RPM):</strong> IT configures tablets for stable patients to be monitored from home, freeing up limited on-site supplies and beds for emergencies.</li>
+            </ul>
+            <button onclick="showStep(3)">Step 3: Localized Redundancy</button>
+        </div>
+
+        <div id="step3" class="activity-section hidden">
+            <h2>Phase 3: Preventing the "Second Crisis"</h2>
+            <p>A supply crisis often leads to equipment failure. IT ensures the existing tech doesn't quit when it's needed most:</p>
+            <ul>
+                <li><strong>Biomedical Integration:</strong> IT uses network monitoring to track the "health" of ventilators and dialysis machines, ensuring preventive maintenance is done before a part breaks.</li>
+                <li><strong>Offline EHR Mode:</strong> If the landslide also severed the fiber-optic internet line, IT activates "Downtime Computers" that contain local copies of patient records.</li>
+            </ul>
+            <button onclick="alert('Case Study Complete: Your proactive IT strategy saved North Creek from a total service shutdown.')">Complete Review</button>
+        </div>
+    </div>
+
+    <script>
+        function showStep(n) {
+            document.querySelectorAll('.activity-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('step' + n).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+    </script>
+</body>
+</html>
