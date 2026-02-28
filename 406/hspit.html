@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Supply Crisis: IT Response</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Hospital Professional Palette */
+            --primary-med: #005eb8; /* Clinical Blue */
+            --secondary-med: #007f7c; /* Medical Teal */
+            --accent-alert: #d52b1e; /* Emergency Red */
+            --bg-clinical: #f0f4f7; /* Clean grey-blue */
+            --card-bg: #ffffff;
+            --text-main: #212529;
+            --shadow: 0 4px 20px rgba(0, 94, 184, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--bg-clinical);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border-top: 8px solid var(--primary-med);
+        }
+
+        h1 {
+            color: var(--primary-med);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .sub-header {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        h2 {
+            color: var(--secondary-med);
+            font-size: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 0;
+        }
+
+        .activity-section {
+            background: #fff;
+            border: 1px solid #e1e8ed;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        /* Medical-themed list icons */
+        ul { list-style: none; padding-left: 0; }
+        ul li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+        ul li::before {
+            content: '✚';
+            position: absolute;
+            left: 0;
+            color: var(--secondary-med);
+            font-weight: bold;
+        }
+
+        .it-alert {
+            background-color: #fff5f5;
+            border-left: 5px solid var(--accent-alert);
+            padding: 15px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        button {
+            background-color: var(--primary-med);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background-color: #004a93;
+            transform: translateY(-1px);
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Critical Disruption: St. Jude’s Medical Supply 🏥</h1>
+        <p class="sub-header">Simulation: A national IV fluid shortage has hit. As the IT Clinical Systems team, you must manage the digital infrastructure that keeps patients safe.</p>
+
+        <div id="step1" class="activity-section">
+            <h2>Step 1: Clinical Inventory & EHR Hard-Stops 💉</h2>
+            <p>The **ERP (Enterprise Resource Planning)** system shows that the central warehouse is out of 1000ml Saline bags. The impact is immediate:</p>
+            <ul>
+                <li>The **EHR (Electronic Health Record)** needs immediate "Hard-Stop" alerts to prevent clinicians from ordering unavailable fluids.</li>
+                <li>The **Pyxis/Omnicell** dispensing cabinets are reporting "Stock Out" errors, causing nurses to manually call the pharmacy every 5 minutes.</li>
+                <li>IT must create a real-time **Dashboard** for the Chief Medical Officer to see which OR suites can still proceed with surgeries.</li>
+            </ul>
+            <div class="it-alert">Critical: How do we update the EHR ordering system without crashing the physician workflow?</div>
+            <button onclick="showStep(2)">Analyze Patient Safety & Telemetry</button>
+        </div>
+
+        <div id="step2" class="activity-section hidden">
+            <h2>Step 2: Diversion & Inter-Facility Data 🚑</h2>
+            <p>The hospital is forced to divert ambulances to other regional partners. This creates a data surge:</p>
+            <ul>
+                <li>**HIE (Health Information Exchange):** IT must ensure patient records from incoming diverted patients are syncing correctly to prevent medication errors.</li>
+                <li>**Asset Tracking (RTLS):** IT utilizes Bluetooth tags to find "hoarded" supplies in various units to redistribute them to the Emergency Department.</li>
+                <li>**Security:** A sudden increase in "Emergency Access" logins to the pharmacy system is flagged. IT must verify these are legitimate clinical needs.</li>
+            </ul>
+            <button onclick="showStep(3)">Communication & Recovery</button>
+        </div>
+
+        <div id="step3" class="activity-section hidden">
+            <h2>Step 3: Rapid Solution Deployment 📱</h2>
+            <p>IT moves from maintenance to emergency innovation:</p>
+            <ul>
+                <li>**Mobile Apps:** Deploying a temporary mobile inventory tool for "runners" to update supply counts manually via tablets.</li>
+                <li>**Telehealth:** Shifting stable patients to remote monitoring to reduce the "on-site" supply footprint.</li>
+            </ul>
+            <p>The crisis proves that IT is the "Central Nervous System" of the modern hospital.</p>
+            <button onclick="alert('Simulation Complete: Clinical Operations Restored.')">Finalize Incident Report</button>
+        </div>
+    </div>
+
+    <script>
+        function showStep(stepNumber) {
+            document.querySelectorAll('.activity-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('step' + stepNumber).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+    </script>
+
+</body>
+</html>
