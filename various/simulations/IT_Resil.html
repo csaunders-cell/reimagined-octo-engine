@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Resilience: North Creek Crisis Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rural-green: #1b3a1a;
+            --med-blue: #004a99;
+            --bg-neutral: #f4f7f4;
+            --text-dark: #1a1a1a;
+            --success: #1b5e20;
+            --warning: #b25d00;
+            --alert: #b71c1c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-neutral);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 100%;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-top: 10px solid var(--rural-green);
+        }
+
+        /* Progress Bar Styles */
+        .progress-box { margin-bottom: 25px; }
+        .bar-outer { background: #eee; height: 16px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+        #bar-inner { width: 50%; height: 100%; background: var(--med-blue); transition: width 0.6s ease; }
+
+        /* Scene Management */
+        .scene { display: none; }
+        .scene.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Choice Buttons */
+        button.choice {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 18px;
+            margin: 12px 0;
+            border: 2px solid #cfd8dc;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        button.choice:hover, button.choice:focus { 
+            border-color: var(--med-blue); 
+            background: #f0f7ff; 
+            outline: none;
+        }
+        button.choice strong { display: block; color: var(--med-blue); margin-bottom: 3px; }
+
+        /* Feedback Boxes */
+        .feedback { padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 6px solid; line-height: 1.6; }
+        .pro-move { background: #e8f5e9; border-left-color: var(--success); color: #1b5e20; }
+        .std-move { background: #fff9c4; border-left-color: var(--warning); color: #5d4037; }
+        .react-move { background: #fdf2f2; border-left-color: var(--alert); color: #9b1c1c; }
+
+        .btn-next {
+            background: var(--rural-green);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* Disclaimer and Debrief */
+        .disclaimer {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            background: #fafafa;
+            line-height: 1.4;
+        }
+        .debrief {
+            background: #f0f4f8;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border: 1px solid #d1d9e0;
+        }
+        .debrief h3 { color: var(--med-blue); margin-top: 0; }
+    </style>
+</head>
+<body>
+
+<div class="container" role="main">
+    <h1>IT Resilience: North Creek Crisis</h1>
+    
+    <div class="progress-box">
+        <div class="bar-outer">
+            <div id="bar-inner" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <p><strong><small>Hospital Operational Stability Index</small></strong></p>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+    <div id="start" class="scene active">
+        <p>A regional landslide has buried the main highway to <strong>North Creek Community Hospital</strong>. The facility is physically isolated for at least 5 days.</p>
+        <p>As the IT Director, you must navigate 4 critical events. Your goal is to move beyond "fixing computers" and become a strategic enabler of patient care.</p>
+        
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This is a fictional simulation for educational purposes. While realistic, it is designed specifically to highlight the strategic benefits of <strong>Proactive IT</strong> approaches. In real-world crises, the "best" solution can vary based on local resources and clinical priorities.
+        </div>
+
+        <button class="btn-next" onclick="showScene('day1')">Begin Simulation</button>
+    </div>
+
+    <div id="day1" class="scene">
+        <h2>Day 1: The Supply Information Gap</h2>
+        <p>Incident Command needs to know if they have enough ventilators to accept incoming trauma patients. How do you provide the data?</p>
+        <button class="choice" onclick="showFeedback('res1-pro', 80)">
+            <strong>Option A: Automated Visibility</strong>
+            Enable a real-time network-ping dashboard that monitors every medical device on the clinical VLAN to provide an instant equipment status report.
+        </button>
+        <button class="choice" onclick="showFeedback('res1-std', 45)">
+            <strong>Option B: Collaborative Audit</strong>
+            Schedule a joint walkthrough with Pharmacy and Nursing leads to manually count units on every floor for a certified report.
+        </button>
+        <button class="choice" onclick="showFeedback('res1-rea', 20)">
+            <strong>Option C: On-Demand Support</strong>
+            Instruct IT staff to wait for specific requests from floor managers and troubleshoot inventory database errors as they occur.
+        </button>
+    </div>
+
+    <div id="res1-pro" class="scene">
+        <div class="feedback pro-move"><h3>✅ Proactive Result: Speed Saves Lives</h3><p>Command had the data in 5 minutes. The trauma patients were accepted immediately. You prioritized <strong>automated visibility</strong> over manual bureaucracy.</p></div>
+        <button class="btn-next" onclick="showScene('day2')">Continue to Day 2</button>
+    </div>
+    <div id="res1-std" class="scene">
+        <div class="feedback std-move"><h3>⚠️ Standard Result: The Latency Trap</h3><p>The report was 100% accurate, but it took 4 hours. By then, the trauma patients had been diverted to a more distant facility. <strong>Precision delayed care.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day2')">Continue to Day 2</button>
+    </div>
+    <div id="res1-rea" class="scene">
+        <div class="feedback react-move"><h3>❌ Reactive Result: Information Blackout</h3><p>IT was busy fixing tickets while Command made decisions in the dark. A ventilator was found in a closet too late to help a patient. <strong>Support is not Strategy.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day2')">Continue to Day 2</button>
+    </div>
+
+    <div id="day2" class="scene">
+        <h2>Day 2: The Severed Fiber Link</h2>
+        <p>A second slide severed the fiber link. The internet is down and the cloud EHR is timing out. What is your primary directive?</p>
+        <button class="choice" onclick="showFeedback('res2-std', 35)">
+            <strong>Option A: External Escalation</strong>
+            Dedicate all networking resources to coordinating with the ISP and carriers to restore the primary backbone link.
+        </button>
+        <button class="choice" onclick="showFeedback('res2-pro', 90)">
+            <strong>Option B: Failover to Edge Nodes</strong>
+            Cut the cloud link entirely and activate the local "Offline" EHR servers. This keeps the hospital digital, though isolated from external sync.
+        </button>
+        <button class="choice" onclick="showFeedback('res2-rea', 10)">
+            <strong>Option C: Paper Transition Support</strong>
+            Help Nursing print out paper forms and focus IT staff on setting up local "read-only" PDFs of the most recent patient charts.
+        </button>
+    </div>
+
+    <div id="res2-std" class="scene">
+        <div class="feedback std-move"><h3>⚠️ Standard Result: Infrastructure Fixation</h3><p>You spent 6 hours on the phone with the ISP. While you waited for a wire fix, the clinical staff was paralyzed. You focused on <strong>fixing a wire</strong> rather than <strong>enabling a service.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day3')">Continue to Day 3</button>
+    </div>
+    <div id="res2-pro" class="scene">
+        <div class="feedback pro-move"><h3>✅ Proactive Result: Resilient Independence</h3><p>The hospital became a functional island. Clinical safety checks remained active. You recognized that <strong>internal uptime</strong> is more important than <strong>external sync.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day3')">Continue to Day 3</button>
+    </div>
+    <div id="res2-rea" class="scene">
+        <div class="feedback react-move"><h3>❌ Reactive Result: The Paper Trap</h3><p>The hospital regressed 20 years. Medication errors spiked due to unreadable handwriting. You focused on <strong>managing the failure</strong> rather than <strong>preventing it.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day3')">Continue to Day 3</button>
+    </div>
+
+    <div id="day3" class="scene">
+        <h2>Day 3: Remote Specialty Access</h2>
+        <p>A patient needs an urgent Neurology consult, but the specialist is stuck behind the landslide. How do you facilitate the exam?</p>
+        <button class="choice" onclick="showFeedback('res3-rea', 20)">
+            <strong>Option A: Personal Device Bridge</strong>
+            Assist the bedside nurse in using a personal smartphone to FaceTime the doctor via the hospital's public Wi-Fi.
+        </button>
+        <button class="choice" onclick="showFeedback('res3-std', 55)">
+            <strong>Option B: Standard Video Platform</strong>
+            Install a standard web-conferencing app on an available ICU computer and provide the doctor with guest credentials.
+        </button>
+        <button class="choice" onclick="showFeedback('res3-pro', 95)">
+            <strong>Option C: Dedicated VLAN Tele-Cart</strong>
+            Deploy a pre-configured Tele-Health cart with high-def diagnostic cameras on a prioritized, high-bandwidth network segment.
+        </button>
+    </div>
+
+    <div id="res3-rea" class="scene">
+        <div class="feedback react-move"><h3>❌ Reactive Result: Clinical Failure</h3><p>The video was grainy and the Wi-Fi cut out. The doctor couldn't see the patient's pupils clearly. You provided a <strong>workaround</strong>, not a <strong>professional tool.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day4')">Continue to Day 4</button>
+    </div>
+    <div id="res3-std" class="scene">
+        <div class="feedback std-move"><h3>⚠️ Standard Result: Security Lag</h3><p>Software updates and credentials took an hour to authorize. The consult was delayed. You prioritized <strong>standard procedure</strong> over <strong>crisis readiness.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day4')">Continue to Day 4</button>
+    </div>
+    <div id="res3-pro" class="scene">
+        <div class="feedback pro-move"><h3>✅ Proactive Result: Specialist Extension</h3><p>The high-def link allowed the neurologist to perform a remote exam as if they were in the room. You <strong>virtualized a physical resource.</strong></p></div>
+        <button class="btn-next" onclick="showScene('day4')">Continue to Day 4</button>
+    </div>
+
+    <div id="day4" class="scene">
+        <h2>Day 4: Preventing Equipment Failure</h2>
+        <p>A critical ventilator is showing a "Sensor Error." Two others have recently had similar issues. What is the IT response?</p>
+        <button class="choice" onclick="showFeedback('res4-std', 50)">
+            <strong>Option A: Rapid Repair Ticket</strong>
+            Assign a dedicated IT-Clinical liaison to work with Biomedical Engineering to fix every broken machine as fast as possible.
+        </button>
+        <button class="choice" onclick="showFeedback('res4-pro', 100)">
+            <strong>Option B: Predictive Analytics</strong>
+            Use network monitoring tools to scan the error logs of all 30 ventilators to identify units showing "Pre-failure" warning signs.
+        </button>
+        <button class="choice" onclick="showFeedback('res4-rea', 5)">
+            <strong>Option C: Resource Allocation</strong>
+            Wait for Clinical Engineering to request help and focus IT on ensuring the ICU nursing station computers are running smoothly.
+        </button>
+    </div>
+
+    <div id="res4-std" class="scene">
+        <div class="feedback std-move"><h3>⚠️ Standard Result: The Break-Fix Cycle</h3><p>You fixed machines quickly, but they kept failing <em>during</em> use. You were <strong>following the crisis</strong> rather than <strong>leading the solution.</strong></p></div>
+        <button class="btn-next" onclick="finishSimulation()">View Final Results</button>
+    </div>
+    <div id="res4-pro" class="scene">
+        <div class="feedback pro-move"><h3>✅ Proactive Result: Predictive Maintenance</h3><p>You pulled 4 ventilators from service <em>before</em> they failed on patients. You moved IT from <strong>Hardware Support</strong> to <strong>Patient Safety.</strong></p></div>
+        <button class="btn-next" onclick="finishSimulation()">View Final Results</button>
+    </div>
+    <div id="res4-rea" class="scene">
+        <div class="feedback react-move"><h3>❌ Reactive Result: ICU Collapse</h3><p>Three machines failed mid-shift. The ICU became a zone of emergency repairs. You prioritized <strong>administrative tech</strong> over <strong>life-saving systems.</strong></p></div>
+        <button class="btn-next" onclick="finishSimulation()">View Final Results</button>
+    </div>
+
+    <div id="final" class="scene">
+        <h2>Simulation Complete</h2>
+        <div id="eval-text"></div>
+        
+        <div class="debrief">
+            <h3>Strategic Briefing: Why Mindset Matters</h3>
+            <p>Moving to <strong>proactive solutions</strong> can be difficult because the "Standard" path often feels like the responsible choice. However, in a crisis, the benefits of proactivity become clear:</p>
+            
+            
+
+            <ul>
+                <li><strong>Identification Challenge:</strong> Standard procedures (manual counts, waiting for ISPs) are familiar, while proactive solutions (predictive analytics, edge failovers) require higher technical readiness.</li>
+                <li><strong>Operational Benefits:</strong> Proactive IT moves technology from a reactive "cost center" to a "care enabler." It reduces clinical risk by anticipating problems before they interrupt patient care.</li>
+            </ul>
+        </div>
+        <br>
+        <button class="btn-next" onclick="location.reload()">Restart Simulation</button>
+    </div>
+</div>
+
+<script>
+    // Navigation: Only shows the target scene, hides others
+    function showScene(sceneId) {
+        var scenes = document.querySelectorAll('.scene');
+        for (var i = 0; i < scenes.length; i++) { 
+            scenes[i].style.display = 'none'; 
+            scenes[i].classList.remove('active'); 
+        }
+        var target = document.getElementById(sceneId);
+        if (target) {
+            target.style.display = 'block';
+            setTimeout(() => { target.classList.add('active'); }, 10);
+        }
+        window.scrollTo(0, 0);
+    }
+
+    // Handles button clicks and the progress bar
+    function showFeedback(id, score) {
+        showScene(id);
+        var bar = document.getElementById('bar-inner');
+        bar.style.width = score + '%';
+        bar.setAttribute('aria-valuenow', score);
+        
+        // Color the bar based on performance
+        if (score < 40) bar.style.backgroundColor = '#b71c1c';
+        else if (score < 70) bar.style.backgroundColor = '#b25d00';
+        else bar.style.backgroundColor = '#004a99';
+    }
+
+    // Logic to build the final evaluation screen
+    function finishSimulation() {
+        showScene('final');
+        var score = parseInt(document.getElementById('bar-inner').style.width);
+        var eval = document.getElementById('eval-text');
+        
+        if (score >= 90) {
+            eval.innerHTML = "<h3>🏆 Elite Proactive Strategist</h3><p>You used IT to extend the hospital's capabilities. By focusing on visibility, failover autonomy, and predictive analytics, you kept North Creek functional. You understand that IT's primary job is <strong>Service Continuity</strong>, not just hardware support.</p>";
+        } else if (score >= 60) {
+            eval.innerHTML = "<h3>⚖️ Safe Operator</h3><p>You followed standard IT procedures. While you kept the lights on, your reliance on manual processes and external links created dangerous delays. To improve, look for ways to <strong>automate resilience</strong> before the crisis starts.</p>";
+        } else {
+            eval.innerHTML = "<h3>🚨 Reactive Technician</h3><p>You focused on fixing things after they broke and waiting for directions. In a crisis, this 'Help Desk' mindset leads to failure. IT must lead the hospital's strategy, not just respond to its tickets.</p>";
+        }
+    }
+</script>
+
+</body>
+</html>
