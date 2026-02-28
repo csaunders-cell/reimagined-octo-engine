@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rural Hospital Crisis: Proactive IT Response</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rural-green: #2d5a27; /* Forest/Nature Green for Rural context */
+            --med-blue: #005eb8;
+            --alert-gold: #b25d00; /* Cautionary orange-gold */
+            --bg-neutral: #f9fbf9;
+            --card-white: #ffffff;
+            --text-dark: #202124;
+            --focus-ring: #4d90fe;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--bg-neutral);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(45, 90, 39, 0.1);
+            border-top: 6px solid var(--rural-green);
+        }
+
+        h1 { color: var(--rural-green); font-size: 1.8rem; margin-top: 0; }
+        h2 { color: var(--med-blue); font-size: 1.3rem; margin-top: 25px; border-left: 4px solid var(--rural-green); padding-left: 10px; }
+
+        .activity-section {
+            border: 1px solid #e0e6e0;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        ul { list-style: none; padding-left: 0; }
+        ul li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+        }
+        ul li::before {
+            content: '👉';
+            position: absolute;
+            left: 0;
+        }
+
+        .proactive-tip {
+            background-color: #f0f7ff;
+            border: 1px dashed var(--med-blue);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+        }
+
+        button {
+            background-color: var(--rural-green);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:focus { outline: 3px solid var(--focus-ring); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container" role="main" aria-live="polite">
+        <h1>IT Resilience: Rural
