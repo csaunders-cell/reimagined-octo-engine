@@ -37,6 +37,276 @@
         }
 
         h1 { color: var(--burgundy); text-align: center; margin-top: 0; }
+        h2 { color: var(--blue); text-align: center; }
+        
+        .disclaimer {
+            font-size: 0.85rem;
+            color: #444;
+            background: #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border-left: 5px solid var(--burgundy);
+        }
+
+        .ethics-box {
+            background-color: #fff9e6;
+            border: 2px solid #ffcc00;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        #score-board { text-align: center; font-size: 1.1rem; font-weight: bold; color: var(--blue); margin-bottom: 15px; }
+        #scenario-header { font-weight: bold; color: var(--burgundy); text-transform: uppercase; font-size: 0.9rem; }
+        #scenario-text { font-size: 1.1rem; margin-bottom: 25px; min-height: 50px; }
+
+        .btn-container { display: flex; flex-direction: column; gap: 12px; }
+
+        button {
+            padding: 15px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid var(--blue);
+            background-color: var(--white);
+            color: var(--blue);
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        button:hover:not(:disabled), button:focus:not(:disabled) {
+            background-color: var(--blue);
+            color: var(--white);
+            outline: 4px solid var(--burgundy);
+            outline-offset: 2px;
+        }
+
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #feedback { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; font-weight: bold; }
+        .success { background-color: var(--success-bg); color: #155724; border: 2px solid #c3e6cb; }
+        .danger { background-color: var(--danger-bg); color: #721c24; border: 2px solid #f5c6cb; }
+
+        #certificate {
+            border: 8px solid var(--burgundy);
+            padding: 40px;
+            background: white;
+            text-align: center;
+        }
+
+        #cert-name { font-size: 2.2rem; color: var(--burgundy); font-family: 'Georgia', serif; margin: 15px 0; border-bottom: 2px solid #ccc; display: inline-block; min-width: 200px; }
+        
+        .hidden { display: none !important; }
+        .next-btn-style { margin-top: 20px; width: 100%; background: var(--burgundy) !important; color: white !important; border: none !important; text-align: center !important; }
+
+        input[type="text"] { width: 80%; padding: 12px; margin-bottom: 15px; border: 2px solid var(--blue); border-radius: 5px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="start-screen">
+        <h1>🍕 Operation: Midnight Pizza</h1>
+        <div class="disclaimer">
+            <strong>Game Disclaimer:</strong> This is a simulated educational tool for tour visitors.
+        </div>
+        <p style="text-align:center;">Choose your training path to secure the campus:</p>
+        <div class="btn-container">
+            <button onclick="startGame('normal')" style="text-align:center;">Cyber Citizen Mode (Normal)</button>
+            <button onclick="showEthics()" style="text-align:center; border-color: var(--burgundy); color: var(--burgundy);">Elite Defender (Hacker Mode)</button>
+        </div>
+    </div>
+
+    <div id="ethics-screen" class="hidden">
+        <h2 style="color: var(--burgundy);">⚠️ Defensive Ethics Code</h2>
+        <div class="ethics-box">
+            <strong>The Cyber Pledge:</strong>
+            <ul>
+                <li>I will only use my technical knowledge for defense.</li>
+                <li>I will not attempt to bypass security on systems I do not own.</li>
+                <li>I will act with integrity to make the digital world safer.</li>
+            </ul>
+        </div>
+        <label style="display: block; margin-bottom: 20px; cursor: pointer; text-align: center;">
+            <input type="checkbox" id="ethics-check"> I agree to use my skills for good.
+        </label>
+        <button id="hacker-start-btn" onclick="startGame('hacker')" disabled style="width: 100%; text-align: center; background: var(--blue); color: white;">Initialize Defender Mode</button>
+    </div>
+
+    <div id="game-view" class="hidden">
+        <div id="score-board">Defense Rating: <span id="score">0</span></div>
+        <div id="scenario-header"></div>
+        <p id="scenario-text"></p>
+        <div class="btn-container" id="choices"></div>
+        <div id="feedback"></div>
+        <button id="next-btn" class="hidden next-btn-style">Next Challenge &rarr;</button>
+    </div>
+
+    <div id="name-entry" class="hidden" style="text-align: center;">
+        <h2>Campus Secured!</h2>
+        <p>Type your name for the Registry of Defenders:</p>
+        <input type="text" id="user-name" placeholder="Defender Name">
+        <button onclick="showCert()" style="background: var(--blue); color: white; width: 100%;">View Rank</button>
+    </div>
+
+    <div id="final-screen" class="hidden">
+        <div id="certificate">
+            <h2 style="color: var(--blue); margin:0;">CIS CYBERSECURITY</h2>
+            <h3 style="margin:5px 0;">CERTIFIED CAMPUS PROTECTOR</h3>
+            <p>This recognizes that</p>
+            <div id="cert-name"></div>
+            <p>has achieved the rank of:</p>
+            <h2 id="final-rank" style="color: var(--blue); font-size: 2.2rem;"></h2>
+            <p style="font-style: italic; margin-top: 20px;">"Defending the campus, one slice at a time."</p>
+        </div>
+        <button onclick="location.reload()" class="next-btn-style">Restart Challenge</button>
+    </div>
+</div>
+
+<script>
+    const scenarios = {
+        normal: [
+            {
+                title: "Scenario 1: The USB Trap",
+                text: "A pizza-shaped USB drive is on the floor labeled 'TOP SECRET EXAM ANSWERS'. What's your move?",
+                options: [
+                    { text: "Plug it in! I'm hungry for an A.", score: -20, feedback: "🚨 TRAPPED! That was 'Baiting'. Your PC is now sending pizza memes to the Dean's printer." },
+                    { text: "Drop it in a cup of soda.", score: 5, feedback: "⚠️ Messy, but safe. Though IT would have preferred to scan it for threats!" },
+                    { text: "Hand it to the IT Lab assistant.", score: 20, feedback: "✅ DEFENDER MOVE! You prevented a potential malware outbreak." }
+                ]
+            },
+            {
+                title: "Scenario 2: The Social DM",
+                text: "The 'College Admin' DMs you: 'Hey, Wi-Fi is down. Send me your password and birthday to stay connected!'",
+                options: [
+                    { text: "Send it fast! I need my Wi-Fi.", score: -30, feedback: "🚨 PHISHED! You fell for 'False Urgency'. Admins never ask for passwords in DMs." },
+                    { text: "Reply with a picture of a cat.", score: 10, feedback: "⚠️ Funny! But now the hacker knows you're there. Just report and block!" },
+                    { text: "Report the account and ignore.", score: 20, feedback: "✅ PERFECT. You recognized the Authority Scam." }
+                ]
+            }
+        ],
+        hacker: [
+            {
+                title: "Scenario 1: SQL Injection",
+                text: "You find a login form that doesn't filter special characters. How do you check for a vulnerability?",
+                options: [
+                    { text: "Type 'OR 1=1 --", score: 20, feedback: "✅ DEFENDER STATUS! You bypassed the logic. Now help us fix the code!" },
+                    { text: "Press F5 until the server smokes.", score: -10, feedback: "🚨 That's a DoS attack. We want skill, not just button-mashing." },
+                    { text: "Search for 'Free Pizza'.", score: 0, feedback: "🍕 Great for lunch, but it didn't find the vulnerability." }
+                ]
+            },
+            {
+                title: "Scenario 2: Network Sniffing",
+                text: "You see traffic on Port 23 (Telnet). Why is this a security nightmare?",
+                options: [
+                    { text: "Telnet is only for old-school printers.", score: -5, feedback: "🚨 Incorrect. It's a remote protocol that's notoriously insecure." },
+                    { text: "Telnet sends passwords in plain text.", score: 20, feedback: "✅ BINGO. Anyone sniffing the network can read the credentials. Use SSH!" },
+                    { text: "It's fine as long as you have a password.", score: -15, feedback: "🚨 FALSE! The password itself is unencrypted while it travels. Use a secure tunnel!" }
+                ]
+            }
+        ]
+    };
+
+    const bossScenario = {
+        title: "🔥 FINAL BOSS: The Ransomware Crisis",
+        text: "The Library PCs turn red: 'FILES ENCRYPTED. SEND 10 PIZZAS TO HACKER@DARKWEB.' Your first move?",
+        options: [
+            { text: "Unplug the network cables immediately.", score: 30, feedback: "✅ HERO! You stopped the virus from spreading. This is called 'Segmentation'!" },
+            { text: "Negotiate for 5 pizzas instead.", score: -20, feedback: "🚨 NEVER NEGOTIATE! Hackers rarely keep their word." },
+            { text: "Run a virus scan while it's connected.", score: -10, feedback: "🚨 TOO SLOW! Ransomware moves faster than a scan. Cut the connection first!" }
+        ]
+    };
+
+    let currentMode = 'normal';
+    let step = 0;
+    let score = 0;
+    let isBossTime = false;
+
+    // Ethics Checkbox Logic
+    document.getElementById('ethics-check').addEventListener('change', function() {
+        document.getElementById('hacker-start-btn').disabled = !this.checked;
+    });
+
+    function showEthics() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('ethics-screen').classList.remove('hidden');
+    }
+
+    function startGame(mode) {
+        currentMode = mode;
+        step = 0;
+        score = 0;
+        isBossTime = false;
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('ethics-screen').classList.add('hidden');
+        document.getElementById('game-view').classList.remove('hidden');
+        loadScenario();
+    }
+
+    function loadScenario() {
+        const s = isBossTime ? bossScenario : scenarios[currentMode][step];
+        document.getElementById('scenario-header').innerText = s.title;
+        document.getElementById('scenario-text').innerText = s.text;
+        document.getElementById('feedback').style.display = 'none';
+        document.getElementById('next-btn').classList.add('hidden');
+        
+        const container = document.getElementById('choices');
+        container.innerHTML = '';
+        
+        // Shuffle options
+        let shuffled = [...s.options].sort(() => Math.random() - 0.5);
+
+        shuffled.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text;
+            btn.onclick = () => {
+                score += opt.score;
+                document.getElementById('score').innerText = score;
+                const fb = document.getElementById('feedback');
+                fb.innerText = opt.feedback;
+                fb.style.display = 'block';
+                fb.className = opt.score > 0 ? 'success' : 'danger';
+                Array.from(container.children).forEach(b => b.disabled = true);
+                document.getElementById('next-btn').classList.remove('hidden');
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    document.getElementById('next-btn').onclick = () => {
+        if (!isBossTime && step < scenarios[currentMode].length - 1) {
+            step++;
+            loadScenario();
+        } else if (!isBossTime) {
+            isBossTime = true;
+            loadScenario();
+        } else {
+            document.getElementById('game-view').classList.add('hidden');
+            document.getElementById('name-entry').classList.remove('hidden');
+        }
+    };
+
+    function showCert() {
+        const name = document.getElementById('user-name').value || "Cyber Sentinel";
+        document.getElementById('cert-name').innerText = name;
+        
+        let rank = "";
+        if (score >= 60) rank = "Shield Lead";
+        else if (score >= 30) rank = "Security Guard";
+        else rank = "Network Watchman";
+
+        document.getElementById('final-rank').innerText = rank;
+        document.getElementById('name-entry').classList.add('hidden');
+        document.getElementById('final-screen').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>        }
+
+        h1 { color: var(--burgundy); text-align: center; margin-top: 0; }
         
         .disclaimer {
             font-size: 0.85rem;
