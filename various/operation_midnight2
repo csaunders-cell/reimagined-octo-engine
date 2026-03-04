@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation: Midnight Pizza - Cyber Challenge</title>
+    <style>
+        :root {
+            --burgundy: #800000;
+            --blue: #003366;
+            --white: #ffffff;
+            --light-gray: #f4f4f4;
+            --success-bg: #d4edda;
+            --danger-bg: #f8d7da;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #game-container {
+            background-color: var(--white);
+            width: 95%;
+            max-width: 650px;
+            padding: 30px;
+            border-top: 12px solid var(--burgundy);
+            border-bottom: 12px solid var(--blue);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 12px;
+        }
+
+        h1 { color: var(--burgundy); text-align: center; margin-top: 0; font-size: 2rem; }
+        
+        .disclaimer {
+            font-size: 0.85rem;
+            color: #444;
+            background: #eee;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border-left: 5px solid var(--blue);
+        }
+
+        #scenario-header {
+            font-weight: bold;
+            color: var(--burgundy);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        #scenario-text {
+            font-size: 1.15rem;
+            margin-bottom: 25px;
+            color: #222;
+        }
+
+        .btn-container { display: flex; flex-direction: column; gap: 15px; }
+
+        button {
+            padding: 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid var(--blue);
+            background-color: var(--white);
+            color: var(--blue);
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        button:hover, button:focus {
+            background-color: var(--blue);
+            color: var(--white);
+            outline: 4px solid var(--burgundy);
+            outline-offset: 2px;
+        }
+
+        #feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .success { background-color: var(--success-bg); color: #155724; border: 2px solid #c3e6cb; }
+        .danger { background-color: var(--danger-bg); color: #721c24; border: 2px solid #f5c6cb; }
+
+        #score-board {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--blue);
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+
+        .hidden { display: none; }
+        .next-btn-style {
+            margin-top: 25px; 
+            width: 100%; 
+            text-align: center !important; 
+            background: var(--burgundy) !important; 
+            color: white !important;
+            border: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container" role="main" aria-live="polite">
+    <h1>🍕 Operation: Midnight Pizza</h1>
+    
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This is a cybersecurity simulation. No actual pizza, systems, or grades will be affected by your choices.
+    </div>
+
+    <div id="score-board">Campus Security Level: <span id="score">0</span></div>
+
+    <div id="game-content">
+        <div id="scenario-header"></div>
+        <p id="scenario-text"></p>
+        <div class="btn-container" id="choices"></div>
+        <div id="feedback"></div>
+        <button id="next-btn" class="hidden next-btn-style">Next Phase &rarr;</button>
+    </div>
+
+    <div id="final-screen" class="hidden" style="text-align: center;">
+        <h2 id="final-rank"></h2>
+        <p id="final-message" style="font-size: 1.2rem;"></p>
+        <button onclick="location.reload()" style="width: 100%; text-align: center; background: var(--blue); color: white;">Restart Tour</button>
+    </div>
+</div>
+
+<script>
+    const scenarios = [
+        {
+            title: "Phase 1: The 'Free' Pizza",
+            text: "You find a USB drive shaped like a pizza slice in the quad labeled 'TOP SECRET EXAM ANSWERS'. What do you do?",
+            options: [
+                { text: "Plug it in! Grades > Safety.", score: -15, feedback: "🚨 BAITED! A Rubber Ducky script just sent your browser history to the entire faculty. Not cool." },
+                { text: "Hand it to the IT Desk.", score: 15, feedback: "✅ SMART! You spotted a social engineering tactic. That USB was loaded with malware." }
+            ]
+        },
+        {
+            title: "Phase 2: URL Detective",
+            text: "You need to log into the Student Portal to check your financial aid. Which link looks safest to click?",
+            options: [
+                { text: "http://college-portal-login.net", score: -10, feedback: "🚨 NOPE! It's HTTP (not encrypted) and the domain is suspicious. Your data is now in the wind." },
+                { text: "https://portal.ourcollege.edu", score: 20, feedback: "✅ CORRECT! The 'S' in HTTPS stands for Secure, and the '.edu' domain matches our school." }
+            ]
+        },
+        {
+            title: "Phase 3: Password Power",
+            text: "The IT department requires a new password. Which of these is the hardest for a hacker's computer to crack?",
+            options: [
+                { text: "P@$$w0rd123!", score: -10, feedback: "🚨 WEAK! Hackers know all the common symbol swaps. This takes seconds to crack." },
+                { text: "PurplePizzaEatingDinosaurs!", score: 20, feedback: "✅ PASS-PHRASE! Length is king. This is much harder for a 'Brute Force' attack to guess." }
+            ]
+        },
+        {
+            title: "Phase 4: The Urgent DM",
+            text: "A DM from 'Admin_Official' says they need your password to fix the Wi-Fi. You have 2 minutes or you're banned!",
+            options: [
+                { text: "Send it! I need my Wi-Fi.", score: -20, feedback: "🚨 PHISHED! You fell for 'False Urgency.' No real admin ever asks for your password." },
+                { text: "Report the user for Phishing.", score: 20, feedback: "✅ BOOM! You recognized the psychological trick. Security isn't just tech; it's mindset." }
+            ]
+        },
+        {
+            title: "Phase 5: The 'Update' Trap",
+            text: "A pop-up appears: 'YOUR COMPUTER IS INFECTED! CLICK HERE TO RUN OUR FREE SCANNER!'",
+            options: [
+                { text: "Run the scan! I don't want a virus.", score: -20, feedback: "🚨 SCAM! That's 'Scareware.' Clicking that actually *installs* the virus you were afraid of." },
+                { text: "Close the browser and run the official Windows/Mac update.", score: 20, feedback: "✅ SHARP! You went to the source. Official updates are the only real way to stay patched." }
+            ]
+        }
+    ];
+
+    let currentLevel = 0;
+    let totalScore = 0;
+
+    const scenarioHeader = document.getElementById('scenario-header');
+    const scenarioText = document.getElementById('scenario-text');
+    const choicesContainer = document.getElementById('choices');
+    const feedbackDiv = document.getElementById('feedback');
+    const nextBtn = document.getElementById('next-btn');
+    const scoreDisplay = document.getElementById('score');
+
+    function loadScenario() {
+        const s = scenarios[currentLevel];
+        scenarioHeader.innerText = s.title;
+        scenarioText.innerText = s.text;
+        choicesContainer.innerHTML = '';
+        feedbackDiv.style.display = 'none';
+        nextBtn.classList.add('hidden');
+
+        s.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text;
+            btn.onclick = () => handleChoice(opt);
+            choicesContainer.appendChild(btn);
+        });
+    }
+
+    function handleChoice(opt) {
+        totalScore += opt.score;
+        scoreDisplay.innerText = totalScore;
+        
+        feedbackDiv.innerText = opt.feedback;
+        feedbackDiv.style.display = 'block';
+        feedbackDiv.className = opt.score > 0 ? 'success' : 'danger';
+        
+        choicesContainer.querySelectorAll('button').forEach(b => b.disabled = true);
+        nextBtn.classList.remove('hidden');
+    }
+
+    nextBtn.onclick = () => {
+        currentLevel++;
+        if (currentLevel < scenarios.length) {
+            loadScenario();
+        } else {
+            showFinalScreen();
+        }
+    };
+
+    function showFinalScreen() {
+        document.getElementById('game-content').classList.add('hidden');
+        const finalScreen = document.getElementById('final-screen');
+        finalScreen.classList.remove('hidden');
+        
+        let rank = "";
+        let msg = "";
+
+        if (totalScore >= 70) {
+            rank = "🏆 Rank: Cyber Sentinel";
+            msg = "Flawless! Our Cybersecurity program needs someone with your instincts.";
+        } else if (totalScore >= 30) {
+            rank = "🛡️ Rank: Digital Citizen";
+            msg = "Good job. You know the basics, but there's still a lot to learn about the dark corners of the web.";
+        } else {
+            rank = "📉 Rank: The Click-Happy Intern";
+            msg = "Don't worry—that's why you're here for the tour! We'll teach you how to stay safe.";
+        }
+
+        document.getElementById('final-rank').innerText = rank;
+        document.getElementById('final-message').innerText = msg + " (Final Score: " + totalScore + ")";
+    }
+
+    loadScenario();
+</script>
+
+</body>
+</html>
