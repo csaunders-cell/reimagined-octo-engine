@@ -114,6 +114,26 @@
             display: block;
             margin-bottom: 0.5rem;
         }
+
+        /* Try Again Button */
+        .try-again-btn {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: transparent;
+            border: 2px solid #004b99;
+            color: #004b99;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: bold;
+            display: none; /* hidden initially */
+            transition: all 0.2s;
+        }
+
+        .try-again-btn:hover {
+            background-color: #004b99;
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -124,7 +144,7 @@
     <div id="quiz-container"></div>
 
     <script>
-        // Quiz Data generated from the curriculum
+        // Quiz Data
         const quizData = [
             {
                 question: "1. What is the primary difference between standard compiling and cross-compiling?",
@@ -148,7 +168,7 @@
                 question: "3. Why is cross-compiling often a necessity for embedded systems, such as industrial control sensors or smart devices?",
                 options: [
                     { text: "They lack the memory, storage, and processing power required to run a resource-heavy compiler locally.", isCorrect: true, rationale: "Correct! Tiny processors with limited RAM physically cannot execute the complex operations required by software suites like GCC or Clang." },
-                    { text: "Embedded systems are immune to standard machine code and require specialized scripts.", isCorrect: false, rationale: "Incorrect. Embedded systems still execute machine code; it is just specific to their particular microprocessors." },
+                    { text: "Embedded systems are immune to standard machine code and require specialized scripts.", is dispersal: false, rationale: "Incorrect. Embedded systems still execute machine code; it is just specific to their particular microprocessors." },
                     { text: "Compiling locally on an embedded system triggers hardware firewalls.", isCorrect: false, rationale: "Incorrect. Hardware firewalls filter network traffic and do not monitor local CPU compilation tasks." },
                     { text: "Smart devices use dynamic interpretation and do not support compiled binaries.", isCorrect: false, rationale: "Incorrect. Most IoT and industrial devices rely heavily on highly optimized, compiled C or C++ binaries for performance." }
                 ]
@@ -235,7 +255,11 @@
 
             const explanationBox = document.createElement('div');
             explanationBox.className = 'explanation';
-            explanationBox.setAttribute('aria-live', 'polite'); // Accessibility for screen readers
+            explanationBox.setAttribute('aria-live', 'polite'); 
+            
+            const tryAgainBtn = document.createElement('button');
+            tryAgainBtn.className = 'try-again-btn';
+            tryAgainBtn.textContent = '↻ Try Again';
 
             item.options.forEach((opt, oIndex) => {
                 const btn = document.createElement('button');
@@ -261,13 +285,32 @@
                         explanationBox.className = 'explanation show-incorrect';
                         explanationBox.innerHTML = `<strong>❌ Incorrect.</strong> ${opt.rationale}`;
                     }
+                    
+                    // Show Try Again button
+                    tryAgainBtn.style.display = 'inline-block';
                 });
 
                 optionsList.appendChild(btn);
             });
 
+            // Reset Logic
+            tryAgainBtn.addEventListener('click', () => {
+                const allBtns = optionsList.querySelectorAll('.option-btn');
+                allBtns.forEach(b => {
+                    b.disabled = false;
+                    b.classList.remove('dimmed', 'correct', 'incorrect');
+                });
+                explanationBox.className = 'explanation';
+                explanationBox.style.display = 'none';
+                tryAgainBtn.style.display = 'none';
+                
+                // Hack to force display removal quickly
+                setTimeout(() => { explanationBox.style.display = ''; }, 10);
+            });
+
             card.appendChild(optionsList);
             card.appendChild(explanationBox);
+            card.appendChild(tryAgainBtn);
             container.appendChild(card);
         });
     </script>
