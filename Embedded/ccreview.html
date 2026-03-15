@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Check: Cross-Compiling</title>
+    <style>
+        /* Base Styling & Accessibility */
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9fbfd;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #003366;
+            border-bottom: 3px solid #004b99;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Quiz Container */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #111111;
+        }
+
+        /* Options List */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option-btn {
+            text-align: left;
+            padding: 1rem;
+            font-size: 1rem;
+            background-color: #f0f7ff;
+            border: 2px solid #cce0ff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #003366;
+            font-family: inherit;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #cce0ff;
+            border-color: #004b99;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        /* Feedback States */
+        .option-btn.correct {
+            background-color: #e6ffed;
+            border-color: #2da44e;
+            color: #05501e;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #ffeef0;
+            border-color: #cf222e;
+            color: #8c0014;
+        }
+
+        .option-btn.dimmed {
+            opacity: 0.4;
+        }
+
+        /* Explanation Box */
+        .explanation {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            display: none; /* Hidden by default */
+        }
+
+        .explanation.show-correct {
+            display: block;
+            background-color: #e6ffed;
+            border-left: 5px solid #2da44e;
+        }
+
+        .explanation.show-incorrect {
+            display: block;
+            background-color: #ffeef0;
+            border-left: 5px solid #cf222e;
+        }
+
+        .explanation strong {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Knowledge Check: Cross-Compiling</h1>
+    <p style="text-align: center; margin-bottom: 2rem; color: #555;">Select an answer to reveal the explanation. This is an ungraded self-review.</p>
+
+    <div id="quiz-container"></div>
+
+    <script>
+        // Quiz Data generated from the curriculum
+        const quizData = [
+            {
+                question: "1. What is the primary difference between standard compiling and cross-compiling?",
+                options: [
+                    { text: "Standard compiling translates code into machine language, while cross-compiling translates it into human-readable text.", isCorrect: false, rationale: "Incorrect. All compilers translate higher-level code down into lower-level machine code or bytecode, regardless of the target." },
+                    { text: "Cross-compiling requires an active internet connection to download the target architecture.", isCorrect: false, rationale: "Incorrect. The necessary toolchains and libraries for the target architecture are typically installed locally on the build machine." },
+                    { text: "Cross-compiling builds executable code for a platform (architecture/OS) different from the one running the compiler.", isCorrect: true, rationale: "Correct! The defining characteristic of cross-compiling is the separation of the build environment (the host) from the execution environment (the target)." },
+                    { text: "Standard compiling is used for hardware, while cross-compiling is used strictly for web applications.", isCorrect: false, rationale: "Incorrect. Web applications generally rely on interpreted languages, whereas compiling is focused on creating processor-specific binaries." }
+                ]
+            },
+            {
+                question: "2. In a cross-compiling environment, what term is used to describe the powerful machine that is doing the actual compiling?",
+                options: [
+                    { text: "The Target", isCorrect: false, rationale: "Incorrect. This refers to the destination device that will eventually run the compiled binary." },
+                    { text: "The Host", isCorrect: true, rationale: "Correct! The 'Host' designates the system providing the computing power and running the compiler toolchain." },
+                    { text: "The Emulator", isCorrect: false, rationale: "Incorrect. Emulators simulate one architecture on another, but the machine performing the compilation has a specific designation." },
+                    { text: "The Hypervisor", isCorrect: false, rationale: "Incorrect. A hypervisor runs and manages virtual machines; it does not describe the build machine in software development." }
+                ]
+            },
+            {
+                question: "3. Why is cross-compiling often a necessity for embedded systems, such as industrial control sensors or smart devices?",
+                options: [
+                    { text: "They lack the memory, storage, and processing power required to run a resource-heavy compiler locally.", isCorrect: true, rationale: "Correct! Tiny processors with limited RAM physically cannot execute the complex operations required by software suites like GCC or Clang." },
+                    { text: "Embedded systems are immune to standard machine code and require specialized scripts.", isCorrect: false, rationale: "Incorrect. Embedded systems still execute machine code; it is just specific to their particular microprocessors." },
+                    { text: "Compiling locally on an embedded system triggers hardware firewalls.", isCorrect: false, rationale: "Incorrect. Hardware firewalls filter network traffic and do not monitor local CPU compilation tasks." },
+                    { text: "Smart devices use dynamic interpretation and do not support compiled binaries.", isCorrect: false, rationale: "Incorrect. Most IoT and industrial devices rely heavily on highly optimized, compiled C or C++ binaries for performance." }
+                ]
+            },
+            {
+                question: "4. If you write a C program on an x86_64 laptop, compile it normally, and transfer the resulting binary to an ARM-based Raspberry Pi, what will happen when you execute it?",
+                options: [
+                    { text: "The program will run normally, but slightly slower.", isCorrect: false, rationale: "Incorrect. Binaries are not universally compatible across different hardware architectures without recompilation or emulation." },
+                    { text: "The execution will fail, likely returning an 'exec format error'.", isCorrect: true, rationale: "Correct! An ARM processor cannot interpret x86_64 machine code instructions. The binary is physically incompatible with the processor." },
+                    { text: "The Raspberry Pi will automatically recompile the binary to fit its architecture.", isCorrect: false, rationale: "Incorrect. Operating systems do not automatically decompile and recompile binaries on the fly when executed." },
+                    { text: "The program will run, but only within a web browser.", isCorrect: false, rationale: "Incorrect. Standard C binaries require the host OS and CPU to understand them directly." }
+                ]
+            },
+            {
+                question: "5. When developing an exploit payload for a vulnerable networking router during a pen test, why must you know the router's architecture?",
+                options: [
+                    { text: "To bypass the router's web application firewall (WAF).", isCorrect: false, rationale: "Incorrect. WAFs inspect HTTP/HTTPS traffic, not the underlying CPU architecture of the device they protect." },
+                    { text: "To identify the MAC address of the device.", isCorrect: false, rationale: "Incorrect. MAC addresses are used for Layer 2 networking and are independent of the CPU architecture." },
+                    { text: "To ensure the exploit payload is cross-compiled so the router's CPU can execute the malicious instructions.", isCorrect: true, rationale: "Correct! If the payload isn't compiled for the specific architecture (e.g., MIPS), the exploit may trigger, but the shellcode will crash instead of executing." },
+                    { text: "To determine which programming language the router's web interface was written in.", isCorrect: false, rationale: "Incorrect. The web interface language is separate from the compiled machine code the CPU executes." }
+                ]
+            },
+            {
+                question: "6. The Mirai botnet was devastating partly because its authors understood cross-compiling. How did they apply this concept?",
+                options: [
+                    { text: "They used cross-compiling to hide their IP addresses from investigators.", isCorrect: false, rationale: "Incorrect. Compiling methods do not obscure network traffic or IP routing." },
+                    { text: "They cross-compiled their malware into multiple binaries supporting different architectures (ARM, MIPS, x86).", isCorrect: true, rationale: "Correct! By building payloads for every major IoT architecture, the botnet could successfully execute on almost any vulnerable device it encountered." },
+                    { text: "They infected the compiler software of major tech companies to inject malware at the source.", isCorrect: false, rationale: "Incorrect. While this describes a supply chain attack, it was not the mechanism of the Mirai botnet." },
+                    { text: "They cross-compiled their code into phishing emails to bypass spam filters.", isCorrect: false, rationale: "Incorrect. Cross-compiling creates executable binaries, it does not format phishing emails." }
+                ]
+            },
+            {
+                question: "7. In the context of cross-compiling, what is a 'toolchain'?",
+                options: [
+                    { text: "The physical cable used to transfer a binary from a laptop to a router.", isCorrect: false, rationale: "Incorrect. This is a physical connection, not a toolchain." },
+                    { text: "A collection of software tools required to build code for a specific target architecture.", isCorrect: true, rationale: "Correct! A toolchain provides all the necessary components (compiler, linker, libraries) for the host machine to accurately translate code for the target." },
+                    { text: "A specific type of malware that targets supply chain logistics.", isCorrect: false, rationale: "Incorrect. Toolchains are legitimate software development necessities." },
+                    { text: "The sequence of commands used to execute a program in Linux.", isCorrect: false, rationale: "Incorrect. The command sequence is an execution script, not a build toolchain." }
+                ]
+            },
+            {
+                question: "8. When testing a newly cross-compiled binary for an embedded system, why might a security researcher choose to run it on a hardware simulator rather than the physical device?",
+                options: [
+                    { text: "Simulators automatically fix broken code during execution.", isCorrect: false, rationale: "Incorrect. Simulators run code exactly as it is compiled; they do not fix logical or syntactical errors." },
+                    { text: "Simulators convert x86 code to ARM dynamically so cross-compiling isn't needed.", isCorrect: false, rationale: "Incorrect. Emulators can do dynamic translation, but researchers usually want to test the exact binary that will run on the target." },
+                    { text: "Physical embedded devices cannot run compiled C code.", isCorrect: false, rationale: "Incorrect. They absolutely can; that is why we cross-compile it for them." },
+                    { text: "Simulators allow for safe, rapid execution and debugging without risking hardware damage.", isCorrect: true, rationale: "Correct! Simulators provide a safe, accessible environment to test cross-compiled binaries, especially when physical hardware is unavailable or fragile." }
+                ]
+            },
+            {
+                question: "9. When analyzing firmware extracted from an unknown network device, what is the first step a reverse engineer must take before decompiling the binaries?",
+                options: [
+                    { text: "Identify the target CPU architecture the binaries were compiled for.", isCorrect: true, rationale: "Correct! You must know the architecture (e.g., MIPS, ARM) to select the correct disassembler and understand how the machine code maps to assembly." },
+                    { text: "Connect the device to the internet to download updates.", isCorrect: false, rationale: "Incorrect. Connecting unknown or compromised devices to the internet is dangerous during analysis." },
+                    { text: "Guess the administrative password.", isCorrect: false, rationale: "Incorrect. Analyzing the extracted firmware bypasses the need for the live system's password." },
+                    { text: "Rewrite the binary in Python.", isCorrect: false, rationale: "Incorrect. You cannot directly 'rewrite' a compiled binary without reverse-engineering it first." }
+                ]
+            },
+            {
+                question: "10. Which of the following best summarizes why networking and security professionals must understand cross-compiling?",
+                options: [
+                    { text: "It is the only way to write code in HTML and CSS.", isCorrect: false, rationale: "Incorrect. HTML and CSS are markup languages, not compiled languages." },
+                    { text: "They only deal with Windows x86 laptops, so they need to prevent cross-compiling.", isCorrect: false, rationale: "Incorrect. Security professionals deal with vastly diverse hardware environments." },
+                    { text: "It guarantees that all code written is completely secure and free of vulnerabilities.", isCorrect: false, rationale: "Incorrect. Cross-compiling simply changes the target architecture; it does not inherently secure the code." },
+                    { text: "They constantly interact with, defend, and test diverse hardware ecosystems that require architecture-specific code execution.", isCorrect: true, rationale: "Correct! The modern network relies on diverse embedded devices, routers, and appliances that all require specific, cross-compiled binaries to operate or be exploited." }
+                ]
+            }
+        ];
+
+        const container = document.getElementById('quiz-container');
+
+        // Render the quiz
+        quizData.forEach((item, qIndex) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+
+            const questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = item.question;
+            card.appendChild(questionText);
+
+            const optionsList = document.createElement('div');
+            optionsList.className = 'options-list';
+
+            const explanationBox = document.createElement('div');
+            explanationBox.className = 'explanation';
+            explanationBox.setAttribute('aria-live', 'polite'); // Accessibility for screen readers
+
+            item.options.forEach((opt, oIndex) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt.text;
+                
+                btn.addEventListener('click', () => {
+                    // Disable all buttons in this question
+                    const allBtns = optionsList.querySelectorAll('.option-btn');
+                    allBtns.forEach(b => {
+                        b.disabled = true;
+                        b.classList.add('dimmed');
+                    });
+
+                    // Highlight selected button
+                    btn.classList.remove('dimmed');
+                    if (opt.isCorrect) {
+                        btn.classList.add('correct');
+                        explanationBox.className = 'explanation show-correct';
+                        explanationBox.innerHTML = `<strong>✅ Correct!</strong> ${opt.rationale}`;
+                    } else {
+                        btn.classList.add('incorrect');
+                        explanationBox.className = 'explanation show-incorrect';
+                        explanationBox.innerHTML = `<strong>❌ Incorrect.</strong> ${opt.rationale}`;
+                    }
+                });
+
+                optionsList.appendChild(btn);
+            });
+
+            card.appendChild(optionsList);
+            card.appendChild(explanationBox);
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>
