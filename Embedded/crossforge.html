@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cross-Compiling Process</title>
+    <style>
+        /* Base Accessibility and Typography */
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #111111;
+            margin-bottom: 2rem;
+        }
+
+        /* Diagram Layout */
+        .diagram-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        /* Machine Containers */
+        .machine-box {
+            flex: 1;
+            min-width: 320px;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* High Contrast Blue for Host */
+        .host-machine {
+            background-color: #f0f7ff;
+            border: 4px solid #004b99;
+        }
+        .host-machine h2 { color: #003366; }
+
+        /* High Contrast Orange for Target */
+        .target-machine {
+            background-color: #fff5f0;
+            border: 4px solid #b33c00;
+        }
+        .target-machine h2 { color: #802b00; }
+
+        h2 {
+            text-align: center;
+            font-size: 1.75rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid currentColor;
+            padding-bottom: 0.5rem;
+        }
+        h2 small {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: normal;
+            margin-top: 0.25rem;
+        }
+
+        /* Interactive Nodes */
+        .flow-node {
+            background-color: #ffffff;
+            border: 3px solid #333333;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #111111;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flow-node small {
+            font-size: 1rem;
+            font-weight: normal;
+            color: #444444;
+        }
+
+        /* Directional Arrows */
+        .arrow-down {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #333333;
+            line-height: 1;
+            margin: 0.5rem 0;
+        }
+
+        .transfer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: #111111;
+            padding: 1rem;
+        }
+
+        .transfer-arrow {
+            font-size: 4rem;
+            line-height: 1;
+        }
+
+        /* Responsive adjustment for the middle arrow */
+        @media (max-width: 800px) {
+            .transfer-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>The Cross-Compiling Process</h1>
+
+    <div class="diagram-container">
+        
+        <section class="machine-box host-machine" aria-labelledby="host-title">
+            <h2 id="host-title">Host Machine <br><small>(e.g., x86_64 Developer Laptop)</small></h2>
+            
+            <div class="flow-node">
+                <span aria-hidden="true">📄</span> Source Code
+                <small>(Human-readable C/C++)</small>
+            </div>
+            
+            <div class="arrow-down" aria-label="flows into">↓</div>
+            
+            <div class="flow-node">
+                <span aria-hidden="true">⚙️</span> Compiler Software
+                <small>(Running on Host architecture)</small>
+            </div>
+            
+            <div class="arrow-down" aria-label="generates">↓</div>
+            
+            <div class="flow-node">
+                <span aria-hidden="true">🔢</span> Binary File
+                <small>(Compiled for Target architecture)</small>
+            </div>
+        </section>
+
+        <div class="transfer-container" aria-label="Transfer process over network or physical media">
+            <div>TRANSFER</div>
+            <div class="transfer-arrow" aria-hidden="true">➔</div>
+        </div>
+
+        <section class="machine-box target-machine" aria-labelledby="target-title">
+            <h2 id="target-title">Target Machine <br><small>(e.g., ARM Embedded Device)</small></h2>
+            
+            <div class="flow-node">
+                <span aria-hidden="true">🔢</span> Binary File
+                <small>(Native to Target architecture)</small>
+            </div>
+            
+            <div class="arrow-down" aria-label="is executed by">↓</div>
+            
+            <div class="flow-node">
+                <span aria-hidden="true">▶️</span> Execution
+                <small>(Program runs successfully)</small>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
