@@ -168,7 +168,7 @@
                 question: "3. Why is cross-compiling often a necessity for embedded systems, such as industrial control sensors or smart devices?",
                 options: [
                     { text: "They lack the memory, storage, and processing power required to run a resource-heavy compiler locally.", isCorrect: true, rationale: "Correct! Tiny processors with limited RAM physically cannot execute the complex operations required by software suites like GCC or Clang." },
-                    { text: "Embedded systems are immune to standard machine code and require specialized scripts.", is dispersal: false, rationale: "Incorrect. Embedded systems still execute machine code; it is just specific to their particular microprocessors." },
+                    { text: "Embedded systems are immune to standard machine code and require specialized scripts.", isCorrect: false, rationale: "Incorrect. Embedded systems still execute machine code; it is just specific to their particular microprocessors." },
                     { text: "Compiling locally on an embedded system triggers hardware firewalls.", isCorrect: false, rationale: "Incorrect. Hardware firewalls filter network traffic and do not monitor local CPU compilation tasks." },
                     { text: "Smart devices use dynamic interpretation and do not support compiled binaries.", isCorrect: false, rationale: "Incorrect. Most IoT and industrial devices rely heavily on highly optimized, compiled C or C++ binaries for performance." }
                 ]
