@@ -5,20 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Introduction to Industrial Networks</title>
     <style>
-        /* Base styles maintained, enhanced focus indicators */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: sans-serif; background: #1e3c72; color: #333; }
-        
+        body { font-family: 'Segoe UI', sans-serif; background: #1e3c72; color: #333; overflow: hidden; }
+        .slide-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .slide { 
-            display: none; width: 90%; max-width: 1200px; height: 85vh; 
-            background: #fff; border-radius: 20px; padding: 60px; margin: 5vh auto;
+            display: none; width: 90%; max-width: 1000px; height: 80vh; background: #ffffff; 
+            border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
             overflow-y: auto; outline: none;
         }
         .slide.active { display: block; }
-        
-        /* Ensure buttons have high contrast focus states */
-        button:focus { outline: 4px solid #ffbf47; outline-offset: 2px; }
-        
+        h1 { color: #1e3c72; margin-bottom: 15px; border-bottom: 2px solid #2a5298; padding-bottom: 10px; }
+        h2 { color: #2a5298; margin: 15px 0; }
+        p, li { margin-bottom: 12px; line-height: 1.6; }
+        .navigation { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 1000; }
+        button { background: #2a5298; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #152d56; }
+        button:disabled { background: #888; cursor: not-allowed; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
     </style>
 </head>
@@ -26,42 +28,123 @@
 
     <div id="announcer" class="sr-only" aria-live="polite"></div>
 
-    <main class="slide-container" id="main-content">
-        <article class="slide active" id="slide-1" tabindex="-1" aria-labelledby="h1-1">
-            <h1 id="h1-1">Introduction to Industrial Networks</h1>
-            <p>Use the buttons at the bottom to navigate.</p>
-        </article>
-        
-        </main>
+    <main class="slide-container">
+        <section class="slide active" tabindex="-1">
+            <h1>Introduction to Industrial Networks</h1>
+            <p>Week 1: Understanding Industrial Control Systems</p>
+        </section>
 
-    <div class="navigation" role="navigation" aria-label="Slide Navigation">
-        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <section class="slide" tabindex="-1">
+            <h1>Learning Objectives</h1>
+            <ul>
+                <li>Describe functions of RTU, PLC, DCS, and SCADA.</li>
+                <li>Explain the role of telemetry and communication buses.</li>
+                <li>Understand the Purdue Model (ISA 95).</li>
+                <li>Recognize industrial cybersecurity requirements.</li>
+            </ul>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Industrial Processing</h1>
+            <p>ICS systems are designed to control variables in the physical world.</p>
+            <h3>Sectors include:</h3>
+            <ul>
+                <li>Energy, Water, and Wastewater</li>
+                <li>Critical Manufacturing</li>
+                <li>Chemical and Defense Industrial Base</li>
+            </ul>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>ICS vs. IT Systems</h1>
+            <p>ICS prioritizes <strong>Availability</strong>, while IT prioritizes <strong>Confidentiality</strong>.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Key ICS Requirements</h1>
+            <ul>
+                <li><strong>Availability:</strong> Continuous 24/7 operations.</li>
+                <li><strong>Timeliness:</strong> Real-time response constraints.</li>
+                <li><strong>Hardening:</strong> Built for harsh industrial environments.</li>
+            </ul>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Programmable Logic Controllers (PLCs)</h1>
+            <p>Common field devices consisting of CPUs, Power Supplies, and I/O modules.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Remote Telemetry Units (RTUs)</h1>
+            <p>Intelligent control units used for geographically distributed systems like oil & gas pipelines.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Distributed Control Systems (DCS)</h1>
+            <p>Distributes control functions across multiple controllers for complex processes.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>SCADA Systems</h1>
+            <p>Supervisory Control and Data Acquisition for monitoring dispersed assets.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Network Architecture Layers</h1>
+            <p>Includes Field Bus Loops, Supervisory Loops, and Enterprise Networks.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Industrial Communication Protocols</h1>
+            <p>From legacy Serial (RS-232/485) to modern Ethernet TCP/IP.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>The Purdue Model (ISA 95)</h1>
+            <p>Five levels: Level 0 (Process) to Level 4 (Business Systems).</p>
+            
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Safety Systems</h1>
+            <p>SIS (Safety Instrumented Systems) and ESD (Emergency Shutdown Systems) protect life and assets.</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Safety Integrity Levels (SIL)</h1>
+            <p>Ratings from SIL 1 (Low) to SIL 4 (Extremely high/Costly).</p>
+        </section>
+
+        <section class="slide" tabindex="-1">
+            <h1>Summary</h1>
+            <p>Availability and timeliness are key. ISA 95 is the standard architecture framework.</p>
+        </section>
+    </main>
+
+    <nav class="navigation" aria-label="Slide Navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)" disabled>Previous</button>
         <button id="nextBtn" onclick="changeSlide(1)">Next</button>
-    </div>
+    </nav>
 
     <script>
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
 
-        function showSlide(n) {
+        function changeSlide(direction) {
             slides[currentSlide].classList.remove('active');
-            currentSlide = (n + slides.length) % slides.length;
+            currentSlide += direction;
             slides[currentSlide].classList.add('active');
-            
-            // Move focus to the top of the new slide for accessibility
             slides[currentSlide].focus();
             
-            // Announce slide number to screen readers
             document.getElementById('announcer').textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
-            
-            // Update button states
             document.getElementById('prevBtn').disabled = currentSlide === 0;
             document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
         }
 
-        function changeSlide(direction) {
-            showSlide(currentSlide + direction);
-        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
+            if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) changeSlide(1);
+        });
     </script>
 </body>
 </html>
