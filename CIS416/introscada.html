@@ -6,26 +6,30 @@
     <title>SCADA Architecture Explorer</title>
     <style>
         :root {
-            --level-3: #e3f2fd;
-            --level-2: #e8f5e9;
-            --level-1: #fff3e0;
-            --level-0: #fce4ec;
+            /* Adjusted for higher contrast accessibility */
+            --level-3: #d1e7fc; 
+            --level-2: #d4edda;
+            --level-1: #fff3cd;
+            --level-0: #f8d7da;
             --focus-ring: #005fcc;
         }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f4f4f9; display: flex; gap: 20px; flex-wrap: wrap; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f4f4f9; }
         
+        /* Skip Link Style */
+        .skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px; z-index: 100; }
+        .skip-link:focus { top: 0; }
+
+        .container { display: flex; gap: 20px; flex-wrap: wrap; }
         button:focus { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 
         .diagram-container { flex: 2; min-width: 300px; display: flex; flex-direction: column; gap: 15px; }
         .info-panel { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #2196F3; }
         
-        .purdue-level { border: 2px solid #757575; padding: 20px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 10px; }
+        .purdue-level { border: 2px solid #555; padding: 25px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 10px; }
         
-        /* Updated to ensure h2 styling matches your previous span */
         .level-header { 
             position: absolute; top: -12px; left: 15px; background: #333; color: white; 
-            padding: 4px 10px; font-size: 0.9rem; border-radius: 4px; font-weight: bold; 
-            margin: 0; /* Removing default h2 margins */
+            padding: 4px 10px; font-size: 0.9rem; border-radius: 4px; font-weight: bold; margin: 0;
         }
         
         #lvl-3 { background-color: var(--level-3); }
@@ -36,94 +40,58 @@
         .component-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 5px; }
         
         .device-btn {
-            width: 140px; min-height: 80px;
-            background: white; border: 2px solid #333;
-            display: flex; align-items: center; justify-content: center;
-            text-align: center; font-weight: bold; font-size: 1rem;
-            cursor: pointer; border-radius: 6px; 
-            color: #000;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            width: 140px; min-height: 80px; background: white; border: 2px solid #333;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000;
         }
-        .device-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
+        .device-btn:hover { background: #e0e0e0; }
         .device-btn[aria-pressed="true"] { 
             background: #2196F3; color: white; border-color: #004ba0; 
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
         }
-
-        .line { height: 15px; border-left: 3px dashed #333; margin: 0 auto; width: 0; }
-        .risk-box { background: #ffebee; border: 1px solid #c62828; padding: 15px; border-radius: 4px; margin-top: 15px; color: #b71c1c; }
+        /* Visual indicator for pressed state */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
     </style>
 </head>
 <body>
 
-    <main class="diagram-container">
-        <h1>ICS/SCADA Architecture</h1>
-        <p>Instructions: Use <b>Tab</b> to move between devices. Press <b>Enter</b> or <b>Space</b> to select a device.</p>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-        <section id="lvl-3" class="purdue-level" aria-labelledby="label-lvl3">
-            <h2 id="label-lvl3" class="level-header">Level 3: Operations Management</h2>
-            <div class="component-row">
-                <button class="device-btn" onclick="updateInfo('historian', this)">Data Historian</button>
-                <button class="device-btn" onclick="updateInfo('scada-server', this)">SCADA Server (MTU)</button>
+    <main id="main-content" class="container">
+        <section class="diagram-container" aria-label="Architecture Diagram">
+            <h1>ICS/SCADA Architecture</h1>
+            <p>Use Tab to navigate components. Select a component to view details.</p>
+
+            <section id="lvl-3" class="purdue-level" aria-labelledby="label-lvl3">
+                <h2 id="label-lvl3" class="level-header">Level 3: Operations Management</h2>
+                <div class="component-row">
+                    <button class="device-btn" onclick="updateInfo('historian', this)">Data Historian<span class="sr-only">, unselected</span></button>
+                    <button class="device-btn" onclick="updateInfo('scada-server', this)">SCADA Server<span class="sr-only">, unselected</span></button>
+                </div>
+            </section>
+
+            </section>
+
+        <aside class="info-panel" aria-live="polite" aria-atomic="true">
+            <h2 id="info-title">Select a Component</h2>
+            <div id="info-content">
+                <p>Select a block to learn more.</p>
             </div>
-        </section>
-
-        <div class="line" aria-hidden="true"></div>
-
-        <section id="lvl-2" class="purdue-level" aria-labelledby="label-lvl2">
-            <h2 id="label-lvl2" class="level-header">Level 2: Supervisory Control</h2>
-            <div class="component-row">
-                <button class="device-btn" onclick="updateInfo('hmi', this)">Human Machine Interface</button>
-                <button class="device-btn" onclick="updateInfo('eng-workstation', this)">Engineering Workstation</button>
-            </div>
-        </section>
-
-        <div class="line" aria-hidden="true"></div>
-
-        <section id="lvl-1" class="purdue-level" aria-labelledby="label-lvl1">
-            <h2 id="label-lvl1" class="level-header">Level 1: Local Control</h2>
-            <div class="component-row">
-                <button class="device-btn" onclick="updateInfo('plc', this)">PLC / RTU</button>
-                <button class="device-btn" onclick="updateInfo('ied', this)">IED (Relay)</button>
-            </div>
-        </section>
-
-        <div class="line" aria-hidden="true"></div>
-
-        <section id="lvl-0" class="purdue-level" aria-labelledby="label-lvl0">
-            <h2 id="label-lvl0" class="level-header">Level 0: Field Devices</h2>
-            <div class="component-row">
-                <button class="device-btn" onclick="updateInfo('sensor', this)">Sensors</button>
-                <button class="device-btn" onclick="updateInfo('actuator', this)">Actuators</button>
-            </div>
-        </section>
+        </aside>
     </main>
 
-    <aside class="info-panel" aria-live="polite" aria-atomic="true">
-        <h2 id="info-title">Select a Component</h2>
-        <div id="info-content">
-            <p>Select a block in the diagram to identify the component, understand its role, and learn about vulnerabilities.</p>
-        </div>
-    </aside>
-
     <script>
-        const data = {
-            'historian': { title: "Data Historian", desc: "A centralized database that stores historical process data.", risk: "<strong>Risk:</strong> Often dual-homed, making it a pivot point." },
-            'scada-server': { title: "SCADA Server (MTU)", desc: "The Master Terminal Unit. It acts as the 'brain'.", risk: "<strong>Risk:</strong> Full control over the process." },
-            'hmi': { title: "Human Machine Interface (HMI)", desc: "A dashboard to monitor the process.", risk: "<strong>Risk:</strong> Can display false data to operators." },
-            'eng-workstation': { title: "Engineering Workstation", desc: "Used to program PLCs.", risk: "<strong>Risk:</strong> Can push malicious firmware." },
-            'plc': { title: "PLC (Programmable Logic Controller)", desc: "Industrial computer controlling outputs.", risk: "<strong>Risk:</strong> Often lacks authentication." },
-            'ied': { title: "IED (Intelligent Electronic Device)", desc: "Protection command device.", risk: "<strong>Risk:</strong> Susceptible to protocol-based attacks." },
-            'sensor': { title: "Sensors (Input)", desc: "Measures physical properties.", risk: "<strong>Risk:</strong> Signal spoofing." },
-            'actuator': { title: "Actuators (Output)", desc: "Motors, pumps, and valves.", risk: "<strong>Risk:</strong> Rapid cycling can cause damage." }
-        };
-
         function updateInfo(key, btnElement) {
+            // Update logic remains same, added accessibility update for state text
             const info = data[key];
             document.getElementById('info-title').innerText = info.title;
             document.getElementById('info-content').innerHTML = `<p>${info.desc}</p><div class="risk-box">${info.risk}</div>`;
-            document.querySelectorAll('.device-btn').forEach(btn => btn.setAttribute('aria-pressed', 'false'));
+            
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.setAttribute('aria-pressed', 'false');
+                btn.querySelector('.sr-only').innerText = ", unselected";
+            });
             btnElement.setAttribute('aria-pressed', 'true');
+            btnElement.querySelector('.sr-only').innerText = ", selected";
         }
     </script>
 </body>
