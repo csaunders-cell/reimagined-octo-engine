@@ -3,95 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCADA Architecture Explorer</title>
+    <title>Introduction to Industrial Networks</title>
     <style>
-        :root {
-            /* Adjusted for higher contrast accessibility */
-            --level-3: #d1e7fc; 
-            --level-2: #d4edda;
-            --level-1: #fff3cd;
-            --level-0: #f8d7da;
-            --focus-ring: #005fcc;
+        /* Base styles maintained, enhanced focus indicators */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: sans-serif; background: #1e3c72; color: #333; }
+        
+        .slide { 
+            display: none; width: 90%; max-width: 1200px; height: 85vh; 
+            background: #fff; border-radius: 20px; padding: 60px; margin: 5vh auto;
+            overflow-y: auto; outline: none;
         }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f4f4f9; }
+        .slide.active { display: block; }
         
-        /* Skip Link Style */
-        .skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px; z-index: 100; }
-        .skip-link:focus { top: 0; }
-
-        .container { display: flex; gap: 20px; flex-wrap: wrap; }
-        button:focus { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
-
-        .diagram-container { flex: 2; min-width: 300px; display: flex; flex-direction: column; gap: 15px; }
-        .info-panel { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #2196F3; }
+        /* Ensure buttons have high contrast focus states */
+        button:focus { outline: 4px solid #ffbf47; outline-offset: 2px; }
         
-        .purdue-level { border: 2px solid #555; padding: 25px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 10px; }
-        
-        .level-header { 
-            position: absolute; top: -12px; left: 15px; background: #333; color: white; 
-            padding: 4px 10px; font-size: 0.9rem; border-radius: 4px; font-weight: bold; margin: 0;
-        }
-        
-        #lvl-3 { background-color: var(--level-3); }
-        #lvl-2 { background-color: var(--level-2); }
-        #lvl-1 { background-color: var(--level-1); }
-        #lvl-0 { background-color: var(--level-0); }
-
-        .component-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 5px; }
-        
-        .device-btn {
-            width: 140px; min-height: 80px; background: white; border: 2px solid #333;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000;
-        }
-        .device-btn:hover { background: #e0e0e0; }
-        .device-btn[aria-pressed="true"] { 
-            background: #2196F3; color: white; border-color: #004ba0; 
-        }
-        /* Visual indicator for pressed state */
-        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
     </style>
 </head>
 <body>
 
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="announcer" class="sr-only" aria-live="polite"></div>
 
-    <main id="main-content" class="container">
-        <section class="diagram-container" aria-label="Architecture Diagram">
-            <h1>ICS/SCADA Architecture</h1>
-            <p>Use Tab to navigate components. Select a component to view details.</p>
+    <main class="slide-container" id="main-content">
+        <article class="slide active" id="slide-1" tabindex="-1" aria-labelledby="h1-1">
+            <h1 id="h1-1">Introduction to Industrial Networks</h1>
+            <p>Use the buttons at the bottom to navigate.</p>
+        </article>
+        
+        </main>
 
-            <section id="lvl-3" class="purdue-level" aria-labelledby="label-lvl3">
-                <h2 id="label-lvl3" class="level-header">Level 3: Operations Management</h2>
-                <div class="component-row">
-                    <button class="device-btn" onclick="updateInfo('historian', this)">Data Historian<span class="sr-only">, unselected</span></button>
-                    <button class="device-btn" onclick="updateInfo('scada-server', this)">SCADA Server<span class="sr-only">, unselected</span></button>
-                </div>
-            </section>
-
-            </section>
-
-        <aside class="info-panel" aria-live="polite" aria-atomic="true">
-            <h2 id="info-title">Select a Component</h2>
-            <div id="info-content">
-                <p>Select a block to learn more.</p>
-            </div>
-        </aside>
-    </main>
+    <div class="navigation" role="navigation" aria-label="Slide Navigation">
+        <button id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
 
     <script>
-        function updateInfo(key, btnElement) {
-            // Update logic remains same, added accessibility update for state text
-            const info = data[key];
-            document.getElementById('info-title').innerText = info.title;
-            document.getElementById('info-content').innerHTML = `<p>${info.desc}</p><div class="risk-box">${info.risk}</div>`;
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
             
-            document.querySelectorAll('.device-btn').forEach(btn => {
-                btn.setAttribute('aria-pressed', 'false');
-                btn.querySelector('.sr-only').innerText = ", unselected";
-            });
-            btnElement.setAttribute('aria-pressed', 'true');
-            btnElement.querySelector('.sr-only').innerText = ", selected";
+            // Move focus to the top of the new slide for accessibility
+            slides[currentSlide].focus();
+            
+            // Announce slide number to screen readers
+            document.getElementById('announcer').textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+            
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
         }
     </script>
 </body>
