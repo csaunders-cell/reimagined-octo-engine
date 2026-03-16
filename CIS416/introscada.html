@@ -3,157 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introduction to Industrial Networks</title>
+    <title> SCADA Architecture Explorer</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #1e3c72; color: #333; overflow: hidden; }
-        .slide-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .slide { 
-            display: none; width: 90%; max-width: 1000px; height: 80vh; background: #fff; 
-            border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            overflow-y: auto; outline: none;
+        :root {
+            --level-3: #e3f2fd;
+            --level-2: #e8f5e9;
+            --level-1: #fff3e0;
+            --level-0: #fce4ec;
+            --focus-ring: #005fcc; /* High contrast focus color */
         }
-        .slide.active { display: block; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f4f4f9; display: flex; gap: 20px; flex-wrap: wrap; }
         
-        /* Print styles for PDF export */
-        @media print {
-            body { background: white; overflow: visible; }
-            .slide { display: block !important; page-break-after: always; box-shadow: none; border: 1px solid #ccc; }
-            .navigation { display: none; }
+        /* High Contrast Focus States for Accessibility */
+        button:focus {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
         }
 
-        h1 { color: #1e3c72; margin-bottom: 15px; border-bottom: 2px solid #2a5298; padding-bottom: 10px; }
-        h2 { color: #2a5298; margin: 10px 0; }
-        .navigation { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 1000; }
-        button { background: #2a5298; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button:disabled { background: #888; }
-        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
+        .diagram-container { flex: 2; min-width: 300px; display: flex; flex-direction: column; gap: 15px; }
+        .info-panel { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #2196F3; }
+        
+        .purdue-level { border: 2px solid #757575; padding: 20px 15px 15px 15px; border-radius: 8px; position: relative; margin-bottom: 10px; }
+        .level-header { position: absolute; top: -12px; left: 15px; background: #333; color: white; padding: 4px 10px; font-size: 0.9rem; border-radius: 4px; font-weight: bold; }
+        
+        #lvl-3 { background-color: var(--level-3); }
+        #lvl-2 { background-color: var(--level-2); }
+        #lvl-1 { background-color: var(--level-1); }
+        #lvl-0 { background-color: var(--level-0); }
+
+        .component-row { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 5px; }
+        
+        /* Changing Divs to Buttons for Accessibility */
+        .device-btn {
+            width: 140px; min-height: 80px;
+            background: white; border: 2px solid #333;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; font-weight: bold; font-size: 1rem;
+            cursor: pointer; border-radius: 6px; 
+            color: #000; /* Ensure high contrast */
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        }
+        .device-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
+        .device-btn[aria-pressed="true"] { 
+            background: #2196F3; color: white; border-color: #004ba0; 
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .line { height: 15px; border-left: 3px dashed #333; margin: 0 auto; width: 0; }
+        .risk-box { background: #ffebee; border: 1px solid #c62828; padding: 15px; border-radius: 4px; margin-top: 15px; color: #b71c1c; }
     </style>
 </head>
 <body>
 
-    <div id="announcer" class="sr-only" aria-live="polite"></div>
+    <main class="diagram-container">
+        <h1>ICS/SCADA Architecture </h1>
+        <p>Instructions: Use <b>Tab</b> to move between devices. Press <b>Enter</b> or <b>Space</b> to select a device. Details will appear in the panel to the right.</p>
 
-    <main class="slide-container">
-        <section class="slide active" tabindex="-1">
-            <h1>Introduction to Industrial Networks</h1>
-            <h2>Week 1: Understanding Industrial Control Systems</h2>
-            <p>Industrial Architecture: Exploring the foundation of critical infrastructure control systems.</p>
+        <section id="lvl-3" class="purdue-level" aria-labelledby="label-lvl3">
+            <span id="label-lvl3" class="level-header">Level 3: Operations Management</span>
+            <div class="component-row">
+                <button class="device-btn" onclick="updateInfo('historian', this)">Data Historian</button>
+                <button class="device-btn" onclick="updateInfo('scada-server', this)">SCADA Server (MTU)</button>
+            </div>
         </section>
 
-        <section class="slide" tabindex="-1">
-            <h1>Learning Objectives</h1>
-            <ul>
-                <li>Describe functions of RTU, PLC, DCS, and SCADA.</li>
-                <li>Explain role of metering, telemetry, and communication buses.</li>
-                <li>Understand the Purdue Model (ISA 95).</li>
-                <li>Identify industrial safety and protection systems.</li>
-                <li>Recognize unique ICS cybersecurity requirements.</li>
-            </ul>
+        <div class="line" aria-hidden="true"></div>
+
+        <section id="lvl-2" class="purdue-level" aria-labelledby="label-lvl2">
+            <span id="label-lvl2" class="level-header">Level 2: Supervisory Control</span>
+            <div class="component-row">
+                <button class="device-btn" onclick="updateInfo('hmi', this)">Human Machine Interface</button>
+                <button class="device-btn" onclick="updateInfo('eng-workstation', this)">Engineering Workstation</button>
+            </div>
         </section>
 
-        <section class="slide" tabindex="-1">
-            <h1>What is Industrial Processing?</h1>
-            <p>ICS systems control physical variables; IT systems manage data.</p>
-            <h3>Critical Sectors:</h3>
-            <p>Chemical, Energy, Water, Manufacturing, Defense, Healthcare, etc.</p>
+        <div class="line" aria-hidden="true"></div>
+
+        <section id="lvl-1" class="purdue-level" aria-labelledby="label-lvl1">
+            <span id="label-lvl1" class="level-header">Level 1: Local Control</span>
+            <div class="component-row">
+                <button class="device-btn" onclick="updateInfo('plc', this)">PLC / RTU</button>
+                <button class="device-btn" onclick="updateInfo('ied', this)">IED (Relay)</button>
+            </div>
         </section>
 
-        <section class="slide" tabindex="-1">
-            <h1>ICS vs. IT Systems</h1>
-            <p><strong>ICS:</strong> Priority on Availability & Data Integrity.</p>
-            <p><strong>IT:</strong> Priority on Confidentiality.</p>
-        </section>
+        <div class="line" aria-hidden="true"></div>
 
-        <section class="slide" tabindex="-1">
-            <h1>Key Requirements for Industrial Controllers</h1>
-            <ul>
-                <li><strong>Availability:</strong> Continuous 24/7/365 operations.</li>
-                <li><strong>Timeliness:</strong> Real-time response constraints.</li>
-                <li><strong>Interfacing:</strong> Industrial I/O ports.</li>
-                <li><strong>Physical Hardening:</strong> Harsh environment capable.</li>
-            </ul>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Programmable Logic Controllers (PLCs)</h1>
-            <p>The most common industrial field device.</p>
-            <ul>
-                <li>PSU, CPU, Input Modules, Output Modules, Communication Modules.</li>
-            </ul>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Remote Telemetry Units (RTUs)</h1>
-            <p>Small intelligent units for gathering data in remote, geographically distributed locations.</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Distributed Control Systems (DCS)</h1>
-            <p>Distributes control across multiple controllers for complex, large-scale processes.</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>SCADA Systems</h1>
-            <p>Supervisory Control and Data Acquisition for monitoring and managing dispersed assets.</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Network Architecture Layers</h1>
-            <p>1. Field Bus Loop, 2. Supervisory Loop, 3. LAN, 4. Enterprise Network.</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Industrial Communication Protocols</h1>
-            <p>Transitioning from Serial (RS-232/485) to Ethernet TCP/IP and Wireless.</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>The Purdue Model (ISA 95)</h1>
-            <p>Five-level integration: Level 0 (Process) to Level 4 (Business Systems).</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Safety Systems</h1>
-            <p>SIS (Safety Instrumented Systems), ESD (Emergency Shutdown), Fire/Gas, and Leak Detection.</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Safety Integrity Levels (SIL)</h1>
-            <p>Ratings from SIL 1 (Low risk) to SIL 4 (Extremely high complexity/risk).</p>
-        </section>
-
-        <section class="slide" tabindex="-1">
-            <h1>Summary</h1>
-            <p>Week 1 Review: ICS prioritizes availability. Next week: Industrial Instrumentation.</p>
+        <section id="lvl-0" class="purdue-level" aria-labelledby="label-lvl0">
+            <span id="label-lvl0" class="level-header">Level 0: Field Devices</span>
+            <div class="component-row">
+                <button class="device-btn" onclick="updateInfo('sensor', this)">Sensors</button>
+                <button class="device-btn" onclick="updateInfo('actuator', this)">Actuators</button>
+            </div>
         </section>
     </main>
 
-    <nav class="navigation" aria-label="Slide Navigation">
-        <button id="prevBtn" onclick="changeSlide(-1)" disabled>Previous</button>
-        <button onclick="window.print()">Print to PDF</button>
-        <button id="nextBtn" onclick="changeSlide(1)">Next</button>
-    </nav>
+    <aside class="info-panel" aria-live="polite" aria-atomic="true">
+        <h2 id="info-title">Select a Component</h2>
+        <div id="info-content">
+            <p>Select a block in the diagram to identify the component, understand its role, and learn about vulnerabilities.</p>
+        </div>
+    </aside>
 
     <script>
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
+        const data = {
+            'historian': {
+                title: "Data Historian",
+                desc: "A centralized database that stores historical process data (temperature, pressure, flow rates) for analysis and auditing.",
+                risk: "<strong>Risk:</strong> Often dual-homed (connected to both IT and OT networks), making it a pivot point for attackers."
+            },
+            'scada-server': {
+                title: "SCADA Server (MTU)",
+                desc: "The Master Terminal Unit. It acts as the 'brain,' polling PLCs for data and sending high-level commands.",
+                risk: "<strong>Risk:</strong> If compromised, an attacker has full control over the process."
+            },
+            'hmi': {
+                title: "Human Machine Interface (HMI)",
+                desc: "A graphical dashboard that operators use to monitor the process and adjust setpoints.",
+                risk: "<strong>Risk:</strong> Attackers can trick operators by displaying false data (e.g., showing a tank is empty when it is overflowing)."
+            },
+            'eng-workstation': {
+                title: "Engineering Workstation",
+                desc: "A laptop or PC used to program PLCs and configure the control system.",
+                risk: "<strong>Risk:</strong> Contains logic files. If infected, it can push malicious firmware to controllers (like in Stuxnet)."
+            },
+            'plc': {
+                title: "PLC (Programmable Logic Controller)",
+                desc: "Ruggedized industrial computer that directly monitors inputs and controls outputs.",
+                risk: "<strong>Risk:</strong> Many older PLCs accept any command sent to them without authentication."
+            },
+            'ied': {
+                title: "IED (Intelligent Electronic Device)",
+                desc: "Smart device found in power grids that can issue protection commands, like tripping a breaker.",
+                risk: "<strong>Risk:</strong> Susceptible to protocol-based attacks (DNP3/IEC 61850) causing blackouts."
+            },
+            'sensor': {
+                title: "Sensors (Input)",
+                desc: "Devices that measure physical properties (Temperature, Pressure, Flow).",
+                risk: "<strong>Risk:</strong> Signal spoofing. Feeding false data to the PLC."
+            },
+            'actuator': {
+                title: "Actuators (Output)",
+                desc: "Motors, pumps, and valves that perform physical work.",
+                risk: "<strong>Risk:</strong> Rapid cycling can cause physical damage, fire, or explosion."
+            }
+        };
 
-        function changeSlide(direction) {
-            slides[currentSlide].classList.remove('active');
-            currentSlide += direction;
-            slides[currentSlide].classList.add('active');
-            slides[currentSlide].focus();
-            
-            document.getElementById('announcer').textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
-            document.getElementById('prevBtn').disabled = currentSlide === 0;
-            document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
+        function updateInfo(key, btnElement) {
+            // Update Text
+            const info = data[key];
+            document.getElementById('info-title').innerText = info.title;
+            document.getElementById('info-content').innerHTML = `
+                <p>${info.desc}</p>
+                <div class="risk-box">${info.risk}</div>
+            `;
+
+            // Accessibility: Manage focus state
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.setAttribute('aria-pressed', 'false');
+            });
+            btnElement.setAttribute('aria-pressed', 'true');
         }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
-            if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) changeSlide(1);
-        });
     </script>
 </body>
 </html>
