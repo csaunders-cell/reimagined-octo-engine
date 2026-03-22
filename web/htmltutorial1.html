@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Web Development Tutorial and Editor</title>
+    <style>
+        /* Base Styles for Readability and Contrast */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 2em;
+            background-color: #fafafa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: #222;
+        }
+
+        /* Skip Navigation for Keyboard Users */
+        .skip-link {
+            position: absolute;
+            left: -1000px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            background-color: #fdd835;
+            color: black;
+            padding: 10px;
+            text-decoration: none;
+            z-index: 1000;
+        }
+
+        .skip-link:focus {
+            left: 5px;
+            top: 5px;
+            width: auto;
+            height: auto;
+            overflow: visible;
+        }
+
+        /* Container for Tutorial and Editor Split */
+        .tutorial-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2em;
+        }
+
+        @media (min-width: 768px) {
+            .tutorial-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Tutorial Content Styles */
+        #tutorial-content {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            padding: 2em;
+            border-radius: 8px;
+        }
+
+        #tutorial-content h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #337ab7;
+            padding-bottom: 0.5em;
+        }
+
+        .tutorial-navigation button {
+            background-color: #0056b3; /* High Contrast Blue */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1em;
+            margin-right: 0.5em;
+            font-size: 1em;
+        }
+
+        .tutorial-navigation button:hover,
+        .tutorial-navigation button:focus {
+            background-color: #004085; /* Darker Blue for Focus */
+            outline: 2px solid #ffca28; /* Gold Focus Ring */
+            outline-offset: 2px;
+        }
+
+        /* Code Editor Interface Styles */
+        #editor-pane {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        .editor-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+        }
+
+        .code-input {
+            width: 100%;
+            height: 150px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background-color: #fefefe;
+            color: #111;
+            resize: vertical;
+        }
+
+        .code-input:focus {
+            border-color: #337ab7;
+            outline: 2px solid #337ab7;
+            outline-offset: 2px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        button.run-button {
+            align-self: flex-start;
+            background-color: #28a745; /* High Contrast Green */
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        button.run-button:hover,
+        button.run-button:focus {
+            background-color: #218838;
+            outline: 2px solid #ffca28;
+            outline-offset: 2px;
+        }
+
+        /* Preview Area Styles */
+        #preview-pane {
+            border: 2px solid #337ab7;
+            padding: 1em;
+            background-color: #fff;
+            border-radius: 8px;
+            margin-top: 2em;
+        }
+
+        #preview-pane h3 {
+            margin-top: 0;
+            color: #337ab7;
+        }
+
+        #live-preview {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        /* Visual separation of steps */
+        .tutorial-step {
+            display: none;
+        }
+
+        .active-step {
+            display: block;
+        }
+
+        /* Screen Reader only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <a href="#main-content" class="skip-link">Skip to Main Content</a>
+
+    <header role="banner">
+        <h1>Web Development 101: Your Interactive Tutorial</h1>
+    </header>
+
+    <main id="main-content" role="main" class="tutorial-container">
+
+        <article id="tutorial-content" aria-label="Tutorial Guide">
+            <h2>Tutorial Steps</h2>
+
+            <section id="step-1" class="tutorial-step active-step">
+                <h3>1. Semantic HTML: The Skeleton</h3>
+                <p>Think of HTML (HyperText Markup Language) as the structure, the skeleton of your web page. We use <strong>elements</strong> (tags) like boxes to define content. When you work with a CMS, you might insert content into a 'visual editor', but the CMS is generating these tags behind the scenes.</p>
+                <p>For example, <code>&lt;h1&gt;</code> is a 'Heading 1', and <code>&lt;p&gt;</code> is a 'Paragraph'. Using these correctly is essential for both accessibility and search engine optimization (SEO).</p>
+                
+                <p><strong>Your Task:</strong> In the 'HTML' box on the right, try changing the text inside the <code>&lt;h1&gt;</code> tag and the <code>&lt;p&gt;</code> tag. Can you add a link using an anchor tag <code>&lt;a&gt;</code> like this: <code>&lt;a href="https://google.com"&gt;Go to Google&lt;/a&gt;</code>? Click 'Run Code' to see the changes below.</p>
+            </section>
+
+            <section id="step-2" class="tutorial-step">
+                <h3>2. Basic CSS: The Style</h3>
+                <p>If HTML is the skeleton, CSS (Cascading Style Sheets) is the skin and clothing. It tells the browser *how* the HTML elements should look—their color, font, size, and spacing. When you change a 'theme' or 'template' in a CMS, you are swapping out a whole set of CSS rules.</p>
+                <p>CSS works with <strong>rulesets</strong>. For instance:
+                <code>body { color: blue; }</code> makes all text on the page blue.</p>
+
+                <p><strong>Your Task:</strong> Switch to the 'CSS' tab. Change the color of the <code>h1</code> header from `#2c3e50` to `red` or `#e74c3c`. Try changing the `background-color` of the `body`. Try adjusting the `padding` and `margin`. This controls the empty space around your boxes!</p>
+            </section>
+
+            <section id="step-3" class="tutorial-step">
+                <h3>3. JavaScript: The Behavior</h3>
+                <p>JavaScript is the 'muscle'. It adds logic and allows the page to respond to actions, like a user clicking a button. When you add dynamic features, animations, or live filters in a CMS using plugins, you are often relying on complex JavaScript libraries.</p>
+                <p>JavaScript interacts with the <strong>DOM (Document Object Model)</strong>, a structured map of your HTML. It allows the code to select and change specific boxes on the page.</p>
+
+                <p><strong>Your Task:</strong> Switch to the 'JavaScript' tab. Can you change the behavior so that the background color becomes `purple`? Try changing the message in the `alert()`. Can you make the JavaScript change the `innerHTML` of the `h1` header instead?</p>
+            </section>
+
+            <section id="step-4" class="tutorial-step">
+                <h3>Conclusion: Prepping for a CMS</h3>
+                <p>You’ve built a simple page from scratch using the fundamental triad of web tech: HTML structure, CSS style, and JavaScript behavior.</p>
+                <p>When you later work with a content management system (CMS) like WordPress or Webflow, remember: these platforms are just automated, often drag-and-drop systems for generating the precise code you’ve seen today. The concepts remain the same: you define content types (HTML), style templates (CSS), and perhaps dynamic features (JavaScript/Plugins). Your foundational knowledge will help you troubleshoot and customize far more effectively!</p>
+            </section>
+
+            <nav class="tutorial-navigation" aria-label="Tutorial step navigation">
+                <button type="button" id="prevBtn" onclick="changeStep(-1)" style="display:none;" aria-label="Previous step">Previous</button>
+                <button type="button" id="nextBtn" onclick="changeStep(1)" aria-label="Next step">Next</button>
+            </nav>
+        </article>
+
+        <aside id="editor-pane" aria-label="Code Editor">
+            <h2>Try It Editor</h2>
+
+            <div class="editor-section">
+                <label for="htmlCode">HTML Code:</label>
+                <textarea id="htmlCode" class="code-input" aria-describedby="html-desc"></textarea>
+                <span id="html-desc" class="sr-only">Edit the structure of your page here. Use semantic HTML tags.</span>
+            </div>
+
+            <div class="editor-section">
+                <label for="cssCode">CSS Code:</label>
+                <textarea id="cssCode" class="code-input" aria-describedby="css-desc"></textarea>
+                <span id="css-desc" class="sr-only">Style your HTML elements using CSS selectors and properties.</span>
+            </div>
+
+            <div class="editor-section">
+                <label for="jsCode">JavaScript Code:</label>
+                <textarea id="jsCode" class="code-input" aria-describedby="js-desc"></textarea>
+                <span id="js-desc" class="sr-only">Add behavior using JavaScript. Interact with the DOM.</span>
+            </div>
+
+            <button type="button" class="run-button" onclick="runCode()">Run Code (Ctrl + Enter)</button>
+        </aside>
+    </main>
+
+    <section id="preview-pane" aria-label="Live Page Preview">
+        <h3>Live Preview</h3>
+        <p>Your code renders here. Verify that it looks and functions as intended!</p>
+        <iframe id="live-preview" title="Live rendering of the user's code."></iframe>
+    </section>
+
+    <footer role="contentinfo" style="margin-top: 3em; text-align: center; color: #777;">
+        <p>Web Development Tutorial &copy; 2024</p>
+    </footer>
+
+    <script>
+        // Initial Default Code for the Editor
+        const defaultHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Page</title>
+</head>
+<body>
+    <h1>Welcome to My First Web Page!</h1>
+    <p>This is a paragraph where we introduce our concept.</p>
+    <button id="themeBtn">Change Theme Color</button>
+    
+</body>
+</html>`;
+
+        const defaultCss = `
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 2em;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 0.5em;
+}
+
+p {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 1.5em;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #337ab7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+button:hover {
+    background-color: #286090;
+}`;
+
+        const defaultJs = `
+// JavaScript is used for interactive behavior
+const btn = document.getElementById('themeBtn');
+
+// This listens for a 'click' event on the button
+btn.addEventListener('click', function() {
+    // When clicked, we access the 'body' and change its background
+    document.body.style.backgroundColor = '#2ecc71'; // Changed to Green
+    
+    // We can also trigger notifications
+    alert('You have interacted with the DOM via JavaScript!');
+});`;
+
+        // Initialize editor with defaults
+        document.getElementById('htmlCode').value = defaultHtml.trim();
+        document.getElementById('cssCode').value = defaultCss.trim();
+        document.getElementById('jsCode').value = defaultJs.trim();
+
+        // Main Function to Run the Code
+        function runCode() {
+            const html = document.getElementById('htmlCode').value;
+            const css = document.getElementById('cssCode').value;
+            const js = document.getElementById('jsCode').value;
+
+            const previewFrame = document.getElementById('live-preview').contentWindow.document;
+
+            // Clear previous content
+            previewFrame.open();
+            
+            // Build the iframe content structure
+            let combinedContent = `
+                ${html}
+                <style>${css}</style>
+                <script>${js}<\/script>
+            `;
+            
+            // Basic sanitization/check for completeness (user can break the iframe easily, but this shows basic results)
+            if(!html.includes('<!DOCTYPE html>')){
+                alert("For best results and accessibility compliance, start your HTML with the <!DOCTYPE html> declaration.");
+            }
+
+            // Write and Close Frame
+            previewFrame.write(combinedContent);
+            previewFrame.close();
+        }
+
+        // --- Tutorial Navigation Logic ---
+
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function changeStep(n) {
+            // Validate limits
+            if ((currentStep === 1 && n === -1) || (currentStep === totalSteps && n === 1)) {
+                return;
+            }
+
+            // Update state
+            currentStep += n;
+            updateStepDisplay();
+        }
+
+        function updateStepDisplay() {
+            // Hide all steps
+            const steps = document.querySelectorAll('.tutorial-step');
+            steps.forEach(step => step.classList.remove('active-step'));
+
+            // Show active step
+            document.getElementById(`step-${currentStep}`).classList.add('active-step');
+
+            // Set focus on the newly visible header for screen readers
+            const newHeader = document.querySelector(`#step-${currentStep} h3`);
+            if (newHeader) {
+                newHeader.setAttribute('tabindex', '-1');
+                newHeader.focus();
+            }
+
+            // Update button visibility and labels
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-block';
+
+            if (currentStep === totalSteps) {
+                nextBtn.innerText = 'Finish Tutorial';
+                // In a real app, you might disable it or link to a different module.
+            } else {
+                nextBtn.innerText = 'Next Step';
+            }
+        }
+
+        // Accessibility/UX: Add a keyboard shortcut Ctrl+Enter to run the code
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
+                runCode();
+            }
+        });
+
+        // Initial run to populate the preview with defaults
+        runCode();
+    </script>
+</body>
+</html>
