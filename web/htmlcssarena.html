@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Development Practice Arena | HTML & CSS Fundamentals</title>
+    <style>
+        /* --- CSS VARIABLES (Colors meet WCAG AA contrast) --- */
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #2c3e50;
+            --primary-accent: #2980b9; /* High contrast blue */
+            --secondary-accent: #27ae60; /* High contrast green */
+            --warning-accent: #c0392b; /* High contrast red for errors */
+            --panel-bg: #ffffff;
+            --border-color: #bdc3c7;
+            
+            /* Box Model Visualization Colors */
+            --bm-margin: #f9cb9c; /* Peach */
+            --bm-border: #ffe599; /* Yellow */
+            --bm-padding: #b6d7a8; /* Green */
+            --bm-content: #a4c2f4; /* Blue */
+        }
+
+        /* --- BASIC RESET & TYPOGRAPHY --- */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- LAYOUT --- */
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-accent);
+        }
+
+        h1 { color: var(--primary-accent); margin-bottom: 10px; }
+        h2 { color: var(--text-color); border-left: 5px solid var(--secondary-accent); padding-left: 10px; margin-top: 30px;}
+        h3 { margin-top: 0;}
+
+        /* --- INTERACTIVE CARD STYLES --- */
+        .practice-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* --- ACCESSIBLE FORM ELEMENTS --- */
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary-accent);
+            outline: 3px solid #85c1e9; /* Clear focus indicator */
+            outline-offset: 2px;
+        }
+
+        button {
+            background-color: var(--primary-accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover, button:focus {
+            background-color: #1f6391;
+            outline: 3px solid #85c1e9;
+            outline-offset: 2px;
+        }
+
+        /* --- CHALLENGE 1: SEMANTIC HTML --- */
+        .code-snippet {
+            background-color: #2d3436;
+            color: #dfe6e9;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .correct-answer { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .incorrect-answer { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        #feedback-1 {
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+        }
+
+        /* --- CHALLENGE 2: BOX MODEL --- */
+        .box-model-stage {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .controls { flex: 1; min-width: 250px; }
+        
+        .visualization {
+            flex: 2;
+            min-width: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #eee;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        /* The actual element being styled */
+        #demo-box {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            border: 0px solid black; /* Initial */
+            transition: all 0.2s ease;
+            width: 100px;
+            height: 100px;
+            display: flex; height: auto; min-height: 100px;
+            justify-content: center; align-items: center;
+        }
+
+        /* Visual representation of the spaces (not the actual margins) */
+        .visual-container {
+            border: 2px dashed #999;
+            display: inline-block;
+        }
+
+        /* --- CHALLENGE 3: FLEXBOX --- */
+        .flex-stage {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        #flex-container {
+            flex: 2;
+            min-width: 300px;
+            height: 250px;
+            background-color: #dfe6e9;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex; /* Interactive target */
+            padding: 10px;
+        }
+
+        .flex-item {
+            width: 50px;
+            height: 50px;
+            background-color: var(--secondary-accent);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border-radius: 4px;
+            margin: 5px;
+        }
+
+        /* Screen Reader Only class for accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <header>
+            <h1>Web Development Practice Arena</h1>
+            <p>Reinforce your understanding of Semantic HTML, the Box Model, and Flexbox.</p>
+        </header>
+
+        <section aria-labelledby="semantic-heading">
+            <h2 id="semantic-heading">Challenge 1: Identifying Semantic Tags</h2>
+            <div class="practice-card">
+                <h3>Scenario:</h3>
+                <p>You are building a blog post page. Look at the non-semantic code snippet below. Which semantic HTML5 tag should **replace** the `<div>` containing the main content of the article?</p>
+                
+                <div class="code-snippet" aria-label="Code Snippet">
+                    &lt;!-- Non-Semantic Structure --&gt;<br>
+                    &lt;div class="header"&gt;Site Title&lt;/div&gt;<br>
+                    <br>
+                    <strong>&lt;div class="main-content"&gt;</strong> <br>
+                    &nbsp;&nbsp;&lt;h1&gt;How to Learn Flexbox&lt;/h1&gt;<br>
+                    &nbsp;&nbsp;&lt;p&gt;Flexbox is a powerful layout tool...&lt;/p&gt;<br>
+                    <strong>&lt;/div&gt;</strong><br>
+                    <br>
+                    &lt;div class="footer"&gt;Copyright 2023&lt;/div&gt;
+                </div>
+
+                <form id="semantic-form">
+                    <label for="semantic-select">Choose the correct semantic replacement:</label>
+                    <select id="semantic-select" required>
+                        <option value="" disabled selected>-- Select a tag --</option>
+                        <option value="section">&lt;section&gt;</option>
+                        <option value="article">&lt;article&gt;</option>
+                        <option value="aside">&lt;aside&gt;</option>
+                        <option value="nav">&lt;nav&gt;</option>
+                    </select>
+                    <button type="submit">Check Answer</button>
+                </form>
+
+                <div id="feedback-1" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <section aria-labelledby="boxmodel-heading">
+            <h2 id="boxmodel-heading">Challenge 2: Visualizing the Box Model</h2>
+            <div class="practice-card">
+                <h3>Instructions:</h3>
+                <p>Adjust the sliders below to see how Margin, Border, and Padding affect the total size and spacing of the blue element. Observe how Padding sits *inside* the border, and Margin sits *outside*.</p>
+
+                <div class="box-model-stage">
+                    <div class="controls">
+                        <label for="input-padding">Padding (Inside Spacing): <span id="val-padding">10</span>px</label>
+                        <input type="range" id="input-padding" min="0" max="50" value="10" aria-valuemin="0" aria-valuemax="50" aria-valuenow="10">
+
+                        <label for="input-border">Border Thickness: <span id="val-border">0</span>px</label>
+                        <input type="range" id="input-border" min="0" max="20" value="0" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0">
+
+                        <label for="input-margin">Margin (Outside Spacing): <span id="val-margin">10</span>px</label>
+                        <input type="range" id="input-margin" min="0" max="50" value="10" aria-valuemin="0" aria-valuemax="50" aria-valuenow="10">
+                    </div>
+
+                    <div class="visualization">
+                        <div class="visual-container" style="background-color: var(--bm-margin); padding: 10px;" id="visual-margin-box">
+                            <span class="sr-only">Margin Area (Peach color)</span>
+                            <div style="background-color: var(--bm-border); padding: 0px;" id="visual-border-box">
+                                <span class="sr-only">Border Area (Yellow color)</span>
+                                <div style="background-color: var(--bm-padding); padding: 10px;" id="visual-padding-box">
+                                    <span class="sr-only">Padding Area (Green color)</span>
+                                    
+                                    <div id="demo-box" style="padding: 10px; margin: 0;">
+                                        Content
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="flexbox-heading">
+            <h2 id="flexbox-heading">Challenge 3: Mastering Flexbox Alignment</h2>
+            <div class="practice-card">
+                <h3>Instructions:</h3>
+                <p>Change the CSS properties applied to the light-gray container to realign the green items. This simulates how `display: flex` works in real time.</p>
+
+                <div class="flex-stage">
+                    <div class="controls">
+                        <label for="flex-direction-select">flex-direction (Main Axis):</label>
+                        <select id="flex-direction-select">
+                            <option value="row">row (Horizontal)</option>
+                            <option value="column">column (Vertical)</option>
+                        </select>
+
+                        <label for="justify-content-select">justify-content (Align along Main Axis):</label>
+                        <select id="justify-content-select">
+                            <option value="flex-start">flex-start (Start)</option>
+                            <option value="center">center (Middle)</option>
+                            <option value="flex-end">flex-end (End)</option>
+                            <option value="space-between">space-between (Even spacing)</option>
+                            <option value="space-around">space-around (Spacing with edges)</option>
+                        </select>
+
+                        <label for="align-items-select">align-items (Align along Cross Axis):</label>
+                        <select id="align-items-select">
+                            <option value="stretch">stretch (Fill container)</option>
+                            <option value="flex-start">flex-start (Top/Start)</option>
+                            <option value="center">center (Middle)</option>
+                            <option value="flex-end">flex-end (Bottom/End)</option>
+                        </select>
+                    </div>
+
+                    <div id="flex-container" aria-label="Flexbox Visualization Container">
+                        <div class="flex-item">1</div>
+                        <div class="flex-item">2</div>
+                        <div class="flex-item">3</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- JAVASCRIPT FOR INTERACTIVITY ---
+
+        // Challenge 1: Semantic HTML
+        const semanticForm = document.getElementById('semantic-form');
+        const semanticSelect = document.getElementById('semantic-select');
+        const feedback1 = document.getElementById('feedback-1');
+
+        semanticForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevents page reload
+            const answer = semanticSelect.value;
+
+            feedback1.style.display = 'block'; // Show feedback area
+
+            if (answer === 'article') {
+                feedback1.textContent = "Correct! <article> is the most semantic choice because the content is a self-contained composition (a blog post). While <section> is okay, <article> is better.";
+                feedback1.className = 'correct-answer';
+                feedback1.setAttribute('aria-label', 'Correct Answer Feedback');
+            } else {
+                feedback1.textContent = "Not quite. While <section> is generic, <article> is designed specifically for unique, self-contained content like blog posts.";
+                feedback1.className = 'incorrect-answer';
+                feedback1.setAttribute('aria-label', 'Incorrect Answer Feedback');
+            }
+        });
+
+        // Challenge 2: Box Model
+        const inputPadding = document.getElementById('input-padding');
+        const inputBorder = document.getElementById('input-border');
+        const inputMargin = document.getElementById('input-margin');
+        
+        const valPadding = document.getElementById('val-padding');
+        const valBorder = document.getElementById('val-border');
+        const valMargin = document.getElementById('val-margin');
+
+        const demoBox = document.getElementById('demo-box');
+        
+        // Visual guides
+        const visualMarginBox = document.getElementById('visual-margin-box');
+        const visualBorderBox = document.getElementById('visual-border-box');
+        const visualPaddingBox = document.getElementById('visual-padding-box');
+
+        function updateBoxModel() {
+            const p = inputPadding.value;
+            const b = inputBorder.value;
+            const m = inputMargin.value;
+
+            // Update numerical readouts
+            valPadding.textContent = p;
+            valBorder.textContent = b;
+            valMargin.textContent = m;
+
+            // Update ARIA values for sliders
+            inputPadding.setAttribute('aria-valuenow', p);
+            inputBorder.setAttribute('aria-valuenow', b);
+            inputMargin.setAttribute('aria-valuenow', m);
+
+            // Apply Actual CSS to the demo element
+            demoBox.style.padding = p + 'px';
+            demoBox.style.borderWidth = b + 'px';
+            // We apply margin visually using the containers below, not the element itself.
+            
+            // Apply visual guides to containers
+            visualMarginBox.style.padding = m + 'px';
+            visualBorderBox.style.padding = b + 'px';
+            visualPaddingBox.style.padding = p + 'px';
+        }
+
+        // Attach listeners to sliders
+        inputPadding.addEventListener('input', updateBoxModel);
+        inputBorder.addEventListener('input', updateBoxModel);
+        inputMargin.addEventListener('input', updateBoxModel);
+        
+        // Initialize on load
+        updateBoxModel();
+
+
+        // Challenge 3: Flexbox
+        const flexContainer = document.getElementById('flex-container');
+        const directionSelect = document.getElementById('flex-direction-select');
+        const justifySelect = document.getElementById('justify-content-select');
+        const alignSelect = document.getElementById('align-items-select');
+
+        function updateFlexbox() {
+            flexContainer.style.flexDirection = directionSelect.value;
+            flexContainer.style.justifyContent = justifySelect.value;
+            flexContainer.style.alignItems = alignSelect.value;
+        }
+
+        directionSelect.addEventListener('change', updateFlexbox);
+        justifySelect.addEventListener('change', updateFlexbox);
+        alignSelect.addEventListener('change', updateFlexbox);
+
+        // Initialize on load
+        updateFlexbox();
+
+    </script>
+</body>
+</html>
