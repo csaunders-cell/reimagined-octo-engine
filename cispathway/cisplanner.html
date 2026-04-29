@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIS Program Internal Planner - V7.8</title>
+    <title>CIS Interactive Faculty Planner - V7.9</title>
     <style>
         :root { 
             --primary: #002d62; --accent: #2c5282; --bg: #f7fafc; 
@@ -18,34 +18,34 @@
         
         /* Main UI */
         #app-wrapper { display: none; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #2d3748; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1250px; margin: 0 auto; }
         .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
         
         .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;}
         .control-group label { display: block; font-size: 0.75rem; font-weight: 800; color: #4a5568; margin-bottom: 8px; text-transform: uppercase; }
-        select { width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #cbd5e0; font-weight: 600; }
+        select.ui-select { width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #cbd5e0; font-weight: 600; }
         
-        /* Legend */
         .legend { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; padding: 15px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; }
         .legend-item { display: flex; align-items: center; font-size: 0.8rem; font-weight: 600; }
         .swatch { width: 16px; height: 16px; border-radius: 3px; margin-right: 8px; }
 
         .year-band { background: var(--primary); color: white; padding: 12px 20px; border-radius: 8px 8px 0 0; font-weight: bold; margin-top: 35px; }
         .quarter-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid #e2e8f0; border-top: none; background: #fff; }
-        .quarter-card { padding: 20px; border-right: 1px solid #e2e8f0; min-height: 400px; }
-        .q-title { font-weight: 800; color: var(--accent); border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 15px; }
+        .quarter-card { padding: 15px; border-right: 1px solid #e2e8f0; min-height: 450px; }
+        .q-title { font-weight: 800; color: var(--accent); border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 15px; text-transform: uppercase; font-size: 0.9rem; }
         
-        .course-pill { padding: 12px; margin-bottom: 10px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: 8px solid #cbd5e0; }
-        .course-pill[data-cat="net"] { border-left-color: var(--net-blue); }
-        .course-pill[data-cat="sec"] { border-left-color: var(--sec-red); }
-        .course-pill[data-cat="ai"] { border-left-color: var(--ai-green); }
-        .course-pill[data-cat="cis"] { border-left-color: var(--cis-gold); }
-        .course-pill[data-cat="cs"] { border-left-color: var(--cs-purple); }
+        .class-row { margin-bottom: 12px; }
+        .advisor-pick { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e0; font-size: 0.85rem; border-left: 6px solid #cbd5e0; font-weight: 600; background: #fff; }
+        .advisor-pick[data-cat="net"] { border-left-color: var(--net-blue); }
+        .advisor-pick[data-cat="sec"] { border-left-color: var(--sec-red); }
+        .advisor-pick[data-cat="ai"] { border-left-color: var(--ai-green); }
+        .advisor-pick[data-cat="cis"] { border-left-color: var(--cis-gold); }
+        .advisor-pick[data-cat="cs"] { border-left-color: var(--cs-purple); }
 
-        .seasonal-note { display: block; font-size: 0.7rem; color: #744210; font-weight: 700; margin-top: 4px; }
-        .credits-tag { font-size: 0.75rem; font-weight: bold; background: #edf2f7; padding: 2px 6px; border-radius: 4px; float: right; }
+        .validation-msg { display: block; font-size: 0.65rem; font-weight: 800; margin-top: 2px; min-height: 14px; }
+        .error { color: #c53030; }
+        .q-total { margin-top: 15px; padding-top: 10px; border-top: 2px dashed #e2e8f0; text-align: right; font-weight: 800; color: #4a5568; }
         
-        .q-total { margin-top: 20px; padding-top: 10px; border-top: 2px dashed #e2e8f0; text-align: right; font-weight: 800; color: #4a5568; }
         @media print { .controls, #gate, .legend { display: none !important; } #app-wrapper { display: block !important; } }
     </style>
 </head>
@@ -54,7 +54,7 @@
 <div id="gate">
     <div class="login-box">
         <h2 style="margin:0;">Faculty Staging</h2>
-        <p style="font-size: 0.85rem; color: #4a5568;">Enter password to view CIS Pathways</p>
+        <p style="font-size: 0.85rem; color: #4a5568;">CIS Program Planner Access</p>
         <input type="password" id="p-word" placeholder="Password" onkeydown="if(event.key==='Enter') checkAuth()">
         <button class="btn-auth" onclick="checkAuth()">Access Tool</button>
         <p id="err" style="color:red; font-size: 0.8rem; display:none; margin-top: 10px;">Incorrect Password</p>
@@ -64,22 +64,22 @@
 <div id="app-wrapper">
     <div class="container">
         <div class="header-bar">
-            <h1 style="margin:0; font-size: 1.4rem;">CIS Academic Pathways <span style="font-weight:400; color:#718096;">(Internal Staging)</span></h1>
-            <button onclick="window.print()" style="padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">Print to PDF</button>
+            <h1 style="margin:0; font-size: 1.4rem;">CIS Academic Pathways <span style="font-weight:400; color:#718096;">(Advisor Interactive)</span></h1>
+            <button onclick="window.print()" style="padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; background: var(--primary); color: white; border: none;">Print to PDF</button>
         </div>
 
         <div class="controls">
             <div class="control-group">
-                <label>Program Pathway</label>
-                <select id="path" onchange="init()">
+                <label>Program Focus</label>
+                <select id="path" class="ui-select" onchange="init()">
                     <option value="CIS-Net">CIS AAS (Networking)</option>
                     <option value="CIS-AI">CIS AAS (AI Focus)</option>
                     <option value="Cyber">Cybersecurity AAS-T</option>
                 </select>
             </div>
             <div class="control-group">
-                <label>Starting Term</label>
-                <select id="start" onchange="init()">
+                <label>Start Quarter</label>
+                <select id="start" class="ui-select" onchange="init()">
                     <option value="Fall">Fall</option>
                     <option value="Winter">Winter</option>
                     <option value="Spring">Spring</option>
@@ -102,8 +102,9 @@
 
 <script>
     const P_ACCESS = "Cyber2026";
-    const DB_CR = { "CIS 105": 4, "CIS 106": 5, "CIS 110": 3, "CIS 116": 3, "CIS 205": 5, "CIS 206": 4, "CIS 214": 5, "CIS 215": 5, "CIS 216": 5, "CIS 225": 5, "CIS 236": 5, "CIS 220": 5, "CIS 237": 6, "CIS 238": 6, "CIS 120": 5, "CIS 125": 5, "CIS 245": 5, "CIS 190": 5, "ENGL& 101": 5, "MATH& 141": 5, "MATH& 142": 5, "MATH& 151": 5, "CS& 141": 5, "CS 145": 5, "Gen Ed": 5, "Elective": 5 };
+    const DB_CR = { "CIS 105": 4, "CIS 106": 5, "CIS 110": 3, "CIS 116": 3, "CIS 205": 5, "CIS 206": 4, "CIS 214": 5, "CIS 215": 5, "CIS 216": 5, "CIS 225": 5, "CIS 236": 5, "CIS 220": 5, "CIS 237": 6, "CIS 238": 6, "CIS 120": 5, "CIS 125": 5, "CIS 245": 5, "CIS 190": 5, "ENGL& 101": 5, "MATH& 141": 5, "MATH& 142": 5, "MATH& 151": 5, "CS& 141": 5, "CS 145": 5, "Gen Ed": 5, "Elective": 5, "None": 0 };
     const DB_SEASON = { "CIS 206": "Winter", "CIS 225": "Spring", "CIS 220": "Spring", "CIS 245": "Spring", "CIS 120": "Fall", "CIS 125": "Winter", "CIS 214": "Fall/Winter", "CIS 237": "Fall/Winter", "CIS 238": "Winter/Spring" };
+    const DB_PRE = { "CIS 237": ["CIS 236"], "CIS 238": ["CIS 237"], "CIS 215": ["CIS 214"], "CIS 216": ["CIS 215"], "CIS 125": ["CIS 120"], "CIS 245": ["CIS 125"], "CS 145": ["CS& 141"], "MATH& 142": ["MATH& 141"], "MATH& 151": ["MATH& 142"] };
     const DB_CAT = { "CIS 236": "net", "CIS 237": "net", "CIS 238": "net", "CIS 214": "sec", "CIS 215": "sec", "CIS 216": "sec", "CIS 225": "sec", "CIS 120": "ai", "CIS 125": "ai", "CIS 245": "ai", "CIS 105": "cis", "CIS 106": "cis", "CIS 110": "cis", "CIS 116": "cis", "CS& 141": "cs", "CS 145": "cs" };
     
     const TRACKS = {
@@ -117,58 +118,66 @@
             document.getElementById('gate').style.display = 'none';
             document.getElementById('app-wrapper').style.display = 'block';
             init();
-        } else {
-            document.getElementById('err').style.display = 'block';
-        }
+        } else { document.getElementById('err').style.display = 'block'; }
     }
 
     function init() {
-        const path = document.getElementById('path').value;
-        const start = document.getElementById('start').value;
-        const mount = document.getElementById('mount'); mount.innerHTML = "";
-        const terms = ["Fall", "Winter", "Spring"];
-        let sIdx = terms.indexOf(start);
-        let pool = [...TRACKS[path]];
-        let completed = []; 
-        let curYr = 0;
+        const path = document.getElementById('path').value, start = document.getElementById('start').value, mount = document.getElementById('mount');
+        mount.innerHTML = "";
+        const terms = ["Fall", "Winter", "Spring"], opts = Object.keys(DB_CR).sort().map(c => `<option value="${c}">${c}</option>`).join('');
+        let pool = [...TRACKS[path]], completed = [], curYr = 0;
 
         for (let i = 0; i < 6; i++) {
             if (i % 3 === 0) {
                 curYr++;
-                mount.innerHTML += `<div class="year-band">ACADEMIC YEAR ${curYr}</div>`;
-                mount.appendChild(document.createElement('div')).className = 'quarter-grid';
+                mount.innerHTML += `<div class="year-band">ACADEMIC YEAR ${curYr}</div><div class="quarter-grid"></div>`;
             }
-            
-            let grid = mount.querySelectorAll('.quarter-grid')[curYr-1];
-            let sea = terms[(sIdx + i) % 3];
+            let grids = mount.querySelectorAll('.quarter-grid'), grid = grids[grids.length-1], sea = terms[(terms.indexOf(start) + i) % 3];
             let qClasses = [], qCr = 0, qMax = (i === 0) ? 15 : 18;
 
             for (let j = 0; j < pool.length; j++) {
-                let code = pool[j];
-                let cCr = DB_CR[code] || 5;
-                let preReqs = { "CIS 237": "CIS 236", "CIS 238": "CIS 237", "CIS 215": "CIS 214", "CIS 216": "CIS 215" };
-                let canTake = !preReqs[code] || completed.includes(preReqs[code]);
+                let code = pool[j], canTake = !DB_PRE[code] || DB_PRE[code].every(p => completed.includes(p));
                 if (code === "CIS 106" && qClasses.includes("CIS 105")) canTake = true;
-
-                if (canTake && (qCr + cCr <= qMax) && qClasses.length < 5) {
-                    qClasses.push(code); qCr += cCr;
-                    pool.splice(j, 1); j--;
+                if (canTake && (qCr + DB_CR[code] <= qMax) && qClasses.length < 5) {
+                    qClasses.push(code); qCr += DB_CR[code]; pool.splice(j, 1); j--;
                 }
             }
-            
-            completed.push(...qClasses); 
-            
-            let card = `<div class="quarter-card"><div class="q-title">${sea} Quarter</div>`;
-            qClasses.forEach(c => {
-                let sNote = DB_SEASON[c] ? `<span class="seasonal-note">Offered: ${DB_SEASON[c]}</span>` : "";
-                card += `<div class="course-pill" data-cat="${DB_CAT[c]||'gen'}">
-                    <span class="credits-tag">${DB_CR[c]||5}cr</span>
-                    <strong>${c}</strong>
-                    ${sNote}
-                </div>`;
-            });
-            grid.innerHTML += card + `<div class="q-total">${qCr} Credits</div></div>`;
+            completed.push(...qClasses);
+            let card = document.createElement('div'); card.className = 'quarter-card';
+            card.innerHTML = `<div class="q-title">${sea} Quarter</div>`;
+            for (let r = 0; r < 5; r++) {
+                let row = document.createElement('div'); row.className = 'class-row';
+                row.innerHTML = `<select class="advisor-pick" onchange="audit()">${opts}</select><span class="validation-msg"></span>`;
+                row.querySelector('select').dataset.init = qClasses[r] || "None";
+                card.appendChild(row);
+            }
+            card.innerHTML += `<div class="q-total">0 Credits</div>`;
+            grid.appendChild(card);
         }
+        document.querySelectorAll('.advisor-pick').forEach(s => s.value = s.dataset.init);
+        audit();
+    }
+
+    function audit() {
+        let history = []; const quarters = document.querySelectorAll('.quarter-card'), terms = Array.from(document.querySelectorAll('.q-title')).map(t => t.textContent.split(' ')[0]);
+        quarters.forEach((card, qIdx) => {
+            let cr = 0; const selects = card.querySelectorAll('.advisor-pick'), msgs = card.querySelectorAll('.validation-msg');
+            const qClasses = Array.from(selects).map(s => s.value);
+            selects.forEach((sel, sIdx) => {
+                const v = sel.value, msg = msgs[sIdx]; sel.dataset.cat = DB_CAT[v] || 'gen'; msg.textContent = "";
+                if (v !== "None") {
+                    cr += DB_CR[v];
+                    if (DB_PRE[v] && !DB_PRE[v].every(p => history.includes(p)) && !(v === "CIS 106" && qClasses.includes("CIS 105"))) {
+                        msg.textContent = "❌ Prereq Missing (Prior Quarter)"; msg.className = "validation-msg error";
+                    }
+                    if (DB_SEASON[v] && !DB_SEASON[v].split('/').includes(terms[qIdx])) {
+                        msg.textContent = `⚠️ Offered: ${DB_SEASON[v]}`; msg.className = "validation-msg error";
+                    }
+                }
+            });
+            card.querySelector('.q-total').textContent = `${cr} Credits`;
+            selects.forEach(s => { if(s.value !== "None") history.push(s.value); });
+        });
     }
 </script>
 </body>
