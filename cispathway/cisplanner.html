@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIS Program Internal Planner - V7.7</title>
+    <title>CIS Program Internal Planner - V7.8</title>
     <style>
         :root { 
             --primary: #002d62; --accent: #2c5282; --bg: #f7fafc; 
@@ -20,22 +20,33 @@
         #app-wrapper { display: none; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #2d3748; }
         .container { max-width: 1200px; margin: 0 auto; }
         .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
-        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;}
         .control-group label { display: block; font-size: 0.75rem; font-weight: 800; color: #4a5568; margin-bottom: 8px; text-transform: uppercase; }
         select { width: 100%; padding: 10px; border-radius: 6px; border: 2px solid #cbd5e0; font-weight: 600; }
         
+        /* Legend */
+        .legend { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; padding: 15px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .legend-item { display: flex; align-items: center; font-size: 0.8rem; font-weight: 600; }
+        .swatch { width: 16px; height: 16px; border-radius: 3px; margin-right: 8px; }
+
         .year-band { background: var(--primary); color: white; padding: 12px 20px; border-radius: 8px 8px 0 0; font-weight: bold; margin-top: 35px; }
         .quarter-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid #e2e8f0; border-top: none; background: #fff; }
         .quarter-card { padding: 20px; border-right: 1px solid #e2e8f0; min-height: 400px; }
         .q-title { font-weight: 800; color: var(--accent); border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 15px; }
-        .course-pill { padding: 12px; margin-bottom: 10px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: 8px solid #cbd5e0; font-size: 0.9rem; }
+        
+        .course-pill { padding: 12px; margin-bottom: 10px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: 8px solid #cbd5e0; }
         .course-pill[data-cat="net"] { border-left-color: var(--net-blue); }
         .course-pill[data-cat="sec"] { border-left-color: var(--sec-red); }
         .course-pill[data-cat="ai"] { border-left-color: var(--ai-green); }
         .course-pill[data-cat="cis"] { border-left-color: var(--cis-gold); }
+        .course-pill[data-cat="cs"] { border-left-color: var(--cs-purple); }
+
+        .seasonal-note { display: block; font-size: 0.7rem; color: #744210; font-weight: 700; margin-top: 4px; }
+        .credits-tag { font-size: 0.75rem; font-weight: bold; background: #edf2f7; padding: 2px 6px; border-radius: 4px; float: right; }
         
         .q-total { margin-top: 20px; padding-top: 10px; border-top: 2px dashed #e2e8f0; text-align: right; font-weight: 800; color: #4a5568; }
-        @media print { .controls, #gate { display: none !important; } #app-wrapper { display: block !important; } }
+        @media print { .controls, #gate, .legend { display: none !important; } #app-wrapper { display: block !important; } }
     </style>
 </head>
 <body>
@@ -75,6 +86,16 @@
                 </select>
             </div>
         </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="swatch" style="background:var(--cis-gold);"></div> CIS Core</div>
+            <div class="legend-item"><div class="swatch" style="background:var(--net-blue);"></div> Networking</div>
+            <div class="legend-item"><div class="swatch" style="background:var(--sec-red);"></div> Security</div>
+            <div class="legend-item"><div class="swatch" style="background:var(--ai-green);"></div> AI Series</div>
+            <div class="legend-item"><div class="swatch" style="background:var(--cs-purple);"></div> CS / Java</div>
+            <div class="legend-item"><div class="swatch" style="background:var(--gen-grey);"></div> Gen Ed</div>
+        </div>
+
         <div id="mount"></div>
     </div>
 </div>
@@ -82,7 +103,8 @@
 <script>
     const P_ACCESS = "Cyber2026";
     const DB_CR = { "CIS 105": 4, "CIS 106": 5, "CIS 110": 3, "CIS 116": 3, "CIS 205": 5, "CIS 206": 4, "CIS 214": 5, "CIS 215": 5, "CIS 216": 5, "CIS 225": 5, "CIS 236": 5, "CIS 220": 5, "CIS 237": 6, "CIS 238": 6, "CIS 120": 5, "CIS 125": 5, "CIS 245": 5, "CIS 190": 5, "ENGL& 101": 5, "MATH& 141": 5, "MATH& 142": 5, "MATH& 151": 5, "CS& 141": 5, "CS 145": 5, "Gen Ed": 5, "Elective": 5 };
-    const DB_CAT = { "CIS 236": "net", "CIS 237": "net", "CIS 238": "net", "CIS 214": "sec", "CIS 215": "sec", "CIS 216": "sec", "CIS 225": "sec", "CIS 120": "ai", "CIS 125": "ai", "CIS 245": "ai", "CIS 105": "cis", "CIS 106": "cis", "CIS 110": "cis", "CIS 116": "cis" };
+    const DB_SEASON = { "CIS 206": "Winter", "CIS 225": "Spring", "CIS 220": "Spring", "CIS 245": "Spring", "CIS 120": "Fall", "CIS 125": "Winter", "CIS 214": "Fall/Winter", "CIS 237": "Fall/Winter", "CIS 238": "Winter/Spring" };
+    const DB_CAT = { "CIS 236": "net", "CIS 237": "net", "CIS 238": "net", "CIS 214": "sec", "CIS 215": "sec", "CIS 216": "sec", "CIS 225": "sec", "CIS 120": "ai", "CIS 125": "ai", "CIS 245": "ai", "CIS 105": "cis", "CIS 106": "cis", "CIS 110": "cis", "CIS 116": "cis", "CS& 141": "cs", "CS 145": "cs" };
     
     const TRACKS = {
         "Cyber": ["CIS 105", "CIS 106", "CIS 110", "CIS 116", "CIS 205", "CIS 236", "CIS 237", "CIS 238", "CIS 214", "CIS 215", "CIS 216", "CS& 141", "CS 145", "ENGL& 101", "MATH& 141", "MATH& 142", "MATH& 151"],
@@ -106,9 +128,8 @@
         const mount = document.getElementById('mount'); mount.innerHTML = "";
         const terms = ["Fall", "Winter", "Spring"];
         let sIdx = terms.indexOf(start);
-        
         let pool = [...TRACKS[path]];
-        let completed = []; // Tracked for PREREQ logic
+        let completed = []; 
         let curYr = 0;
 
         for (let i = 0; i < 6; i++) {
@@ -125,13 +146,8 @@
             for (let j = 0; j < pool.length; j++) {
                 let code = pool[j];
                 let cCr = DB_CR[code] || 5;
-
-                // LINEAR PREREQUISITE CHECK:
-                // Ensures 237 follows 236, and 238 follows 237.
                 let preReqs = { "CIS 237": "CIS 236", "CIS 238": "CIS 237", "CIS 215": "CIS 214", "CIS 216": "CIS 215" };
                 let canTake = !preReqs[code] || completed.includes(preReqs[code]);
-
-                // Also allow 105/106 co-enrollment (Standard in your program)
                 if (code === "CIS 106" && qClasses.includes("CIS 105")) canTake = true;
 
                 if (canTake && (qCr + cCr <= qMax) && qClasses.length < 5) {
@@ -140,12 +156,15 @@
                 }
             }
             
-            completed.push(...qClasses); // Move to 'finished' only AFTER current quarter
+            completed.push(...qClasses); 
             
             let card = `<div class="quarter-card"><div class="q-title">${sea} Quarter</div>`;
             qClasses.forEach(c => {
+                let sNote = DB_SEASON[c] ? `<span class="seasonal-note">Offered: ${DB_SEASON[c]}</span>` : "";
                 card += `<div class="course-pill" data-cat="${DB_CAT[c]||'gen'}">
-                    <strong>${c}</strong> <span style="float:right; font-size:0.7rem;">${DB_CR[c]||5}cr</span>
+                    <span class="credits-tag">${DB_CR[c]||5}cr</span>
+                    <strong>${c}</strong>
+                    ${sNote}
                 </div>`;
             });
             grid.innerHTML += card + `<div class="q-total">${qCr} Credits</div></div>`;
