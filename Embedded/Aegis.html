@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Aegis Protocol: Simulator & Review</title>
+    <style>
+        :root {
+            --glow: #00ffcc;
+            --bg: #0a0a12;
+            --text: #e0e0e0;
+            --debrief: #1a1a2e;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-container {
+            width: 85%;
+            max-width: 800px;
+            background: rgba(20, 20, 35, 0.95);
+            padding: 30px;
+            border: 2px solid var(--glow);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            border-radius: 8px;
+            position: relative;
+        }
+        h1 { color: var(--glow); text-transform: uppercase; letter-spacing: 3px; margin-top: 0; }
+        #scene-text { line-height: 1.6; margin-bottom: 25px; min-height: 120px; font-size: 1.1rem; }
+        .choices { display: flex; flex-direction: column; gap: 10px; }
+        button {
+            background: transparent;
+            color: var(--glow);
+            border: 1px solid var(--glow);
+            padding: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+        button:hover { background: rgba(0, 255, 204, 0.1); }
+        
+        /* Debrief Modal */
+        #debrief-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--debrief);
+            z-index: 10;
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            border: 1px solid var(--glow);
+        }
+        .debrief-content { border-left: 4px solid var(--glow); padding-left: 20px; }
+        .continue-btn { margin-top: 20px; background: var(--glow); color: black; font-weight: bold; }
+        
+        .highlight { color: #ffcc00; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="terminal-header" style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">MISSION LOG: MODULES 1-5 REVIEW</div>
+    <h1 id="title">The Aegis Protocol</h1>
+    <div id="scene-text">Initializing...</div>
+    <div id="choices" class="choices"></div>
+
+    <!-- Debrief Section -->
+    <div id="debrief-overlay">
+        <div class="debrief-content">
+            <h3 style="color: var(--glow)">TECH DEBRIEF</h3>
+            <p id="debrief-text"></p>
+            <button class="continue-btn" id="continue-btn">SYNC & CONTINUE</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const story = {
+        start: {
+            text: "You find a panel controlling the life support. It’s an <b>Embedded System</b>. How do you approach the hardware interface?",
+            options: [
+                { 
+                    text: "Treat it as a general-purpose computer.", 
+                    next: "fail_laptop",
+                    debrief: "Incorrect. Embedded systems are <b>dedicated</b> to specific tasks. Unlike your laptop, which runs games, spreadsheets, and browsers, this system only does one thing: manage life support."
+                },
+                { 
+                    text: "Identify it as a dedicated task-specific system.", 
+                    next: "scene_micro",
+                    debrief: "Correct! Embedded systems are built for specific functionality within a larger device (like a car, appliance, or this ship)."
+                }
+            ]
+        },
+        scene_micro: {
+            text: "You see a chip with integrated RAM and I/O. It looks like an <span class='highlight'>ARM-based</span> architecture. Is this a Microprocessor or a Microcontroller?",
+            options: [
+                { 
+                    text: "It is a Microcontroller.", 
+                    next: "scene_power",
+                    debrief: "Right! A <b>Microcontroller (MCU)</b> is an entire computer on a single chip, including the processor, memory, and programmable I/O peripherals. <b>ARM</b> is the blueprint many of these use."
+                },
+                { 
+                    text: "It is a Microprocessor.", 
+                    next: "fail_micro",
+                    debrief: "Not quite. A <b>Microprocessor</b> (like an Intel i7) usually requires external chips for RAM and storage. A Microcontroller is self-contained."
+                }
+            ]
+        },
+        scene_power: {
+            text: "To bridge the connection, you must calculate the Voltage. <br><br><b>Resistance: 10 Ohms</b><br><b>Current: 2 Amps</b><br><br>What is the Voltage?",
+            options: [
+                { 
+                    text: "5 Volts", 
+                    next: "fail_ohm",
+                    debrief: "Incorrect. Remember <b>Ohm's Law: V = I × R</b>. If you divide Resistance by Current, you get a value, but not Voltage!"
+                },
+                { 
+                    text: "20 Volts", 
+                    next: "scene_io",
+                    debrief: "Correct! <b>V (Voltage) = 2A (Current) × 10Ω (Resistance)</b>. Voltage is the electrical 'pressure' needed to move that current."
+                }
+            ]
+        },
+        scene_io: {
+            text: "The circuit is powered. Now you need to read data from a <b>Temperature Sensor</b> to check for fire. How should the board handle this signal?",
+            options: [
+                { 
+                    text: "Read as an Analog Input.", 
+                    next: "scene_rtos",
+                    debrief: "Spot on. Temperature is a <b>continuous</b> value (it can be 72.1, 72.2, etc.), so it requires an <b>Analog</b> signal. <b>Digital</b> would only tell you 'Hot' or 'Cold' (HIGH/LOW)."
+                },
+                { 
+                    text: "Read as a Digital Input.", 
+                    next: "fail_signal",
+                    debrief: "Careful. While you *could* use digital for a simple threshold, sensors measuring physical quantities like light or temperature typically provide <b>Analog</b> signals that vary across a range."
+                }
+            ]
+        },
+        scene_rtos: {
+            text: "Fire detected! The suppression system must trigger within exactly 50 milliseconds or the ship is lost. Which OS do you use?",
+            options: [
+                { 
+                    text: "A Real-Time Operating System (RTOS).", 
+                    next: "victory",
+                    debrief: "Perfect. An <b>RTOS</b> is designed for applications where timing is critical. It guarantees that tasks are completed within strict deadlines."
+                },
+                { 
+                    text: "A General Purpose OS (GPOS).", 
+                    next: "fail_timing",
+                    debrief: "Failure. A standard OS (like Windows) might pause a critical task to check for a software update. In this scenario, delays lead to disaster."
+                }
+            ]
+        },
+        // Results
+        victory: { text: "MISSION COMPLETE. You have mastered the fundamentals of Module 1-5.", options: [] },
+        fail_laptop: { text: "SYSTEM ERROR: Misconfiguration.", options: [{ text: "Restart", next: "start" }] },
+        fail_micro: { text: "SYSTEM ERROR: Hardware Mismatch.", options: [{ text: "Restart", next: "start" }] },
+        fail_ohm: { text: "SYSTEM ERROR: Power Surge.", options: [{ text: "Restart", next: "start" }] },
+        fail_signal: { text: "SYSTEM ERROR: Data Corruption.", options: [{ text: "Restart", next: "start" }] },
+        fail_timing: { text: "SYSTEM ERROR: Timing Violation.", options: [{ text: "Restart", next: "start" }] }
+    };
+
+    function renderScene(sceneKey) {
+        const scene = story[sceneKey];
+        document.getElementById('scene-text').innerHTML = scene.text;
+        const choicesElement = document.getElementById('choices');
+        choicesElement.innerHTML = '';
+
+        if (sceneKey === 'victory') {
+            const btn = document.createElement('button');
+            btn.innerText = "Restart Simulation";
+            btn.onclick = () => renderScene('start');
+            choicesElement.appendChild(btn);
+            return;
+        }
+
+        scene.options.forEach(option => {
+            const btn = document.createElement('button');
+            btn.innerText = option.text;
+            btn.onclick = () => showDebrief(option);
+            choicesElement.appendChild(btn);
+        });
+    }
+
+    function showDebrief(option) {
+        const overlay = document.getElementById('debrief-overlay');
+        const debriefText = document.getElementById('debrief-text');
+        const continueBtn = document.getElementById('continue-btn');
+
+        debriefText.innerHTML = option.debrief;
+        overlay.style.display = 'block';
+
+        continueBtn.onclick = () => {
+            overlay.style.display = 'none';
+            renderScene(option.next);
+        };
+    }
+
+    renderScene('start');
+</script>
+</body>
+</html>
