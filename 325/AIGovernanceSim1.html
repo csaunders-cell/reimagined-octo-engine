@@ -5,32 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise AI Governance Sandbox - Lab 1</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #343541; color: #ececf1; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { background: #202123; padding: 15px 20px; border-bottom: 1px solid #4d4d4f; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { font-size: 16px; margin: 0; color: #ececf1; font-weight: 600; }
-        .model-badge { background: #2f3238; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #8e8ea0; border: 1px solid #4d4d4f; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #27272a; color: #f4f4f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { background: #18181b; padding: 15px 20px; border-bottom: 1px solid #3f3f46; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 16px; margin: 0; color: #f4f4f5; font-weight: 600; }
+        .model-badge { background: #3f3f46; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #f4f4f5; border: 1px solid #71717a; }
         .chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .message-wrapper { width: 100%; max-width: 768px; display: flex; margin-bottom: 24px; line-height: 1.5; }
-        .user-message { background: #343541; justify-content: flex-end; }
-        .assistant-message { background: #444654; border-bottom: 1px solid #565869; border-top: 1px solid #565869; padding: 20px 0; width: 100%; max-width: 100%; display: flex; justify-content: center; }
+        .user-message { background: #27272a; justify-content: flex-end; }
+        .assistant-message { background: #3f3f46; border-bottom: 1px solid #52525b; border-top: 1px solid #52525b; padding: 20px 0; width: 100%; max-width: 100%; display: flex; justify-content: center; }
         .message-content { width: 100%; max-width: 768px; display: flex; gap: 16px; padding: 0 20px; }
         .avatar { width: 30px; height: 30px; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0; }
-        .user-avatar { background: #5436da; color: white; }
-        .bot-avatar { background: #19c37d; color: white; }
-        .text { white-space: pre-wrap; word-break: break-word; font-size: 15px; }
+        .user-avatar { background: #6d28d9; color: white; }
+        .bot-avatar { background: #059669; color: white; }
+        .text { white-space: pre-wrap; word-break: break-word; font-size: 15px; color: #f4f4f5; }
         .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase; }
-        .tag-pass { background: #1a7f37; color: white; }
-        .tag-fail { background: #cf222e; color: white; }
-        .tag-flag { background: #9a6700; color: white; }
-        .input-area { background: #343541; padding: 20px; display: flex; justify-content: center; border-top: 1px solid #4d4d4f; }
-        .input-wrapper { width: 100%; max-width: 768px; position: relative; display: flex; background: #40414f; border-radius: 8px; border: 1px solid #565869; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-        textarea { flex: 1; background: transparent; border: none; padding: 14px 45px 14px 16px; color: white; font-size: 15px; resize: none; height: 24px; max-height: 200px; outline: none; font-family: inherit; }
-        textarea:focus { outline: 2px solid #19c37d; }
-        button { position: absolute; right: 10px; bottom: 10px; background: #19c37d; color: white; border: none; border-radius: 4px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        button:hover, button:focus { background: #1aab70; outline: 2px solid white; }
-        .preset-bar { background: #202123; padding: 10px 20px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #4d4d4f; }
-        .preset-btn { background: #2f3238; border: 1px solid #4d4d4f; color: #c5c5d2; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; white-space: nowrap; position: static; width: auto; height: auto; }
-        .preset-btn:hover, .preset-btn:focus { background: #40414f; color: white; outline: 2px solid #19c37d; }
+        .tag-pass { background: #15803d; color: white; }
+        .tag-fail { background: #b91c1c; color: white; }
+        .tag-flag { background: #b45309; color: white; }
+        .input-area { background: #27272a; padding: 20px; display: flex; justify-content: center; border-top: 1px solid #3f3f46; }
+        .input-wrapper { width: 100%; max-width: 768px; position: relative; display: flex; background: #18181b; border-radius: 8px; border: 2px solid #a1a1aa; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+        .input-wrapper:focus-within { border-color: #34d399; }
+        textarea { flex: 1; background: transparent; border: none; padding: 14px 45px 14px 16px; color: #f4f4f5; font-size: 15px; resize: none; height: 24px; max-height: 200px; outline: none; font-family: inherit; }
+        textarea::placeholder { color: #d4d4d8; }
+        button { position: absolute; right: 10px; bottom: 10px; background: #059669; color: white; border: none; border-radius: 4px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        button:hover, button:focus { background: #047857; outline: 2px solid white; }
+        .preset-bar { background: #18181b; padding: 10px 20px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #3f3f46; }
+        .preset-btn { background: #3f3f46; border: 1px solid #71717a; color: #f4f4f5; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; white-space: nowrap; position: static; width: auto; height: auto; }
+        .preset-btn:hover, .preset-btn:focus { background: #52525b; color: white; outline: 2px solid #34d399; }
     </style>
 </head>
 <body>
@@ -41,7 +42,7 @@
 </header>
 
 <nav class="preset-bar" aria-label="Quick Test Prompts">
-    <span style="font-size:12px; color:#8e8ea0; align-self:center;" id="preset-label">Quick Test Prompts:</span>
+    <span style="font-size:12px; color:#e4e4e7; align-self:center;" id="preset-label">Quick Test Prompts:</span>
     <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(1)">1. Standard AUP</button>
     <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(2)">2. MFA Bypass</button>
     <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(3)">3. Mock PII Data</button>
@@ -99,7 +100,7 @@
         if (sender === 'user') {
             wrapper.innerHTML = `
                 <div class="message-content" style="justify-content: flex-end;">
-                    <div class="text" style="background: #444654; padding: 10px 16px; border-radius: 8px; max-width: 80%;">${text}</div>
+                    <div class="text" style="background: #3f3f46; padding: 10px 16px; border-radius: 8px; max-width: 80%;">${text}</div>
                     <div class="avatar user-avatar" style="margin-left: 12px;" aria-hidden="true">U</div>
                 </div>`;
         } else {
