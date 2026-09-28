@@ -25,43 +25,45 @@
         .input-area { background: #343541; padding: 20px; display: flex; justify-content: center; border-top: 1px solid #4d4d4f; }
         .input-wrapper { width: 100%; max-width: 768px; position: relative; display: flex; background: #40414f; border-radius: 8px; border: 1px solid #565869; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
         textarea { flex: 1; background: transparent; border: none; padding: 14px 45px 14px 16px; color: white; font-size: 15px; resize: none; height: 24px; max-height: 200px; outline: none; font-family: inherit; }
+        textarea:focus { outline: 2px solid #19c37d; }
         button { position: absolute; right: 10px; bottom: 10px; background: #19c37d; color: white; border: none; border-radius: 4px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        button:hover { background: #1aab70; }
-        .preset-bar { background: #202123; padding: 8px 20px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #4d4d4f; }
-        .preset-btn { background: #2f3238; border: 1px solid #4d4d4f; color: #c5c5d2; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; white-space: nowrap; }
-        .preset-btn:hover { background: #40414f; color: white; }
+        button:hover, button:focus { background: #1aab70; outline: 2px solid white; }
+        .preset-bar { background: #202123; padding: 10px 20px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #4d4d4f; }
+        .preset-btn { background: #2f3238; border: 1px solid #4d4d4f; color: #c5c5d2; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; white-space: nowrap; position: static; width: auto; height: auto; }
+        .preset-btn:hover, .preset-btn:focus { background: #40414f; color: white; outline: 2px solid #19c37d; }
     </style>
 </head>
 <body>
 
-<header>
+<header role="banner">
     <h1>Enterprise LLM Security Sandbox</h1>
-    <div class="model-badge">Model: Enterprise-Guard-v1.4 (Secure Cloud)</div>
+    <div class="model-badge" aria-label="Active Model Configuration">Model: Enterprise-Guard-v1.4</div>
 </header>
 
-<div class="preset-bar">
-    <span style="font-size:12px; color:#8e8ea0; align-self:center;">Quick Test Prompts:</span>
-    <button class="preset-btn" onclick="loadPrompt(1)">1. Standard AUP</button>
-    <button class="preset-btn" onclick="loadPrompt(2)">2. MFA Bypass</button>
-    <button class="preset-btn" onclick="loadPrompt(3)">3. Mock PII Data</button>
-    <button class="preset-btn" onclick="loadPrompt(4)">4. Fictitious Law</button>
-    <button class="preset-btn" onclick="loadPrompt(5)">5. System Jailbreak</button>
-</div>
+<nav class="preset-bar" aria-label="Quick Test Prompts">
+    <span style="font-size:12px; color:#8e8ea0; align-self:center;" id="preset-label">Quick Test Prompts:</span>
+    <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(1)">1. Standard AUP</button>
+    <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(2)">2. MFA Bypass</button>
+    <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(3)">3. Mock PII Data</button>
+    <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(4)">4. Fictitious Law</button>
+    <button class="preset-btn" aria-labelledby="preset-label" onclick="loadPrompt(5)">5. System Jailbreak</button>
+</nav>
 
-<div class="chat-container" id="chatContainer">
+<main class="chat-container" id="chatContainer" role="log" aria-live="polite" aria-label="Chat Log History">
     <div class="message-wrapper assistant-message">
         <div class="message-content">
-            <div class="avatar bot-avatar">AI</div>
-            <div class="text">Welcome to the Enterprise AI Governance Sandbox. Select a quick prompt above or type your own test string below to audit model response behaviors and safety filters.</div>
+            <div class="avatar bot-avatar" aria-hidden="true">AI</div>
+            <div class="text">Welcome to the Enterprise AI Governance Sandbox. Select a quick prompt above or type your test string below to audit model response behaviors and safety filters.</div>
         </div>
     </div>
-</div>
+</main>
 
 <div class="input-area">
     <div class="input-wrapper">
+        <label for="userInput" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0,0); white-space: nowrap; border: 0;">Message the AI model</label>
         <textarea id="userInput" placeholder="Send a message to the model..." rows="1" onkeydown="checkEnter(event)"></textarea>
-        <button onclick="handleSend()" title="Send message">
-            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        <button onclick="handleSend()" aria-label="Send message">
+            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="16" width="16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
         </button>
     </div>
 </div>
@@ -77,6 +79,7 @@
 
     function loadPrompt(id) {
         document.getElementById("userInput").value = prompts[id];
+        document.getElementById("userInput").focus();
     }
 
     function checkEnter(e) {
@@ -97,12 +100,12 @@
             wrapper.innerHTML = `
                 <div class="message-content" style="justify-content: flex-end;">
                     <div class="text" style="background: #444654; padding: 10px 16px; border-radius: 8px; max-width: 80%;">${text}</div>
-                    <div class="avatar user-avatar" style="margin-left: 12px;">U</div>
+                    <div class="avatar user-avatar" style="margin-left: 12px;" aria-hidden="true">U</div>
                 </div>`;
         } else {
             wrapper.innerHTML = `
                 <div class="message-content">
-                    <div class="avatar bot-avatar">AI</div>
+                    <div class="avatar bot-avatar" aria-hidden="true">AI</div>
                     <div class="text">${tagHtml}${text}</div>
                 </div>`;
         }
@@ -119,7 +122,6 @@
         appendMessage('user', text);
         input.value = "";
 
-        // Simulate evaluation delay
         setTimeout(() => {
             evaluatePrompt(text);
         }, 500);
