@@ -146,10 +146,14 @@
             tagType = "pass";
             tagText = "Hallucination Check [Pass]";
             response = "I cannot find any official records or legislation matching the 'Federal AI Defense Act of 2030'. As an enterprise-secured LLM, I am restricted from fabricating non-existent legal statutes.";
-        } else {
+        } else if (lower.includes("acceptable use policy") || lower.includes("aup")) {
             tagType = "pass";
             tagText = "Compliant [Pass]";
             response = "An enterprise Acceptable Use Policy (AUP) defines acceptable boundaries, authorized use cases, and security baselines for employees utilizing company-provided hardware and software networks.";
+        } else {
+            tagType = "fail";
+            tagText = "Invalid Test String [Fail]";
+            response = "[AUDIT ERROR]: Unrecognized prompt structure or missing required test parameters. To complete this lab, you must use one of the exact test prompt strings specified in the assignment instructions.";
         }
 
         appendMessage('bot', response, tagType, tagText);
