@@ -4957,7 +4957,9 @@ var INDUSTRIES = [
   {id:"healthcare", name:"Healthcare AI", desc:"Clinical decision support, EHR records, trial matching"}
 ];
 
-var FORMATS = [["Shift","About 45 minutes"],["Week","Coming soon"],["Quarter","Coming soon"]];
+// Scenario length picker. It only appears when there is more than one entry here.
+// To bring back longer formats later, add them, e.g. ["Week","About 2 hours"], ["Quarter","Multi-session"].
+var FORMATS = [["Shift","About 45 minutes"]];
 
 function renderStart(){
   document.title="Sign in | AI Risk Operations Platform";
@@ -4981,8 +4983,8 @@ function renderStart(){
           var cInfo = COMPANY_INFO[ind.id];
           return '<button type="button" data-ind="'+ind.id+'" aria-pressed="'+(st.industry===ind.id)+'"><b>'+cInfo.name+'</b><small>'+ind.name+' &bull; '+ind.desc+'</small></button>';
         }).join("") + '</div></div>' +
-      '<div class="field" style="margin-top:14px"><span class="lbl" id="fmtL">Scenario length</span><div class="seg" style="grid-template-columns:repeat(3,1fr)" role="group" aria-labelledby="fmtL">' +
-        FORMATS.map(function(x,i){ return '<button type="button" aria-pressed="'+(i===0)+'"'+(i?' disabled':'')+'>'+x[0]+'<small>'+x[1]+'</small></button>'; }).join("") + '</div></div>' +
+      (FORMATS.length>1 ? '<div class="field" style="margin-top:14px"><span class="lbl" id="fmtL">Scenario length</span><div class="seg" style="grid-template-columns:repeat(3,1fr)" role="group" aria-labelledby="fmtL">' +
+        FORMATS.map(function(x,i){ return '<button type="button" aria-pressed="'+(i===0)+'"'+(i?' disabled':'')+'>'+x[0]+'<small>'+x[1]+'</small></button>'; }).join("") + '</div></div>' : '') +
       '<button class="btn wide" id="begin" style="margin-top:14px">Clock in</button><p class="err" id="startErr" role="alert" style="margin-top:8px"></p>';
   }
   h += '<details class="verify"><summary>For instructors: verify a report code</summary><p style="margin-top:10px">Paste the code from the end of a student’s report to see the scores and decisions it records.</p><label for="vcode" class="sr-only">Report verification code</label><textarea id="vcode" class="field-ta" style="min-height:80px;border-radius:8px;background:var(--surface-2);padding:10px"></textarea><div class="actions" style="margin-top:10px"><button class="btn ghost" id="verifyBtn">Check code</button></div><div id="vout" role="status"></div></details>';
