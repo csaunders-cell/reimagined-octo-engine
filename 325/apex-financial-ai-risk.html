@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Apex Financial: AI Risk Operations</title>
+<title>AI Risk Operations Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -352,6 +352,16 @@ var PEOPLE = {
 function initials(p){ return p.i || p.n.replace("Dr. ","").split(" ").map(function(w){return w[0];}).join("").slice(0,2); }
 function avatar(p){ return '<span class="av" aria-hidden="true" style="background:'+p.c+'">'+esc(initials(p))+'</span>'; }
 
+// Company Metadata per Industry Track
+var COMPANY_INFO = {
+  banking: {name: "Apex Financial Corporation", short: "Apex Financial", dept: "AI Governance & Risk Office"},
+  insurance: {name: "Vanguard Mutual Insurance", short: "Vanguard Mutual", dept: "AI Claims & Underwriting Risk"},
+  fintech: {name: "PayStream Technologies", short: "PayStream", dept: "AI Gateway & Fraud Operations"},
+  investment: {name: "Meridian Asset Management", short: "Meridian Asset", dept: "AI Fiduciary & Alpha Risk"},
+  enterprise: {name: "OmniCorp Global Systems", short: "OmniCorp", dept: "AI Infrastructure & IT Governance"},
+  healthcare: {name: "Cascade Health System", short: "Cascade Health", dept: "Clinical AI Safety & Governance"}
+};
+
 // 6 Industry Event Sets
 var ALL_EVENTS = {
   banking: [
@@ -632,7 +642,7 @@ var ALL_EVENTS = {
       body:"<p>Actuarial Science wants to upload proprietary mortality tables and catastrophe risk models into an external public cloud LLM reasoning engine to generate underwriting simulations faster.</p><p>The vendor's online terms of service state they retain inputs for 'product improvement'. Can Actuarial proceed this afternoon?</p>",
       artifact:{kind:"mail", file:"Actuarial_Cloud_Terms.eml", meta:"Vendor SaaS agreement terms",
         rows:[
-          {c:["Vendor","InsureCloud AI Analytics Corp."]},
+          {c:["Vendor","Vanguard AI Analytics Corp."]},
           {c:["Data Usage Policy","Customer inputs and generated outputs may be used to train and improve future foundation models."], f:true},
           {c:["Compliance Certs","SOC 2 Type II Certified (General Security)"]},
           {c:["Data Localization","US-East Encrypted at Rest & in Transit"]},
@@ -791,7 +801,7 @@ var ALL_EVENTS = {
       body:"<p>Risk Analytics wants to upload proprietary credit scoring models and default prediction algorithms into an external public cloud LLM reasoning engine to generate credit policy adjustments faster.</p><p>The vendor's online terms of service state they retain inputs for 'product improvement'. Can Risk Analytics proceed this afternoon?</p>",
       artifact:{kind:"mail", file:"Credit_Analytics_Cloud_Terms.eml", meta:"Vendor SaaS agreement terms",
         rows:[
-          {c:["Vendor","FintechCloud AI Systems Inc."]},
+          {c:["Vendor","PayStream AI Systems Inc."]},
           {c:["Data Usage Policy","Customer inputs and generated outputs may be used to train and improve future foundation models."], f:true},
           {c:["Compliance Certs","SOC 2 Type II Certified (General Security)"]},
           {c:["Data Localization","US-East Encrypted at Rest & in Transit"]},
@@ -950,7 +960,7 @@ var ALL_EVENTS = {
       body:"<p>ESG Research wants to upload proprietary corporate sustainability scoring models and proprietary carbon transition datasets into an external public cloud LLM reasoning engine to generate investment research faster.</p><p>The vendor's online terms of service state they retain inputs for 'product improvement'. Can ESG Research proceed this afternoon?</p>",
       artifact:{kind:"mail", file:"ESG_Research_Cloud_Terms.eml", meta:"Vendor SaaS agreement terms",
         rows:[
-          {c:["Vendor","AlphaESG Cloud Analytics Corp."]},
+          {c:["Vendor","Meridian AI Analytics Corp."]},
           {c:["Data Usage Policy","Customer inputs and generated outputs may be used to train and improve future foundation models."], f:true},
           {c:["Compliance Certs","SOC 2 Type II Certified (General Security)"]},
           {c:["Data Localization","US-East Encrypted at Rest & in Transit"]},
@@ -1109,7 +1119,7 @@ var ALL_EVENTS = {
       body:"<p>Corporate Strategy wants to upload confidential merger and acquisition plans, internal financial forecasts, and executive board decks into an external public cloud LLM reasoning engine to draft strategic memos faster.</p><p>The vendor's online terms of service state they retain inputs for 'product improvement'. Can Strategy proceed this afternoon?</p>",
       artifact:{kind:"mail", file:"Strategy_Cloud_Terms.eml", meta:"Vendor SaaS agreement terms",
         rows:[
-          {c:["Vendor","EnterpriseCloud AI Strategy Corp."]},
+          {c:["Vendor","OmniCorp AI Strategy Corp."]},
           {c:["Data Usage Policy","Customer inputs and generated outputs may be used to train and improve future foundation models."], f:true},
           {c:["Compliance Certs","SOC 2 Type II Certified (General Security)"]},
           {c:["Data Localization","US-East Encrypted at Rest & in Transit"]},
@@ -1268,7 +1278,7 @@ var ALL_EVENTS = {
       body:"<p>Clinical Research wants to upload confidential patient clinical trial matching criteria and genomic sequencing study protocols into an external public cloud LLM reasoning engine to accelerate research recruitment.</p><p>The vendor's online terms of service state they retain inputs for 'product improvement'. Can Clinical Research proceed this afternoon?</p>",
       artifact:{kind:"mail", file:"Clinical_Research_Cloud_Terms.eml", meta:"Vendor SaaS agreement terms",
         rows:[
-          {c:["Vendor","MedCloud AI Research Corp."]},
+          {c:["Vendor","Cascade AI Research Corp."]},
           {c:["Data Usage Policy","Customer inputs and generated outputs may be used to train and improve future foundation models."], f:true},
           {c:["Compliance Certs","SOC 2 Type II Certified (General Security)"]},
           {c:["Data Localization","US-East Encrypted at Rest & in Transit"]},
@@ -1314,7 +1324,7 @@ var ALL_EVENTS = {
 var START = {sec:70, ops:70, bud:70, trust:70};
 var METERS = [["sec","Security posture","Security"],["ops","Business operations","Operations"],["bud","Budget","Budget"],["trust","Stakeholder trust","Trust"]];
 var SALT = "apex-ai-shift-v2";
-var KEY = "apex-ai-risk-operations-v3";
+var KEY = "apex-ai-risk-operations-v4";
 var VERDICT = {best:["Strong call","check"],ok:["Defensible, with gaps","minus"],poor:["This one cost you","x"]};
 var TAG = {best:"Strong",ok:"Defensible",poor:"Costly"};
 
@@ -1331,6 +1341,10 @@ function clamp(n){ return Math.max(0,Math.min(100,n)); }
 
 function getEvents(){
   return ALL_EVENTS[st.industry] || ALL_EVENTS.banking;
+}
+
+function getCompany(){
+  return COMPANY_INFO[st.industry] || COMPANY_INFO.banking;
 }
 
 function evAt(i){
@@ -1361,22 +1375,26 @@ var INDUSTRIES = [
 var FORMATS = [["Shift","About 45 minutes"],["Week","Coming soon"],["Quarter","Coming soon"]];
 
 function renderStart(){
-  document.title="Sign in | Apex Financial AI Risk Operations";
+  document.title="Sign in | AI Risk Operations Platform";
   var resume = st.startedAt && st.screen!=="start";
   var h = '<div class="signin"><section class="brand">' +
-    '<div class="org">'+MARK+'<div><b>Apex Financial Corporation</b><span>AI Governance & Risk Office</span></div></div>' +
-    '<div><h1>Your AI governance shift starts at 07:00.</h1><p class="lede">You’re the AI Risk Operations Lead. Quantitative trading, underwriting, fintech payment gateways, asset managers, corporate IT, and clinical informatics will bring you complex AI governance dilemmas all day. Investigate technical evidence, enforce compliance frameworks, and own the outcomes.</p></div>' +
+    '<div class="org">'+MARK+'<div><b>Apex Risk & Governance Group</b><span>Multi-Industry Simulation Suite</span></div></div>' +
+    '<div><h1>Your AI governance shift starts at 07:00.</h1><p class="lede">You’re the AI Risk Operations Lead. Depending on your chosen industry track, you will manage AI governance for banking, insurance, fintech, investment management, enterprise technology, or healthcare. Investigate technical evidence, enforce compliance frameworks, and own the outcomes.</p></div>' +
     '<div class="duty"><div>'+ic("search")+'<span>Examine realistic technical evidence: IAM roles, bias audits, SBOMs, API logs, and SaaS terms.</span></div><div>'+ic("route")+'<span>Make decisions balancing AI innovation, risk mitigation, operational speed, and trust.</span></div><div>'+ic("doc")+'<span>Finish with a comprehensive shift report you can submit for course credit.</span></div></div>' +
     '</section><main class="panel">';
   if(resume){
-    h += '<h2>Welcome back, '+esc(first(st.name))+'</h2><p class="sub">'+(st.screen==="report"?"Your shift report is ready to download.":"Your shift is still open. Pick up where you left off.")+'</p>' +
+    var comp = getCompany();
+    h += '<h2>Welcome back, '+esc(first(st.name))+'</h2><p class="sub">Company: <b>'+esc(comp.name)+'</b><br>'+(st.screen==="report"?"Your shift report is ready to download.":"Your shift is still open. Pick up where you left off.")+'</p>' +
       '<button class="btn wide" id="resume">'+(st.screen==="report"?"View my report":"Return to my workstation")+'</button>' +
       '<div class="actions"><button class="btn quiet" id="newShift">Start a different shift instead</button></div>';
   } else {
     h += '<h2>Sign in for your shift</h2><p class="sub">Your name appears on your shift report.</p>' +
       '<div class="field"><label for="nm">Full name</label><input type="text" id="nm" autocomplete="name" required aria-required="true" aria-describedby="startErr"></div>' +
-      '<div class="field"><span class="lbl" id="indL">Select Industry Track</span><div class="seg" role="group" aria-labelledby="indL">' +
-        INDUSTRIES.map(function(ind){ return '<button type="button" data-ind="'+ind.id+'" aria-pressed="'+(st.industry===ind.id)+'"><b>'+ind.name+'</b><small>'+ind.desc+'</small></button>'; }).join("") + '</div></div>' +
+      '<div class="field"><span class="lbl" id="indL">Select Industry Track & Company</span><div class="seg" role="group" aria-labelledby="indL">' +
+        INDUSTRIES.map(function(ind){
+          var cInfo = COMPANY_INFO[ind.id];
+          return '<button type="button" data-ind="'+ind.id+'" aria-pressed="'+(st.industry===ind.id)+'"><b>'+cInfo.name+'</b><small>'+ind.name+' &bull; '+ind.desc+'</small></button>';
+        }).join("") + '</div></div>' +
       '<div class="field" style="margin-top:14px"><span class="lbl" id="fmtL">Scenario length</span><div class="seg" style="grid-template-columns:repeat(3,1fr)" role="group" aria-labelledby="fmtL">' +
         FORMATS.map(function(x,i){ return '<button type="button" aria-pressed="'+(i===0)+'"'+(i?' disabled':'')+'>'+x[0]+'<small>'+x[1]+'</small></button>'; }).join("") + '</div></div>' +
       '<button class="btn wide" id="begin" style="margin-top:14px">Clock in</button><p class="err" id="startErr" role="alert" style="margin-top:8px"></p>';
@@ -1414,7 +1432,8 @@ function renderStart(){
   document.getElementById("verifyBtn").onclick = function(){
     var out=document.getElementById("vout"), p=verify(document.getElementById("vcode").value);
     if(!p){ out.innerHTML='<p class="err" style="margin-top:10px">This code isn’t valid. It may have been edited or copied incompletely.</p>'; return; }
-    var rows='<tr><th>Student</th><td>'+esc(p.n)+'</td></tr><tr><th>Industry Track</th><td>'+esc(p.indName||"Financial")+'</td></tr><tr><th>Completed</th><td>'+esc(new Date(p.d).toLocaleString())+'</td></tr><tr><th>Score</th><td>'+esc(p.sc)+'</td></tr>';
+    var comp = COMPANY_INFO[p.ind] || {name: "Apex Financial Corporation"};
+    var rows='<tr><th>Student</th><td>'+esc(p.n)+'</td></tr><tr><th>Company</th><td>'+esc(comp.name)+'</td></tr><tr><th>Industry Track</th><td>'+esc(p.indName||"Banking")+'</td></tr><tr><th>Completed</th><td>'+esc(new Date(p.d).toLocaleString())+'</td></tr><tr><th>Score</th><td>'+esc(p.sc)+'</td></tr>';
     METERS.forEach(function(m){ rows+='<tr><th>'+m[1]+'</th><td>'+esc(p.m[m[0]])+'</td></tr>'; });
     p.e.forEach(function(e){ var ev=evById(e[0]); rows+='<tr><th>'+(ev?ev.time+', '+esc(ev.title):esc(e[0]))+'</th><td>Chose '+esc(e[2])+'; evidence '+(["missed","partly found","fully found"][e[1]]||"?")+'</td></tr>'; });
     out.innerHTML='<p style="margin-top:12px;color:var(--green)"><b>Valid code.</b> Compare these details with the submitted report.</p><table class="kv">'+rows+'</table>';
@@ -1430,6 +1449,7 @@ function curTime(){
 function mins(t){ var p=t.split(":"); return (+p[0])*60+(+p[1]); }
 
 function topbar(){
+  var comp = getCompany();
   var lastFx = (st.screen==="game" && st.phase==="debrief") ? st.log[st.log.length-1].fx : {};
   var g = METERS.map(function(m){
     var v=st.meters[m[0]], d=lastFx[m[0]], cls=v<35?"low":v<55?"mid":"";
@@ -1438,7 +1458,7 @@ function topbar(){
   }).join("");
   var progress = ((mins(curTime())-420)/720*100);
   return '<header class="top"><div class="top-in">' +
-    '<div class="org">'+MARK+'<div><b>Apex Financial</b><span>AI Risk Operations ('+esc(st.industryName||"Financial")+')</span></div></div>' +
+    '<div class="org">'+MARK+'<div><b>'+esc(comp.short)+'</b><span>'+esc(comp.dept)+'</span></div></div>' +
     '<div class="clock"><small>Thursday</small>'+curTime()+'</div>' +
     '<div class="gauges" role="group" aria-label="Enterprise status">'+g+'</div>' +
     '<div class="badge">'+avatar({n:st.name,c:"#0F6E68"})+'<div class="who"><b>'+esc(st.name)+'</b><span>AI Risk Lead, day shift</span></div></div>' +
@@ -1447,6 +1467,7 @@ function topbar(){
 
 function queue(){
   var evs = getEvents();
+  var comp = getCompany();
   var items = '<li class="qi '+(st.screen==="brief"?"active":"done")+'"><span class="ic">'+ic(st.screen==="brief"?"mail":"check")+'</span><div class="tx"><div class="l1"><span>Karen Okafor</span><time>07:00</time></div><div class="l2">Shift briefing</div></div></li>';
   var arrived = st.screen==="brief" ? 0 : st.screen==="game" ? st.idx+1 : evs.length;
   for(var i=arrived-1;i>=0;i--){
@@ -1458,7 +1479,8 @@ function queue(){
   var waiting = (st.screen==="game" && st.idx<evs.length-1) || st.screen==="brief" ? '<div class="waiting">'+ic("clock")+'<span>More alerts arrive as the shift progresses.</span></div>' : '';
   return '<aside class="queue" aria-label="Work queue"><div class="qhead"><h2>Work queue</h2><span>'+(open>0?open+" open":"All clear")+'</span></div><ul class="qlist">'+items+'</ul>'+waiting+
     '<div class="qfoot"><details><summary>AI Systems & Architecture Reference</summary><table class="ref">' +
-    '<tr><td>Track</td><td><b>'+esc(st.industryName||"Financial")+'</b></td></tr>' +
+    '<tr><td>Organization</td><td><b>'+esc(comp.name)+'</b></td></tr>' +
+    '<tr><td>Track</td><td>'+esc(st.industryName)+'</td></tr>' +
     '<tr><td>Primary LLM</td><td><code>core-llm-service</code></td></tr>' +
     '<tr><td>Evaluation AI</td><td>Automated screening/scoring</td></tr>' +
     '<tr><td>Copilot Extension</td><td>Developer / Analyst tools</td></tr>' +
@@ -1471,7 +1493,7 @@ function shell(inner){
   document.getElementById("skip").onclick=function(e){ e.preventDefault(); var h=app.querySelector("main h1, main h2[tabindex]"); (h||document.getElementById("work")).focus(); };
 }
 
-function setTitle(t){ document.title = t + " | Apex Financial AI Risk Operations"; }
+function setTitle(t){ document.title = t + " | AI Risk Operations Platform"; }
 function render(){
   if(st.screen==="start") return renderStart();
   if(st.screen==="brief") return renderBrief();
@@ -1487,9 +1509,9 @@ function msgHead(src, pri, title, person, time, icon){
 }
 
 function renderBrief(){
-  var k=PEOPLE.karen; setTitle("07:00 Shift briefing");
-  var h = '<article class="msg">'+msgHead("Email","Normal","AI Governance Briefing for Thursday ("+esc(st.industryName)+")",k,"07:00","mail") +
-    '<div class="mbody"><p>Good morning, '+esc(first(st.name))+'. You are covering the AI Risk Operations shift solo today while leadership attends the quarterly Board Risk Committee.</p>' +
+  var k=PEOPLE.karen, comp=getCompany(); setTitle("07:00 Shift briefing");
+  var h = '<article class="msg">'+msgHead("Email","Normal","AI Governance Briefing for Thursday ("+esc(comp.name)+")",k,"07:00","mail") +
+    '<div class="mbody"><p>Good morning, '+esc(first(st.name))+'. You are covering the AI Risk Operations shift solo today at <b>'+esc(comp.name)+'</b> while leadership attends the quarterly Board Risk Committee.</p>' +
     '<p>We have several critical items queued across our '+esc(st.industryName.toLowerCase())+' operations: system model integrations requesting database access, algorithmic fairness audit flags, engineering copilot extension reviews, and external threat intelligence warnings regarding prompt injection.</p>' +
     '<p>Examine the technical evidence carefully before making your decisions. Write clear incident notes for leadership. The AI systems reference is at the bottom of your work queue.</p>' +
     '<p>Submit your handoff note at 19:00 before you log off.</p><p>Karen</p></div></article>' +
@@ -1645,12 +1667,12 @@ function reportCode(){
   return b64e(j)+"."+fnv(SALT+j);
 }
 function verify(code){ var p=code.trim().split("."); if(p.length!==2) return null; try{ var j=b64d(p[0]); if(fnv(SALT+j)!==p[1]) return null; return JSON.parse(j); }catch(e){ return null; } }
-function reportId(){ return "APEX-AI-" + fnv(st.name+st.finishedAt).toUpperCase().slice(0,6); }
+function reportId(){ return "AI-OPS-" + fnv(st.name+st.finishedAt).toUpperCase().slice(0,6); }
 
 function reportDoc(){
-  var sc=score(), evs = getEvents(), found=st.log.filter(function(e){return e.found===2;}).length, strong=st.log.filter(function(e){return e.q==="best";}).length;
-  var h='<article class="doc"><div class="lh"><div class="org">'+MARK+'<div><b>Apex Financial Corporation</b><span>AI Governance & Risk Office</span></div></div><div class="rid">Report<b>'+reportId()+'</b>'+esc(new Date(st.finishedAt).toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}))+'</div></div>';
-  h+='<h1 tabindex="-1">AI Risk Operations Performance Report</h1><p style="color:var(--muted)">'+esc(st.name)+'. Track: <b>'+esc(st.industryName)+'</b>. One shift (07:00 to 19:00).</p>';
+  var sc=score(), evs = getEvents(), comp=getCompany(), found=st.log.filter(function(e){return e.found===2;}).length, strong=st.log.filter(function(e){return e.q==="best";}).length;
+  var h='<article class="doc"><div class="lh"><div class="org">'+MARK+'<div><b>'+esc(comp.name)+'</b><span>'+esc(comp.dept)+'</span></div></div><div class="rid">Report<b>'+reportId()+'</b>'+esc(new Date(st.finishedAt).toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}))+'</div></div>';
+  h+='<h1 tabindex="-1">AI Risk Operations Performance Report</h1><p style="color:var(--muted)">'+esc(st.name)+'. Organization: <b>'+esc(comp.name)+'</b> (Track: '+esc(st.industryName+'). One shift (07:00 to 19:00).')+'</p>';
   h+='<div class="facts"><div class="fact"><span>Overall score</span><b>'+sc.pts+'/'+sc.max+'</b></div><div class="fact"><span>Evidence fully found</span><b>'+found+'/'+evs.length+'</b></div><div class="fact"><span>Strong decisions</span><b>'+strong+'/'+evs.length+'</b></div></div>';
   h+='<h2>Enterprise status at end of shift</h2><div class="facts">'+METERS.map(function(m){ var v=st.meters[m[0]], d=v-START[m[0]]; return '<div class="fact"><span>'+m[1]+'</span><b>'+v+'</b> <span style="display:inline">'+(d>=0?"+":"")+d+' from start</span><div class="bar"><i style="width:'+v+'%"></i></div></div>'; }).join("")+'</div>';
   h+='<h2>Decision log</h2>';
