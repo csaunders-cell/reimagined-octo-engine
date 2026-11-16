@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wireless Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one page, two tabbed labs; controls on the left, live results and charts on the right. */
+:root {
+  --bg: #f3f6f9;
+  --surface: #ffffff;
+  --ink: #13202b;
+  --muted: #465766;
+  --line: #c3cfda;
+  --accent: #0a6a86;
+  --accent-ink: #ffffff;
+  --accent2: #9a5200;
+  --ok: #17663a;
+  --bad: #a3232a;
+  --note-bg: #fff4d6;
+  --note-line: #b87d12;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1820;
+    --surface: #15232d;
+    --ink: #e7eef3;
+    --muted: #a6b6c3;
+    --line: #34495a;
+    --accent: #5ec4e2;
+    --accent-ink: #06222c;
+    --accent2: #f2b25e;
+    --ok: #74d393;
+    --bad: #ff8f93;
+    --note-bg: #2b2412;
+    --note-line: #c9993a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1820;
+  --surface: #15232d;
+  --ink: #e7eef3;
+  --muted: #a6b6c3;
+  --line: #34495a;
+  --accent: #5ec4e2;
+  --accent-ink: #06222c;
+  --accent2: #f2b25e;
+  --ok: #74d393;
+  --bad: #ff8f93;
+  --note-bg: #2b2412;
+  --note-line: #c9993a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 6px; text-wrap: balance; }
+h2 { font-size: 1.35rem; line-height: 1.25; margin: 0 0 8px; text-wrap: balance; }
+h3 { font-size: 1.05rem; line-height: 1.3; margin: 0 0 8px; }
+p { margin: 0 0 10px; max-width: 70ch; }
+.lede { color: var(--muted); max-width: 70ch; }
+
+.notice {
+  background: var(--note-bg);
+  border: 1px solid var(--note-line);
+  border-left-width: 6px;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 16px 0 20px;
+}
+.notice p { margin: 0; }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+[role="tablist"] { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+[role="tab"] {
+  font: inherit; font-weight: 600;
+  min-height: 44px; padding: 8px 16px;
+  border: 2px solid var(--accent); border-radius: 8px;
+  background: var(--surface); color: var(--ink);
+  cursor: pointer;
+}
+[role="tab"][aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+[role="tab"][aria-selected="true"]::before { content: "\2713\00a0"; }
+
+.layout { display: grid; gap: 16px; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 880px) { .layout { grid-template-columns: 320px 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+fieldset { border: 0; margin: 0 0 16px; padding: 0; min-width: 0; }
+legend { font-weight: 700; padding: 0; margin-bottom: 8px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.field label, .field .lbl { font-weight: 600; }
+.help { color: var(--muted); font-size: 0.875rem; margin: 0; }
+output { font-family: var(--font-mono); font-weight: 600; }
+input[type="range"] { width: 100%; min-height: 28px; accent-color: var(--accent); }
+select {
+  font: inherit; min-height: 44px; padding: 6px 10px;
+  border: 1px solid var(--muted); border-radius: 6px;
+  background: var(--surface); color: var(--ink);
+}
+.check { display: flex; gap: 10px; align-items: flex-start; min-height: 28px; }
+.check input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--accent); }
+.radios { display: flex; flex-wrap: wrap; gap: 8px; }
+.radios label {
+  display: flex; align-items: center; gap: 6px; min-height: 40px;
+  padding: 4px 12px 4px 8px; border: 1px solid var(--muted); border-radius: 6px; cursor: pointer;
+}
+.radios input { width: 20px; height: 20px; accent-color: var(--accent); }
+.radios label:has(input:checked) { border-color: var(--accent); border-width: 2px; padding: 3px 11px 3px 7px; font-weight: 600; }
+
+button.btn {
+  font: inherit; font-weight: 600; min-height: 44px; padding: 8px 16px;
+  border: 2px solid var(--accent); border-radius: 8px;
+  background: var(--accent); color: var(--accent-ink); cursor: pointer;
+}
+button.btn.secondary { background: var(--surface); color: var(--ink); }
+
+.status-line { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; margin-bottom: 8px; }
+.badge {
+  display: inline-block; font-weight: 700; padding: 2px 10px; border-radius: 999px;
+  border: 2px solid currentColor;
+}
+.badge.ok { color: var(--ok); }
+.badge.bad { color: var(--bad); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 12px 0; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.stat .k { display: block; color: var(--muted); font-size: 0.875rem; }
+.stat .v { font-family: var(--font-mono); font-weight: 600; font-size: 1.15rem; overflow-wrap: anywhere; }
+.hint { border-left: 4px solid var(--accent); padding: 6px 12px; margin: 8px 0 0; }
+
+svg { display: block; max-width: 100%; }
+.ax { fill: var(--muted); font: 12px var(--font-body); }
+.ax-strong { fill: var(--ink); font: 600 12px var(--font-body); }
+.gridln { stroke: var(--line); stroke-width: 1; }
+.l-a { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.l-b { stroke: var(--accent2); stroke-width: 2.5; fill: none; stroke-dasharray: 8 5; }
+.l-serve { stroke: var(--ink); stroke-opacity: 0.2; stroke-width: 10; fill: none; stroke-linejoin: round; }
+.l-thr { stroke: var(--bad); stroke-width: 2; stroke-dasharray: 2 4; }
+.l-pos { stroke: var(--ink); stroke-width: 2; }
+.l-rate { stroke: var(--accent); stroke-width: 3; fill: none; }
+.l-range { stroke: var(--ok); stroke-width: 2; stroke-dasharray: 6 4; }
+.hatch-line { stroke: var(--bad); stroke-width: 2; }
+.road { stroke: var(--muted); stroke-width: 6; stroke-linecap: round; }
+.link { stroke: var(--accent); stroke-width: 3; }
+.fill-surface { fill: var(--surface); }
+.stroke-ink { stroke: var(--ink); }
+.fill-accent { fill: var(--accent); }
+.fill-ink { fill: var(--ink); }
+
+.legend { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.875rem; }
+.legend li { display: flex; align-items: center; gap: 6px; }
+
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; }
+caption { text-align: left; font-weight: 700; padding: 0 0 8px; }
+th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+thead th { background: var(--bg); }
+td.num, th.num { text-align: right; font-family: var(--font-mono); }
+tr.sel td, tr.sel th { font-weight: 700; }
+
+details { margin-top: 12px; }
+summary { cursor: pointer; font-weight: 600; min-height: 28px; }
+details > :not(summary) { margin-top: 8px; }
+textarea {
+  width: 100%; min-height: 150px; font: 0.875rem var(--font-mono);
+  background: var(--bg); color: var(--ink); border: 1px solid var(--muted); border-radius: 6px; padding: 8px;
+}
+ul.plain { margin: 0 0 10px; padding-left: 22px; max-width: 70ch; }
+.copy-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+.footer { margin-top: 28px; color: var(--muted); font-size: 0.875rem; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Wireless Explorer</h1>
+    <p class="lede">Two hands-on labs for mobile and wireless networking. Pick a lab, change the settings, and watch what happens.</p>
+  </header>
+
+  <aside class="notice" aria-label="Educational use notice">
+    <p><strong>For educational use only.</strong> This page uses simplified models to illustrate ideas from mobile and wireless networking. The numbers are not measurements. Do not use them for real network design, site surveys, safety decisions, or compliance work. The page does not collect or store any personal information.</p>
+  </aside>
+
+  <div role="tablist" aria-label="Choose a lab">
+    <button role="tab" id="tab-handoff" aria-controls="panel-handoff" aria-selected="true" tabindex="0">Handoff Explorer</button>
+    <button role="tab" id="tab-tradeoff" aria-controls="panel-tradeoff" aria-selected="false" tabindex="-1">Signal Tradeoff Lab</button>
+  </div>
+
+  <!-- ================= HANDOFF ================= -->
+  <section id="panel-handoff" role="tabpanel" aria-labelledby="tab-handoff">
+    <h2>Handoff Explorer</h2>
+    <p>A phone travels along a road between two cell towers. A handoff is when the network passes the phone from one tower to the next so the connection stays up. Change the settings, then drive the road and see whether the handoff goes smoothly.</p>
+    <ul class="plain">
+      <li>Move the position slider, or press <em>Drive the whole road</em>. The drive always goes left to right.</li>
+      <li>Turn on signal fading, then try a handoff margin of 0, then 6. Compare what changes.</li>
+      <li>Turn fading off and raise the margin to 20. See what happens when the phone waits too long to switch.</li>
+    </ul>
+
+    <div class="layout">
+      <div class="card">
+        <h3>Settings</h3>
+        <fieldset>
+          <legend>Phone</legend>
+          <div class="field">
+            <label for="h-pos">Position on road: <output id="h-pos-out" for="h-pos">500 m</output></label>
+            <input type="range" id="h-pos" min="0" max="1000" step="2" value="500">
+            <p class="help">Tower A is at 200 m. Tower B is at 800 m.</p>
+          </div>
+          <button type="button" class="btn" id="h-drive">Drive the whole road</button>
+        </fieldset>
+        <fieldset>
+          <legend>Network</legend>
+          <div class="field">
+            <label for="h-margin">Handoff margin: <output id="h-margin-out" for="h-margin">6 dB</output></label>
+            <input type="range" id="h-margin" min="0" max="20" step="1" value="6">
+            <p class="help">The other tower must be this much stronger before the phone switches. A decibel (dB) is a unit for comparing signal strengths.</p>
+          </div>
+          <div class="field">
+            <label for="h-thr">Minimum usable signal: <output id="h-thr-out" for="h-thr">&minus;105 dBm</output></label>
+            <input type="range" id="h-thr" min="-115" max="-95" step="1" value="-105">
+            <p class="help">Below this level the call drops. dBm is signal power. Numbers closer to zero are stronger.</p>
+          </div>
+          <div class="check">
+            <input type="checkbox" id="h-fade">
+            <label for="h-fade"><strong>Add signal fading</strong><br><span class="help">Buildings and terrain make the signal bumpy.</span></label>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="stack">
+        <div class="card" id="h-summary" role="status" aria-live="polite" aria-atomic="true"></div>
+        <div class="card">
+          <h3>The road</h3>
+          <div id="h-road-wrap"><svg id="h-road"></svg></div>
+        </div>
+        <div class="card">
+          <h3>Signal strength along the road</h3>
+          <div id="h-chart-wrap"><svg id="h-chart"></svg></div>
+          <ul class="legend" id="h-legend"></ul>
+          <details>
+            <summary>Show events as a table</summary>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Events table, scrollable">
+              <table id="h-events"></table>
+            </div>
+          </details>
+        </div>
+        <div class="card">
+          <div class="copy-row">
+            <button type="button" class="btn secondary" id="h-copy">Copy my settings and results</button>
+            <span id="h-copy-msg" class="help" role="status"></span>
+          </div>
+          <details id="h-text-details">
+            <summary>Show text version</summary>
+            <textarea id="h-text" readonly aria-label="Text summary of handoff settings and results"></textarea>
+          </details>
+          <details>
+            <summary>How this model works</summary>
+            <p>Signal strength falls as the phone moves away from a tower. The model uses a simple distance rule: every tenfold increase in distance costs 32 dB. The phone stays on its current tower until the other tower is stronger by the handoff margin. If the signal on the current tower falls below the minimum usable level, the call drops. Fading adds smooth random-looking bumps, up to about 6 dB, to each tower's signal. A switch back to the previous tower within 100 m counts as ping-pong.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TRADEOFF ================= -->
+  <section id="panel-tradeoff" role="tabpanel" aria-labelledby="tab-tradeoff" hidden>
+    <h2>Signal Tradeoff Lab</h2>
+    <p>A radio link can send data faster or more reliably, but not both for free. Choose a modulation (how bits are packed into the signal), move away from the tower, and see how speed and error rate change.</p>
+    <ul class="plain">
+      <li>Start with QPSK at 100 m, then switch to 256-QAM. What happens to speed and errors?</li>
+      <li>Move to 250 m. Which modulation still meets your target error rate?</li>
+      <li>Raise the spreading factor and watch what you gain and what you give up.</li>
+    </ul>
+
+    <div class="layout">
+      <div class="card">
+        <h3>Settings</h3>
+        <fieldset>
+          <legend>Modulation</legend>
+          <div class="radios" id="t-mods"></div>
+          <p class="help" style="margin-top:8px">Bits per symbol: BPSK 1, QPSK 2, 16-QAM 4, 64-QAM 6, 256-QAM 8.</p>
+        </fieldset>
+        <fieldset>
+          <legend>Link</legend>
+          <div class="field">
+            <label for="t-dist">Distance from tower: <output id="t-dist-out" for="t-dist">100 m</output></label>
+            <input type="range" id="t-dist" min="10" max="300" step="5" value="100">
+          </div>
+          <div class="field">
+            <label for="t-env">Environment</label>
+            <select id="t-env">
+              <option value="open">Open field (signal fades slowly)</option>
+              <option value="suburban" selected>Suburban (medium)</option>
+              <option value="city">Dense city (signal fades quickly)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="t-bw">Channel width</label>
+            <select id="t-bw">
+              <option value="5">5 MHz</option>
+              <option value="10">10 MHz</option>
+              <option value="20" selected>20 MHz</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="t-sf">Spreading factor</label>
+            <select id="t-sf">
+              <option value="1" selected>1 (no spreading)</option>
+              <option value="4">4</option>
+              <option value="16">16</option>
+              <option value="64">64</option>
+            </select>
+            <p class="help">Spreading sends each symbol as many shorter pulses. It helps the receiver pick the signal out of noise, but it divides the data rate.</p>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Goal</legend>
+          <div class="field">
+            <label for="t-target">Acceptable bit error rate</label>
+            <select id="t-target">
+              <option value="0.001">1 error in 1,000 bits</option>
+              <option value="0.00001" selected>1 error in 100,000 bits</option>
+              <option value="0.000001">1 error in 1,000,000 bits</option>
+            </select>
+            <p class="help">Bit error rate (BER) is the share of received bits that are wrong.</p>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="stack">
+        <div class="card" id="t-summary" role="status" aria-live="polite" aria-atomic="true"></div>
+        <div class="card">
+          <h3>Usable speed as you move away</h3>
+          <div id="t-chart-wrap"><svg id="t-chart"></svg></div>
+          <ul class="legend" id="t-legend"></ul>
+        </div>
+        <div class="card">
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Modulation comparison table, scrollable">
+            <table id="t-table"></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="copy-row">
+            <button type="button" class="btn secondary" id="t-copy">Copy my settings and results</button>
+            <span id="t-copy-msg" class="help" role="status"></span>
+          </div>
+          <details>
+            <summary>Show text version</summary>
+            <textarea id="t-text" readonly aria-label="Text summary of signal tradeoff settings and results"></textarea>
+          </details>
+          <details>
+            <summary>How this model works</summary>
+            <p>Received power drops with distance using the chosen environment's rule. Noise power depends on channel width, so a wider channel carries more data but lets in more noise. The signal-to-noise ratio (SNR) is received power minus noise power. Spreading adds a gain of 10 times the log of the spreading factor to the SNR, and divides the data rate by that factor. Bit error rates use standard textbook formulas for each modulation over a plain noise channel. Raw rate is channel width times bits per symbol, divided by the spreading factor. Usable rate is raw rate times the chance that a 1,500-byte packet arrives with no bit errors. Real links add coding, interference, overhead, and many other effects that this lab leaves out.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="footer">Wireless Explorer is a teaching aid. Models are simplified and results are illustrative only.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function minus(s) { return String(s).replace('-', '−'); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function width(el) { return Math.max(300, Math.floor(el.clientWidth || 320)); }
+
+  /* ---------------- shared: copy helper ---------------- */
+  function copyText(text, msgEl, textarea) {
+    textarea.value = text;
+    function fallback() {
+      msgEl.textContent = 'Copy did not work here. Open "Show text version" and select the text.';
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        msgEl.textContent = 'Copied.';
+      }, fallback);
+    } catch (e) { fallback(); }
+  }
+
+  /* ---------------- HANDOFF ---------------- */
+  var TOWER = { A: 200, B: 800 };
+  var h = { pos: 500, margin: 6, thr: -105, fade: false, driving: false, raf: null };
+  var hSim = null;
+
+  function fadeNoise(x, seed) {
+    return 3 * Math.sin(0.09 * x + seed) + 2 * Math.sin(0.23 * x + 2 * seed) + 1.5 * Math.sin(0.41 * x + 3 * seed);
+  }
+  function rssAt(x, cell, useFade) {
+    var d = Math.max(Math.abs(x - TOWER[cell]), 5);
+    var v = -20 - 32 * Math.log10(d);
+    if (useFade) v += fadeNoise(x, cell === 'A' ? 1.7 : 4.1);
+    return v;
+  }
+  function simulate(margin, thr, useFade) {
+    var pts = [], events = [];
+    var serving = 'A', dropped = false, last = null, handoffs = 0, pingpong = 0, drops = 0;
+    for (var x = 0; x <= 1000; x += 2) {
+      var a = rssAt(x, 'A', useFade), b = rssAt(x, 'B', useFade);
+      var sv = serving === 'A' ? a : b, ot = serving === 'A' ? b : a;
+      if (ot > sv + margin) {
+        var from = serving;
+        serving = serving === 'A' ? 'B' : 'A';
+        handoffs++;
+        var pp = !!(last && last.from === serving && (x - last.x) <= 100);
+        if (pp) pingpong++;
+        last = { x: x, from: from, to: serving };
+        events.push({ x: x, kind: 'handoff', n: handoffs, text: 'Handoff from Tower ' + from + ' to Tower ' + serving + (pp ? ' (ping-pong: switched back)' : '') });
+      }
+      var s = serving === 'A' ? a : b;
+      var nowDropped = s < thr;
+      if (nowDropped && !dropped) { drops++; events.push({ x: x, kind: 'drop', text: 'Call dropped on Tower ' + serving }); }
+      if (!nowDropped && dropped) { events.push({ x: x, kind: 'recover', text: 'Signal recovered on Tower ' + serving }); }
+      dropped = nowDropped;
+      pts.push({ x: x, a: a, b: b, serving: serving, s: s, dropped: dropped });
+    }
+    return { pts: pts, events: events, handoffs: handoffs, pingpong: pingpong, drops: drops };
+  }
+
+  function renderHandoffSummary(p) {
+    var s = hSim;
+    var cur = p.serving === 'A' ? p.a : p.b;
+    var status = p.dropped
+      ? '<span class="badge bad"><span aria-hidden="true">✖ </span>Dropped</span>'
+      : '<span class="badge ok"><span aria-hidden="true">✔ </span>Connected</span>';
+    var hint;
+    if (s.pingpong > 0) hint = 'The phone switched back and forth between towers. This is called ping-pong. Raise the handoff margin to make switching less jumpy.';
+    else if (s.drops > 0) hint = 'The signal fell below the usable level before the phone switched. Lower the handoff margin so the phone switches sooner.';
+    else if (s.handoffs === 0) hint = 'The phone never switched towers. Check the margin and the drive path.';
+    else hint = 'Clean drive: the phone switched towers without ping-pong or dropped calls.';
+    $('h-summary').innerHTML =
+      '<h3>Results</h3>' +
+      '<div class="status-line">' + status + '<span>At ' + p.x + ' m the phone is using Tower ' + p.serving + ' at ' + minus(Math.round(cur)) + ' dBm.</span></div>' +
+      '<p class="help">Tower A: ' + minus(Math.round(p.a)) + ' dBm. Tower B: ' + minus(Math.round(p.b)) + ' dBm.</p>' +
+      '<div class="stats">' +
+      '<div class="stat"><span class="k">Handoffs (full drive)</span><span class="v">' + s.handoffs + '</span></div>' +
+      '<div class="stat"><span class="k">Ping-pong switches</span><span class="v">' + s.pingpong + '</span></div>' +
+      '<div class="stat"><span class="k">Dropped calls</span><span class="v">' + s.drops + '</span></div>' +
+      '</div>' +
+      '<p class="hint">' + esc(hint) + '</p>';
+  }
+
+  function renderRoad(p) {
+    var svg = $('h-road'), w = width($('h-road-wrap')), ht = 150;
+    svg.setAttribute('width', w); svg.setAttribute('height', ht); svg.setAttribute('viewBox', '0 0 ' + w + ' ' + ht);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Diagram of a road with Tower A at 200 meters and Tower B at 800 meters. The phone is at ' + p.x + ' meters and ' + (p.dropped ? 'has no usable connection.' : 'is connected to Tower ' + p.serving + '.'));
+    var x0 = 24, x1 = w - 24, X = function (m) { return x0 + (x1 - x0) * m / 1000; };
+    var roadY = 112, topY = 40;
+    var out = '<line class="road" x1="' + x0 + '" y1="' + roadY + '" x2="' + x1 + '" y2="' + roadY + '"/>';
+    ['A', 'B'].forEach(function (c) {
+      var tx = X(TOWER[c]);
+      out += '<path class="stroke-ink fill-surface" stroke-width="2" d="M' + (tx - 9) + ' ' + (roadY - 6) + ' L' + tx + ' ' + topY + ' L' + (tx + 9) + ' ' + (roadY - 6) + ' Z"/>';
+      out += '<circle class="fill-ink" cx="' + tx + '" cy="' + topY + '" r="4"/>';
+      out += '<text class="ax-strong" x="' + tx + '" y="' + (topY - 12) + '" text-anchor="middle">Tower ' + c + '</text>';
+    });
+    var px = X(p.x);
+    if (!p.dropped) {
+      var tx2 = X(TOWER[p.serving]);
+      out += '<line class="link" x1="' + px + '" y1="' + (roadY - 22) + '" x2="' + tx2 + '" y2="' + topY + '"/>';
+    }
+    out += '<rect class="fill-accent stroke-ink" stroke-width="2" x="' + (px - 8) + '" y="' + (roadY - 26) + '" width="16" height="26" rx="3"/>';
+    var label = p.dropped ? 'No usable signal' : 'Connected to Tower ' + p.serving;
+    var anchor = px < 90 ? 'start' : (px > w - 90 ? 'end' : 'middle');
+    var lx = anchor === 'start' ? Math.max(px - 8, 4) : (anchor === 'end' ? Math.min(px + 8, w - 4) : px);
+    out += '<text class="ax-strong" x="' + lx + '" y="' + (roadY + 28) + '" text-anchor="' + anchor + '">Phone at ' + p.x + ' m: ' + label + '</text>';
+    svg.innerHTML = out;
+  }
+
+  function renderHandoffChart(p) {
+    var svg = $('h-chart'), w = width($('h-chart-wrap')), ht = 320;
+    var m = { l: 56, r: 14, t: 34, b: 48 };
+    var iw = w - m.l - m.r, ih = ht - m.t - m.b;
+    var ymin = -120, ymax = -50;
+    var X = function (v) { return m.l + v / 1000 * iw; };
+    var Y = function (v) { return m.t + (ymax - Math.max(ymin, Math.min(ymax, v))) / (ymax - ymin) * ih; };
+    svg.setAttribute('width', w); svg.setAttribute('height', ht); svg.setAttribute('viewBox', '0 0 ' + w + ' ' + ht);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Line chart of signal strength in dBm against position on the road in meters, for Tower A and Tower B, with the minimum usable signal, handoffs, and dropped-call areas marked. The same information is in the results summary and the events table.');
+    var o = '<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch-line" x1="0" y1="0" x2="0" y2="8"/></pattern></defs>';
+    var v, x;
+    for (v = ymin; v <= ymax; v += 10) {
+      o += '<line class="gridln" x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/>';
+      o += '<text class="ax" x="' + (m.l - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + minus(v) + '</text>';
+    }
+    for (x = 0; x <= 1000; x += 200) {
+      o += '<line class="gridln" x1="' + X(x) + '" x2="' + X(x) + '" y1="' + m.t + '" y2="' + (ht - m.b) + '"/>';
+      o += '<text class="ax" x="' + X(x) + '" y="' + (ht - m.b + 18) + '" text-anchor="middle">' + x + '</text>';
+    }
+    o += '<text class="ax" x="' + (m.l + iw / 2) + '" y="' + (ht - 8) + '" text-anchor="middle">Position on road (m)</text>';
+    o += '<text class="ax" transform="translate(14 ' + (m.t + ih / 2) + ') rotate(-90)" text-anchor="middle">Signal strength (dBm)</text>';
+    // dropped areas
+    var pts = hSim.pts, i, start = null;
+    for (i = 0; i < pts.length; i++) {
+      if (pts[i].dropped && start === null) start = pts[i].x;
+      if ((!pts[i].dropped || i === pts.length - 1) && start !== null) {
+        var end = pts[i].dropped ? pts[i].x : pts[i - 1].x;
+        o += '<rect x="' + X(start) + '" y="' + m.t + '" width="' + Math.max(2, X(end) - X(start)) + '" height="' + ih + '" fill="url(#hatch)" opacity="0.5"/>';
+        start = null;
+      }
+    }
+    var pa = '', pb = '', ps = '';
+    pts.forEach(function (q, k) {
+      var c = (k ? 'L' : 'M');
+      pa += c + X(q.x).toFixed(1) + ' ' + Y(q.a).toFixed(1);
+      pb += c + X(q.x).toFixed(1) + ' ' + Y(q.b).toFixed(1);
+      ps += c + X(q.x).toFixed(1) + ' ' + Y(q.s).toFixed(1);
+    });
+    o += '<path class="l-serve" d="' + ps + '"/>';
+    o += '<path class="l-a" d="' + pa + '"/>';
+    o += '<path class="l-b" d="' + pb + '"/>';
+    o += '<line class="l-thr" x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(h.thr) + '" y2="' + Y(h.thr) + '"/>';
+    // towers
+    ['A', 'B'].forEach(function (c) {
+      var tx = X(TOWER[c]);
+      o += '<text class="ax-strong" x="' + tx + '" y="' + (m.t - 18) + '" text-anchor="middle">Tower ' + c + '</text>';
+      o += '<path class="stroke-ink fill-surface" stroke-width="1.5" d="M' + (tx - 5) + ' ' + (m.t - 4) + ' L' + tx + ' ' + (m.t - 14) + ' L' + (tx + 5) + ' ' + (m.t - 4) + ' Z"/>';
+    });
+    // handoff ticks
+    var lastLabelX = -100;
+    hSim.events.forEach(function (e) {
+      if (e.kind !== 'handoff') return;
+      var ex = X(e.x);
+      o += '<line class="stroke-ink" stroke-width="1.5" x1="' + ex + '" x2="' + ex + '" y1="' + (ht - m.b - 14) + '" y2="' + (ht - m.b) + '"/>';
+      if (ex - lastLabelX > 16) {
+        o += '<text class="ax-strong" x="' + ex + '" y="' + (ht - m.b - 18) + '" text-anchor="middle">' + e.n + '</text>';
+        lastLabelX = ex;
+      }
+    });
+    // phone marker
+    var px = X(p.x);
+    o += '<line class="l-pos" x1="' + px + '" x2="' + px + '" y1="' + m.t + '" y2="' + (ht - m.b) + '"/>';
+    o += '<circle class="fill-surface stroke-ink" stroke-width="3" cx="' + px + '" cy="' + Y(p.s) + '" r="6"/>';
+    svg.innerHTML = o;
+
+    $('h-legend').innerHTML =
+      leg('<line class="l-a" x1="0" x2="28" y1="8" y2="8"/>', 'Tower A signal (solid line)') +
+      leg('<line class="l-b" x1="0" x2="28" y1="8" y2="8"/>', 'Tower B signal (dashed line)') +
+      leg('<line class="l-serve" x1="0" x2="28" y1="8" y2="8"/>', 'Signal the phone is using (wide gray band)') +
+      leg('<line class="l-thr" x1="0" x2="28" y1="8" y2="8"/>', 'Minimum usable signal (dotted line)') +
+      leg('<rect width="28" height="14" y="1" fill="url(#hatch)"/>', 'Dropped call (hatched area)') +
+      leg('<line class="stroke-ink" stroke-width="2" x1="14" x2="14" y1="0" y2="16"/>', 'Numbered tick: handoff') +
+      leg('<circle class="fill-surface stroke-ink" stroke-width="3" cx="14" cy="8" r="6"/>', 'Phone now');
+  }
+  function leg(svgInner, text) {
+    return '<li><svg width="28" height="16" aria-hidden="true">' + svgInner + '</svg><span>' + text + '</span></li>';
+  }
+
+  function renderEvents() {
+    var ev = hSim.events;
+    var rows = '';
+    if (!ev.length) rows = '<tr><td colspan="3">No events during this drive.</td></tr>';
+    ev.forEach(function (e, i) {
+      rows += '<tr><td class="num">' + (i + 1) + '</td><td class="num">' + e.x + '</td><td>' + esc(e.text) + '</td></tr>';
+    });
+    $('h-events').innerHTML = '<caption>Events during the full drive from 0 to 1,000 m</caption>' +
+      '<thead><tr><th scope="col" class="num">Event</th><th scope="col" class="num">Position (m)</th><th scope="col">What happened</th></tr></thead><tbody>' + rows + '</tbody>';
+  }
+
+  function handoffText() {
+    var s = hSim, p = s.pts[Math.round(h.pos / 2)];
+    return 'Handoff Explorer (educational simulator)\n' +
+      'Settings: handoff margin ' + h.margin + ' dB; minimum usable signal ' + minus(h.thr) + ' dBm; signal fading ' + (h.fade ? 'on' : 'off') + '.\n' +
+      'Full drive, left to right: ' + s.handoffs + ' handoff(s), ' + s.pingpong + ' ping-pong switch(es), ' + s.drops + ' dropped call(s).\n' +
+      'Phone at ' + p.x + ' m: using Tower ' + p.serving + ' (' + (p.dropped ? 'dropped' : 'connected') + ').\n' +
+      'Events:\n' + (s.events.length ? s.events.map(function (e, i) { return (i + 1) + '. ' + e.x + ' m: ' + e.text; }).join('\n') : 'None');
+  }
+
+  function renderHandoff() {
+    if ($('panel-handoff').hidden) return;
+    hSim = simulate(h.margin, h.thr, h.fade);
+    var p = hSim.pts[Math.round(h.pos / 2)];
+    $('h-summary').setAttribute('aria-live', h.driving ? 'off' : 'polite');
+    renderHandoffSummary(p);
+    renderRoad(p);
+    renderHandoffChart(p);
+    renderEvents();
+    $('h-text').value = handoffText();
+  }
+
+  function stopDrive() {
+    h.driving = false;
+    if (h.raf) cancelAnimationFrame(h.raf);
+    h.raf = null;
+    $('h-drive').textContent = 'Drive the whole road';
+  }
+  $('h-pos').addEventListener('input', function (e) {
+    stopDrive();
+    h.pos = +e.target.value; $('h-pos-out').textContent = h.pos + ' m'; renderHandoff();
+  });
+  $('h-margin').addEventListener('input', function (e) {
+    h.margin = +e.target.value; $('h-margin-out').textContent = h.margin + ' dB'; renderHandoff();
+  });
+  $('h-thr').addEventListener('input', function (e) {
+    h.thr = +e.target.value; $('h-thr-out').textContent = minus(h.thr) + ' dBm'; renderHandoff();
+  });
+  $('h-fade').addEventListener('change', function (e) { h.fade = e.target.checked; renderHandoff(); });
+  $('h-drive').addEventListener('click', function () {
+    if (h.driving) { stopDrive(); renderHandoff(); return; }
+    if (reduceMotion) {
+      h.pos = 1000; $('h-pos').value = 1000; $('h-pos-out').textContent = '1000 m'; renderHandoff(); return;
+    }
+    h.driving = true;
+    $('h-drive').textContent = 'Stop driving';
+    var t0 = null, from = 0, dur = 8000;
+    function step(t) {
+      if (!h.driving) return;
+      if (t0 === null) t0 = t;
+      var f = Math.min(1, (t - t0) / dur);
+      h.pos = Math.round(from + f * 1000 - (Math.round(from + f * 1000) % 2));
+      $('h-pos').value = h.pos; $('h-pos-out').textContent = h.pos + ' m';
+      if (f >= 1) { stopDrive(); renderHandoff(); return; }
+      renderHandoff();
+      h.raf = requestAnimationFrame(step);
+    }
+    h.raf = requestAnimationFrame(step);
+  });
+  $('h-copy').addEventListener('click', function () { copyText(handoffText(), $('h-copy-msg'), $('h-text')); });
+
+  /* ---------------- TRADEOFF ---------------- */
+  var MODS = [
+    { name: 'BPSK', M: 2, b: 1 },
+    { name: 'QPSK', M: 4, b: 2 },
+    { name: '16-QAM', M: 16, b: 4 },
+    { name: '64-QAM', M: 64, b: 6 },
+    { name: '256-QAM', M: 256, b: 8 }
+  ];
+  var ENV = { open: 2.7, suburban: 3.2, city: 3.8 };
+  var ENV_NAME = { open: 'open field', suburban: 'suburban', city: 'dense city' };
+  var t = { mod: 1, dist: 100, env: 'suburban', bw: 20, sf: 1, target: 0.00001 };
+
+  function erfc(x) {
+    var z = Math.abs(x), q = 1 / (1 + 0.5 * z);
+    var r = q * Math.exp(-z * z - 1.26551223 + q * (1.00002368 + q * (0.37409196 + q * (0.09678418 + q * (-0.18628806 + q * (0.27886807 + q * (-1.13520398 + q * (1.48851587 + q * (-0.82215223 + q * 0.17087277)))))))));
+    return x >= 0 ? r : 2 - r;
+  }
+  function Q(x) { return 0.5 * erfc(x / Math.SQRT2); }
+  function berOf(mod, esn0) {
+    var b;
+    if (mod.M === 2) b = Q(Math.sqrt(2 * esn0));
+    else b = (4 / mod.b) * (1 - 1 / Math.sqrt(mod.M)) * Q(Math.sqrt(3 * esn0 / (mod.M - 1)));
+    return Math.min(0.5, b);
+  }
+  function calc(mi, d) {
+    var n = ENV[t.env];
+    var rss = -20 - 10 * n * Math.log10(d);
+    var noise = -174 + 10 * Math.log10(t.bw * 1e6) + 7;
+    var snr = rss - noise;
+    var esn0 = Math.pow(10, (snr + 10 * Math.log10(t.sf)) / 10);
+    var mod = MODS[mi];
+    var b = berOf(mod, esn0);
+    var raw = t.bw * mod.b / t.sf;
+    var usable = raw * Math.exp(12000 * Math.log1p(-Math.min(b, 0.4999999)));
+    return { rss: rss, snr: snr, ber: b, raw: raw, usable: usable, mod: mod, meets: b <= t.target };
+  }
+  function fmtRate(v) { return (v >= 10 ? v.toFixed(0) : v >= 1 ? v.toFixed(1) : v.toFixed(2)) + ' Mbps'; }
+  function fmtBer(b) {
+    if (b >= 0.25) return 'about 1 in 2 (a coin flip)';
+    if (b < 1e-9) return 'below 1 in 1 billion';
+    return '1 in ' + Math.round(1 / b).toLocaleString('en-US') + ' (' + b.toExponential(1) + ')';
+  }
+  function fmtTarget(v) { return '1 in ' + Math.round(1 / v).toLocaleString('en-US'); }
+  function rangeAtTarget() {
+    var best = null, d;
+    for (d = 10; d <= 300; d += 1) { if (calc(t.mod, d).meets) best = d; else break; }
+    return best;
+  }
+
+  function buildMods() {
+    var html = '';
+    MODS.forEach(function (m, i) {
+      html += '<label><input type="radio" name="t-mod" value="' + i + '"' + (i === t.mod ? ' checked' : '') + '> ' + m.name + '</label>';
+    });
+    $('t-mods').innerHTML = html;
+    $('t-mods').addEventListener('change', function (e) {
+      if (e.target.name === 't-mod') { t.mod = +e.target.value; renderTradeoff(); }
+    });
+  }
+
+  function tradeoffText() {
+    var c = calc(t.mod, t.dist), r = rangeAtTarget();
+    return 'Signal Tradeoff Lab (educational simulator)\n' +
+      'Settings: ' + c.mod.name + '; distance ' + t.dist + ' m; ' + ENV_NAME[t.env] + '; ' + t.bw + ' MHz channel; spreading factor ' + t.sf + '; target bit error rate ' + fmtTarget(t.target) + '.\n' +
+      'Results: signal-to-noise ratio ' + minus(c.snr.toFixed(1)) + ' dB; bit error rate ' + fmtBer(c.ber) + '; meets target: ' + (c.meets ? 'yes' : 'no') + '; raw rate ' + fmtRate(c.raw) + '; usable rate ' + fmtRate(c.usable) + '.\n' +
+      'Farthest distance that meets the target with these settings: ' + (r === null ? 'none (fails even at 10 m)' : (r >= 300 ? '300 m or more' : r + ' m')) + '.';
+  }
+
+  function renderTradeoff() {
+    if ($('panel-tradeoff').hidden) return;
+    var c = calc(t.mod, t.dist), r = rangeAtTarget();
+    var hint = c.meets
+      ? 'This setting meets your target. Try a denser modulation to see how much faster you can go before errors climb.'
+      : 'This setting misses your target. Try a simpler modulation, a larger spreading factor, a narrower channel, or move closer.';
+    var rangeTxt = r === null ? 'none (fails even at 10 m)' : (r >= 300 ? '300 m or more' : r + ' m');
+    $('t-summary').innerHTML =
+      '<h3>Results</h3>' +
+      '<div class="status-line">' + (c.meets
+        ? '<span class="badge ok"><span aria-hidden="true">✔ </span>Meets target</span>'
+        : '<span class="badge bad"><span aria-hidden="true">✖ </span>Misses target</span>') +
+      '<span>' + c.mod.name + ' at ' + t.dist + ' m. Target: ' + fmtTarget(t.target) + ' bits wrong or fewer.</span></div>' +
+      '<div class="stats">' +
+      '<div class="stat"><span class="k">Signal-to-noise ratio</span><span class="v">' + minus(c.snr.toFixed(1)) + ' dB</span></div>' +
+      '<div class="stat"><span class="k">Bit error rate</span><span class="v">' + esc(fmtBer(c.ber)) + '</span></div>' +
+      '<div class="stat"><span class="k">Raw rate</span><span class="v">' + fmtRate(c.raw) + '</span></div>' +
+      '<div class="stat"><span class="k">Usable rate</span><span class="v">' + fmtRate(c.usable) + '</span></div>' +
+      '<div class="stat"><span class="k">Farthest distance that meets target</span><span class="v">' + rangeTxt + '</span></div>' +
+      '</div>' +
+      '<p class="hint">' + hint + '</p>';
+    renderTradeChart(c, r);
+    renderTradeTable();
+    $('t-text').value = tradeoffText();
+  }
+
+  function renderTradeChart(c, r) {
+    var svg = $('t-chart'), w = width($('t-chart-wrap')), ht = 320;
+    var m = { l: 62, r: 14, t: 24, b: 48 };
+    var iw = w - m.l - m.r, ih = ht - m.t - m.b;
+    var dmin = 10, dmax = 300, ymax = t.bw * 8 / t.sf;
+    var X = function (d) { return m.l + (d - dmin) / (dmax - dmin) * iw; };
+    var Y = function (v) { return m.t + (1 - v / ymax) * ih; };
+    svg.setAttribute('width', w); svg.setAttribute('height', ht); svg.setAttribute('viewBox', '0 0 ' + w + ' ' + ht);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Line chart of usable data rate in megabits per second against distance from the tower in meters for ' + c.mod.name + '. The current distance and the farthest distance that meets your error-rate target are marked. Values are also in the results and the table.');
+    var o = '', i, v, d;
+    for (i = 0; i <= 4; i++) {
+      v = ymax * i / 4;
+      o += '<line class="gridln" x1="' + m.l + '" x2="' + (w - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/>';
+      o += '<text class="ax" x="' + (m.l - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + (v >= 10 ? v.toFixed(0) : v.toFixed(2).replace(/\.?0+$/, '')) + '</text>';
+    }
+    for (d = 50; d <= 300; d += 50) {
+      o += '<line class="gridln" x1="' + X(d) + '" x2="' + X(d) + '" y1="' + m.t + '" y2="' + (ht - m.b) + '"/>';
+      o += '<text class="ax" x="' + X(d) + '" y="' + (ht - m.b + 18) + '" text-anchor="middle">' + d + '</text>';
+    }
+    o += '<text class="ax" x="' + (m.l + iw / 2) + '" y="' + (ht - 8) + '" text-anchor="middle">Distance from tower (m)</text>';
+    o += '<text class="ax" transform="translate(14 ' + (m.t + ih / 2) + ') rotate(-90)" text-anchor="middle">Usable rate (Mbps)</text>';
+    var path = '';
+    for (d = dmin; d <= dmax; d += 2) {
+      path += (d === dmin ? 'M' : 'L') + X(d).toFixed(1) + ' ' + Y(calc(t.mod, d).usable).toFixed(1);
+    }
+    o += '<path class="l-rate" d="' + path + '"/>';
+    if (r !== null && r < 300) {
+      o += '<line class="l-range" x1="' + X(r) + '" x2="' + X(r) + '" y1="' + m.t + '" y2="' + (ht - m.b) + '"/>';
+    }
+    o += '<line class="l-pos" x1="' + X(t.dist) + '" x2="' + X(t.dist) + '" y1="' + m.t + '" y2="' + (ht - m.b) + '"/>';
+    o += '<circle class="fill-surface stroke-ink" stroke-width="3" cx="' + X(t.dist) + '" cy="' + Y(c.usable) + '" r="6"/>';
+    svg.innerHTML = o;
+    $('t-legend').innerHTML =
+      leg('<line class="l-rate" x1="0" x2="28" y1="8" y2="8"/>', 'Usable rate, ' + c.mod.name) +
+      leg('<line class="l-range" x1="0" x2="28" y1="8" y2="8"/>', 'Farthest distance that meets target (dashed)') +
+      leg('<circle class="fill-surface stroke-ink" stroke-width="3" cx="14" cy="8" r="6"/>', 'Your distance now');
+  }
+
+  function renderTradeTable() {
+    var rows = '';
+    MODS.forEach(function (mod, i) {
+      var c = calc(i, t.dist);
+      rows += '<tr' + (i === t.mod ? ' class="sel"' : '') + '><th scope="row">' + mod.name + (i === t.mod ? ' (selected)' : '') + '</th>' +
+        '<td class="num">' + mod.b + '</td>' +
+        '<td class="num">' + fmtRate(c.raw) + '</td>' +
+        '<td class="num">' + esc(fmtBer(c.ber)) + '</td>' +
+        '<td>' + (c.meets ? 'Yes' : 'No') + '</td>' +
+        '<td class="num">' + fmtRate(c.usable) + '</td></tr>';
+    });
+    $('t-table').innerHTML = '<caption>All modulations at ' + t.dist + ' m, ' + t.bw + ' MHz, spreading factor ' + t.sf + '</caption>' +
+      '<thead><tr><th scope="col">Modulation</th><th scope="col" class="num">Bits per symbol</th><th scope="col" class="num">Raw rate</th><th scope="col" class="num">Bit error rate</th><th scope="col">Meets target?</th><th scope="col" class="num">Usable rate</th></tr></thead><tbody>' + rows + '</tbody>';
+  }
+
+  $('t-dist').addEventListener('input', function (e) { t.dist = +e.target.value; $('t-dist-out').textContent = t.dist + ' m'; renderTradeoff(); });
+  $('t-env').addEventListener('change', function (e) { t.env = e.target.value; renderTradeoff(); });
+  $('t-bw').addEventListener('change', function (e) { t.bw = +e.target.value; renderTradeoff(); });
+  $('t-sf').addEventListener('change', function (e) { t.sf = +e.target.value; renderTradeoff(); });
+  $('t-target').addEventListener('change', function (e) { t.target = +e.target.value; renderTradeoff(); });
+  $('t-copy').addEventListener('click', function () { copyText(tradeoffText(), $('t-copy-msg'), $('t-text')); });
+  buildMods();
+
+  /* ---------------- TABS ---------------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  var names = { 'tab-handoff': 'handoff', 'tab-tradeoff': 'tradeoff' };
+  function selectTab(tab, focus, setHash) {
+    if (h.driving) stopDrive();
+    tabs.forEach(function (x) {
+      var on = x === tab;
+      x.setAttribute('aria-selected', on ? 'true' : 'false');
+      x.tabIndex = on ? 0 : -1;
+      $(x.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tab.focus();
+    if (setHash) { try { location.hash = names[tab.id]; } catch (e) { /* ignore */ } }
+    renderHandoff(); renderTradeoff();
+  }
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener('click', function () { selectTab(tab, false, true); });
+    tab.addEventListener('keydown', function (e) {
+      var j = null;
+      if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = tabs.length - 1;
+      if (j !== null) { e.preventDefault(); selectTab(tabs[j], true, true); }
+    });
+  });
+  function fromHash() {
+    var id = (location.hash || '').replace('#', '');
+    var tab = id === 'tradeoff' ? $('tab-tradeoff') : $('tab-handoff');
+    selectTab(tab, false, false);
+  }
+  window.addEventListener('hashchange', fromHash);
+
+  var rt = null;
+  function onResize() { clearTimeout(rt); rt = setTimeout(function () { renderHandoff(); renderTradeoff(); }, 100); }
+  window.addEventListener('resize', onResize);
+
+  fromHash();
+})();
+</script>
+</body>
+</html>
