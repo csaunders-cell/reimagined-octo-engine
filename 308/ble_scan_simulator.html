@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLE Scan Simulator – CIS 308 Module 10 Lab</title>
+<style>
+:root{--ink:#1b1b1b;--muted:#3d3d3d;--bg:#ffffff;--panel:#f3f5f8;--line:#6b7686;--accent:#0b5cad;--accent-ink:#ffffff;--focus:#ffbf47;}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:1rem;line-height:1.55;color:var(--ink);background:var(--bg)}
+.wrap{max-width:68rem;margin:0 auto;padding:1rem 1.25rem 3rem}
+h1{font-size:2rem;line-height:1.2;margin:.5rem 0}
+h2{font-size:1.5rem;line-height:1.25;margin:0 0 .5rem;padding-top:.25rem}
+h3{font-size:1.25rem;line-height:1.3;margin:1.25rem 0 .5rem}
+h4{font-size:1.1rem;line-height:1.3;margin:1rem 0 .4rem}
+p{margin:.5rem 0}
+section.step{border:2px solid var(--line);border-radius:.5rem;padding:1rem 1.25rem;margin:1.25rem 0;background:var(--panel)}
+.skip{position:absolute;left:-999px;top:0;background:#000;color:#fff;padding:.5rem 1rem;z-index:10}
+.skip:focus{left:0}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+label{display:block;font-weight:600;margin:.5rem 0 .25rem}
+input[type=text],input[type=number],select{font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:.375rem;padding:.4rem .6rem;min-height:2.75rem}
+input[type=text]{width:100%;max-width:26rem}
+input[type=number]{width:9rem}
+button{font:inherit;font-weight:600;color:var(--accent-ink);background:var(--accent);border:2px solid var(--accent);border-radius:.375rem;padding:.4rem 1rem;min-height:2.75rem;cursor:pointer}
+button.secondary{color:var(--accent);background:#fff}
+button:disabled{color:#3d3d3d;background:#e3e6eb;border-color:#6b7686;cursor:not-allowed}
+button[aria-pressed=true]{background:#fff;color:var(--accent)}
+:focus-visible{outline:3px solid #000;outline-offset:2px;box-shadow:0 0 0 6px var(--focus)}
+.row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;margin:.5rem 0}
+.row > div{min-width:0}
+.tablewrap{overflow-x:auto;margin:.5rem 0}
+table{border-collapse:collapse;width:100%;background:#fff}
+caption{text-align:left;font-weight:700;padding:.4rem 0}
+th,td{border:1px solid var(--line);padding:.4rem .6rem;text-align:left;vertical-align:top;font-variant-numeric:tabular-nums}
+thead th{background:#dfe5ee}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1rem}
+dl.facts{display:grid;grid-template-columns:max-content 1fr;gap:.25rem 1rem;margin:.5rem 0}
+dl.facts dt{font-weight:700}
+dl.facts dd{margin:0}
+.note{border-left:6px solid var(--line);background:#fff;padding:.5rem .9rem;margin:.75rem 0}
+.status{font-weight:600}
+textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1rem;width:100%;min-height:14rem;border:2px solid var(--line);border-radius:.375rem;padding:.5rem}
+ul.check{list-style:none;padding:0;margin:.5rem 0}
+ul.check li{padding:.25rem 0}
+footer{border-top:2px solid var(--line);margin-top:2rem;padding-top:.5rem}
+@media (max-width:40rem){dl.facts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="wrap">
+<header>
+  <h1>BLE Scan Simulator</h1>
+  <p>CIS 308 Mobile and Wireless · Module 10 lab · practice environment</p>
+  <div class="note" role="note" aria-labelledby="practiceTitle">
+    <p id="practiceTitle"><strong>This is a practice environment, not a real scan.</strong></p>
+    <p>Everything on this page is simulated. It does not use Bluetooth, your location, or your camera, and nothing you type leaves your browser. The numbers are built to behave like a real Bluetooth Low Energy (BLE) scan so you can practice the same skills: finding advertising devices, reading signal strength, and reasoning about how often a device broadcasts. A real scan in a real room will look different and messier.</p>
+    <p>If your submission uses data from this simulator, say so in your document.</p>
+  </div>
+  <noscript><p><strong>This simulator needs JavaScript turned on in your browser.</strong></p></noscript>
+</header>
+
+<main id="main">
+
+<section class="step" aria-labelledby="h-setup">
+  <h2 id="h-setup">Step 1. Create your workspace</h2>
+  <p>Type any word or phrase that identifies you, such as your Canvas name. The same text always builds the same simulated workspace, so your instructor can check your results. Different text builds a different workspace.</p>
+  <label for="seed">Workspace text</label>
+  <input id="seed" type="text" autocomplete="off" maxlength="60">
+  <div class="row">
+    <div>
+      <label for="style">Scanner style</label>
+      <select id="style">
+        <option value="android">Android-style: shows device addresses</option>
+        <option value="ios">iPhone-style: shows identifiers instead of addresses</option>
+      </select>
+    </div>
+    <div><button id="createBtn" type="button">Create workspace</button></div>
+  </div>
+  <p>iPhones do not show Bluetooth addresses. They show a long identifier code that the phone makes up for each device. Choose the style that matches the device you would use in a real scan. You can change it at any time.</p>
+  <p id="wsStatus" class="status" role="status"></p>
+</section>
+
+<div id="app" hidden>
+
+<section class="step" aria-labelledby="h-scan">
+  <h2 id="h-scan">Step 2. Scan for BLE devices</h2>
+  <p>Select <strong>Start scan</strong> and let it run until the scan clock reaches 30 seconds. In Fast mode that takes a few seconds. You can stop at 30 seconds or keep going (the scan stops itself at 2 minutes). Starting a new scan clears the list, like most scanner apps.</p>
+  <div class="row">
+    <div><button id="startBtn" type="button">Start scan</button></div>
+    <div><button id="stopBtn" type="button" class="secondary" disabled>Stop scan</button></div>
+    <div>
+      <label for="speed">Scan speed</label>
+      <select id="speed">
+        <option value="1">Real time (30 seconds takes 30 seconds)</option>
+        <option value="5" selected>Fast (5 times real time)</option>
+        <option value="10">Very fast (10 times real time)</option>
+      </select>
+    </div>
+    <div>
+      <label for="sortMode">List order</label>
+      <select id="sortMode">
+        <option value="first">Order first heard</option>
+        <option value="rssi">Strongest signal first</option>
+      </select>
+    </div>
+    <div>
+      <label for="mode">Scanner mode</label>
+      <select id="mode">
+        <option value="0.06">Low latency (listens almost continuously)</option>
+        <option value="0.25">Balanced</option>
+        <option value="0.4">Low power (misses more packets)</option>
+      </select>
+    </div>
+    <div><button id="skipBtn" type="button" class="secondary">Skip ahead 15 minutes (optional)</button></div>
+  </div>
+  <p>Phone scanners can save battery by listening less often. In the lower-power modes you will miss more packets, so counts drop and gaps between packets can look longer, just as on a real phone.</p>
+  <p id="sortHelp">The list order changes when you stop the scan or change this setting, so rows do not jump around while you read them.</p>
+  <p id="scanClock" class="status">Scan time: 0 s. Devices heard: 0.</p>
+  <p id="scanAnnounce" class="vh" role="status"></p>
+  <p id="scanEmpty">No devices yet. Select Start scan.</p>
+  <div class="tablewrap" role="region" aria-label="Scan results table" tabindex="0">
+    <table id="scanTable" hidden>
+      <caption>Devices heard in the current scan. RSSI is received signal strength in dBm; numbers closer to zero are stronger.</caption>
+      <thead><tr>
+        <th scope="col">Advertised name</th>
+        <th scope="col" id="thAddr">Address</th>
+        <th scope="col">RSSI now (dBm)</th>
+        <th scope="col">RSSI average (dBm)</th>
+        <th scope="col">Packets heard</th>
+        <th scope="col">Details</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p><strong>Screenshot reminder:</strong> take your screenshot of this table while the scan is running or right after you stop it, with your devices and their RSSI values visible.</p>
+</section>
+
+<section class="step" aria-labelledby="h-detail">
+  <h2 id="h-detail">Step 3. Inspect a device</h2>
+  <p id="detailEmpty">Select <strong>Inspect</strong> on a row in Step 2 to see its packets and advertising data.</p>
+  <div id="detail" hidden></div>
+</section>
+
+<section class="step" aria-labelledby="h-cat">
+  <h2 id="h-cat">Step 4. Your catalog</h2>
+  <p>Add at least 3 different physical devices. Some devices change their address over time, so one device can appear twice under two addresses. Choose devices that are clearly different from each other.</p>
+  <p id="catCount" class="status">0 of 3 required devices cataloged.</p>
+  <p id="catMsg" class="status" role="status"></p>
+  <div class="tablewrap" role="region" aria-label="Catalog table" tabindex="0">
+    <table id="catTable" hidden>
+      <caption>My cataloged BLE devices</caption>
+      <thead><tr>
+        <th scope="col">#</th>
+        <th scope="col">Advertised name</th>
+        <th scope="col" id="thCatAddr">Address</th>
+        <th scope="col" id="thCatType">Address type</th>
+        <th scope="col">RSSI average (dBm)</th>
+        <th scope="col">Advertising interval (ms)</th>
+        <th scope="col">Packet type</th>
+        <th scope="col">Still heard in current scan?</th>
+        <th scope="col">Your notes (optional)</th>
+        <th scope="col">Remove</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="step" aria-labelledby="h-power">
+  <h2 id="h-power">Step 5. Power explorer</h2>
+  <p>This calculator estimates how long a battery lasts for a BLE advertiser compared with a Wi-Fi radio. Use the numbers in your written analysis. The starting values are classroom assumptions, not specifications for any product. You can change them. Check a real datasheet before you rely on them in a design.</p>
+  <div class="row">
+    <div><label for="pwDev">Interval source</label>
+      <select id="pwDev"><option value="">I will type my own</option></select></div>
+    <div><label for="pwIv">BLE advertising interval (ms)</label><input id="pwIv" type="number" min="20" max="10240" step="1" value="1000"></div>
+    <div><label for="pwCap">Battery capacity (mAh)</label><input id="pwCap" type="number" min="1" step="1" value="225"></div>
+  </div>
+  <div class="row">
+    <div><label for="pwTx">BLE radio current while transmitting (mA)</label><input id="pwTx" type="number" min="0.1" step="0.1" value="6"></div>
+    <div><label for="pwEv">Radio-on time per advertising event (ms)</label><input id="pwEv" type="number" min="0.1" step="0.1" value="3"></div>
+    <div><label for="pwSl">Sleep current between events (µA)</label><input id="pwSl" type="number" min="0" step="0.1" value="2"></div>
+  </div>
+  <div class="row">
+    <div><label for="pwW1">Wi-Fi average current, connected and mostly idle (mA)</label><input id="pwW1" type="number" min="0.1" step="0.1" value="10"></div>
+    <div><label for="pwW2">Wi-Fi average current, sending data (mA)</label><input id="pwW2" type="number" min="0.1" step="0.1" value="120"></div>
+  </div>
+  <p id="pwErr" class="status" role="status"></p>
+  <div class="tablewrap" role="region" aria-label="Power estimate table" tabindex="0">
+    <table id="pwTable">
+      <caption>Estimated runtime on the same battery</caption>
+      <thead><tr>
+        <th scope="col">Scenario</th>
+        <th scope="col">Average current (mA)</th>
+        <th scope="col">Runtime (hours)</th>
+        <th scope="col">Runtime (days)</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p id="pwSummary"></p>
+  <div class="note"><p><strong>How the BLE number is made:</strong> average current = sleep current + (transmit current × radio-on time ÷ advertising interval). It is ideal math. Real batteries lose capacity to age and temperature, and a small coin cell cannot supply the peak current a Wi-Fi radio needs, so treat the Wi-Fi rows as a comparison of power demand, not as a design you could build.</p></div>
+</section>
+
+<section class="step" aria-labelledby="h-export">
+  <h2 id="h-export">Step 6. Check your work and copy your results</h2>
+  <h3>Before you submit</h3>
+  <ul class="check" id="checklist"></ul>
+  <p>Your submission still needs a screenshot, a table, and your own written analysis (see the lab page in Canvas). The summary below gives you the table text and your Step 5 numbers so you can paste them into your document.</p>
+  <label for="exportBox">Results summary (plain text)</label>
+  <textarea id="exportBox" readonly></textarea>
+  <div class="row">
+    <button id="copyBtn" type="button">Copy summary</button>
+    <button id="dlBtn" type="button" class="secondary">Download summary as a text file</button>
+  </div>
+  <p id="exportMsg" class="status" role="status"></p>
+</section>
+
+<section class="step" id="instructor" aria-labelledby="h-inst" hidden>
+  <h2 id="h-inst">Instructor view</h2>
+  <p>Shown only when the page address ends in <code>#instructor</code>. It lists the true values for the current workspace text. This is a convenience, not a security feature.</p>
+  <div class="tablewrap" role="region" aria-label="Instructor answer table" tabindex="0">
+    <table id="instTable">
+      <caption>True values for this workspace</caption>
+      <thead><tr>
+        <th scope="col">Device type</th><th scope="col">Name</th><th scope="col">Current address</th><th scope="col">Address type</th>
+        <th scope="col">Interval (ms)</th><th scope="col">TX power (dBm)</th><th scope="col">Distance (m)</th><th scope="col">Packet type</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+</div>
+</main>
+<footer>
+  <h2>Educational use disclaimer</h2>
+  <p>This simulator is an educational practice tool for CIS 308 Mobile and Wireless. All devices, addresses, identifiers, signal values, and timing are generated by the program. They are made up and do not describe any real person's or organization's devices. The simulator is not a security assessment tool and must not be used to identify, track, or evaluate real devices.</p>
+  <p>Company names that appear in the data (for example, in manufacturer fields) are shown only because Bluetooth company identifiers are publicly assigned numbers. No affiliation with or endorsement by any company is intended. Power-explorer values are classroom assumptions, not product specifications.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+function hashStr(s){var h=1779033703^s.length,i;for(i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);return (h^(h>>>16))>>>0;}
+function mulberry32(a){return function(){a|=0;a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function gauss(r){var u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function hex2(b){return b.toString(16).toUpperCase().padStart(2,'0');}
+function median(a){var s=a.slice().sort(function(x,y){return x-y;}),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+var SERVICES={0x180D:'Heart Rate',0x1809:'Health Thermometer',0x181A:'Environmental Sensing',0x181F:'Continuous Glucose Monitoring',0x180F:'Battery'};
+var AD_NAMES={0x01:'Flags',0x03:'Complete list of 16-bit Service UUIDs',0x09:'Complete Local Name',0x0A:'TX Power Level',0xFF:'Manufacturer Specific Data'};
+var PDU_TEXT={ADV_IND:'ADV_IND: connectable and scannable. A phone or laptop can connect to it.',ADV_NONCONN_IND:'ADV_NONCONN_IND: non-connectable. It only broadcasts; nothing can connect to it.'};
+
+var COMPANY={0x004C:'Apple, Inc.',0x0006:'Microsoft',0x0075:'Samsung Electronics Co. Ltd.',0x00E0:'Google',0xFFFF:'reserved for testing and unregistered products'};
+var TPL=[
+ {k:'Fitness band',pre:'Band-',addr:'public',pdu:'ADV_IND',flags:0x06,svc:0x180D,tx:0,ivl:[1000,1400],showTx:true,named:true},
+ {k:'Chest heart-rate strap',pre:'HRM-',addr:'public',pdu:'ADV_IND',flags:0x06,svc:0x180D,tx:4,ivl:[500,1000],showTx:true,named:true},
+ {k:'Skin thermometer patch',pre:'Temp-',addr:'public',pdu:'ADV_IND',flags:0x06,svc:0x1809,tx:0,ivl:[1500,3000],showTx:true,named:true},
+ {k:'Wearable glucose sensor',pre:'Sensor-',addr:'static',pdu:'ADV_IND',flags:0x06,svc:0x181F,tx:-4,ivl:[1000,2000],showTx:true,named:true},
+ {k:'Room environment sensor',pre:'Env-',addr:'public',pdu:'ADV_IND',flags:0x06,svc:0x181A,tx:-8,ivl:[2000,4000],showTx:true,named:true},
+ {k:'Wireless earbuds case',pre:'Buds-',addr:'static',pdu:'ADV_IND',flags:0x1A,svc:0x180F,tx:4,ivl:[100,300],showTx:false,named:true,srName:true},
+ {k:'Desk speaker',pre:'Spk-',addr:'public',pdu:'ADV_IND',flags:0x1A,svc:null,tx:4,ivl:[150,350],showTx:false,named:true,srName:true},
+ {k:'Location beacon',pre:'',addr:'static',pdu:'ADV_NONCONN_IND',flags:0x06,svc:null,tx:0,ivl:[250,1000],showTx:true,named:false,mfg:8},
+ {k:'Nearby phone',pre:'',addr:'rpa',pdu:'ADV_IND',flags:0x1A,svc:null,tx:8,ivl:[150,400],showTx:false,named:false,mfg:5},
+ {k:'Item-finder tag',pre:'',addr:'rpa',pdu:'ADV_NONCONN_IND',flags:0x06,svc:null,tx:0,ivl:[1800,2200],showTx:false,named:false,mfg:6}
+];
+var BG=[
+ {k:'Background: phone (company ID 0x004C)',pre:'',addr:'rpa',pdu:'ADV_IND',flags:0x1A,svc:null,tx:8,ivl:[100,300],showTx:false,named:false,mfg:9,co:0x004C},
+ {k:'Background: tag-style beacon (0x004C)',pre:'',addr:'rpa',pdu:'ADV_NONCONN_IND',flags:0x06,svc:null,tx:0,ivl:[1800,2200],showTx:false,named:false,mfg:8,co:0x004C},
+ {k:'Background: PC beacon (0x0006)',pre:'',addr:'rpa',pdu:'ADV_NONCONN_IND',flags:0x1A,svc:null,tx:0,ivl:[100,400],showTx:false,named:false,mfg:7,co:0x0006},
+ {k:'Background: phone (0x0075)',pre:'',addr:'rpa',pdu:'ADV_IND',flags:0x1A,svc:null,tx:4,ivl:[150,500],showTx:false,named:false,mfg:6,co:0x0075},
+ {k:'Background: device (0x00E0)',pre:'',addr:'rpa',pdu:'ADV_IND',flags:0x1A,svc:null,tx:4,ivl:[200,1000],showTx:false,named:false,mfg:6,co:0x00E0},
+ {k:'Background: unregistered beacon',pre:'',addr:'static',pdu:'ADV_NONCONN_IND',flags:0x06,svc:null,tx:0,ivl:[300,1100],showTx:true,named:false,mfg:10},
+ {k:'Background: smart TV',pre:'TV-',addr:'static',pdu:'ADV_IND',flags:0x06,svc:null,tx:4,ivl:[100,300],showTx:false,named:true,srName:true},
+ {k:'Background: door lock',pre:'Lock-',addr:'public',pdu:'ADV_IND',flags:0x06,svc:null,tx:0,ivl:[500,1500],showTx:true,named:true},
+ {k:'Background: soundbar',pre:'Bar-',addr:'static',pdu:'ADV_IND',flags:0x1A,svc:null,tx:4,ivl:[150,400],showTx:false,named:true,srName:true}
+];
+var PHONE_INDEX=8, ROT_MS=900000, MIN_SCAN_MS=30000, MAX_SCAN_MS=120000, TICK=100;
+
+/* ---------- address + device generation ---------- */
+function randAddr(r,kind){
+  var b=[],i;for(i=0;i<6;i++)b.push(Math.floor(r()*256));
+  if(kind==='static')b[0]=(b[0]&0x3F)|0xC0;
+  else if(kind==='rpa')b[0]=(b[0]&0x3F)|0x40;
+  else b[0]=b[0]&0xFC;
+  return b.map(hex2).join(':');
+}
+function addrTypeText(kind,addr){
+  if(kind==='public')return 'Public (header bit TxAdd = 0). Assigned by the manufacturer from IEEE-registered address blocks.';
+  var top=parseInt(addr.slice(0,2),16)>>6;
+  if(kind==='static')return 'Random, static (TxAdd = 1; top two address bits = '+top.toString(2).padStart(2,'0')+'). Stays the same until the device restarts.';
+  return 'Random, resolvable private (TxAdd = 1; top two address bits = '+top.toString(2).padStart(2,'0')+'). Changes about every 15 minutes.';
+}
+function shortAddrType(kind){return kind==='public'?'Public':(kind==='static'?'Random static':'Random resolvable private');}
+
+function buildPayload(d,t,r){
+  var ad=[],i,data;
+  ad.push({type:0x01,data:[t.flags]});
+  if(t.showTx)ad.push({type:0x0A,data:[d.tx&0xFF]});
+  if(t.svc)ad.push({type:0x03,data:[t.svc&0xFF,t.svc>>8]});
+  if(d.name&&!t.srName){data=[];for(i=0;i<d.name.length;i++)data.push(d.name.charCodeAt(i));ad.push({type:0x09,data:data});}
+  if(t.mfg){var co=t.co===undefined?0xFFFF:t.co;data=[co&0xFF,(co>>8)&0xFF];for(i=0;i<t.mfg;i++)data.push(Math.floor(r()*256));ad.push({type:0xFF,data:data});}
+  return ad;
+}
+function adValueText(a){
+  var d=a.data,i,s;
+  if(a.type===0x01){var f=[];if(d[0]&1)f.push('LE Limited Discoverable');if(d[0]&2)f.push('LE General Discoverable');if(d[0]&4)f.push('BR/EDR not supported');if(d[0]&8)f.push('Simultaneous LE and BR/EDR (controller)');if(d[0]&16)f.push('Simultaneous LE and BR/EDR (host)');return '0x'+hex2(d[0])+': '+(f.join('; ')||'none');}
+  if(a.type===0x0A){var v=d[0]>127?d[0]-256:d[0];return v+' dBm';}
+  if(a.type===0x03){var u=d[0]|(d[1]<<8);return '0x'+u.toString(16).toUpperCase().padStart(4,'0')+(SERVICES[u]?' ('+SERVICES[u]+')':'');}
+  if(a.type===0x09){s='';for(i=0;i<d.length;i++)s+=String.fromCharCode(d[i]);return '"'+s+'"';}
+  if(a.type===0xFF){var co=d[0]|(d[1]<<8);return 'Company ID 0x'+co.toString(16).toUpperCase().padStart(4,'0')+(COMPANY[co]?' ('+COMPANY[co]+')':'')+', then '+(d.length-2)+' data bytes: '+d.slice(2).map(hex2).join(' ');}
+  return d.map(hex2).join(' ');
+}
+function payloadBytes(ad){var out=[];ad.forEach(function(a){out.push(a.data.length+1,a.type);a.data.forEach(function(x){out.push(x);});});return out;}
+
+function buildDevices(seedText){
+  var seed=hashStr(seedText.trim().toLowerCase()),r=mulberry32(seed),rt=mulberry32(seed^0x9E3779B9);
+  var idx=TPL.map(function(_,i){return i;}),i,j,tmp;
+  for(i=idx.length-1;i>0;i--){j=Math.floor(r()*(i+1));tmp=idx[i];idx[i]=idx[j];idx[j]=tmp;}
+  var count=7+Math.floor(r()*3),pick=idx.slice(0,count);
+  if(!pick.some(function(k){return TPL[k].addr==='rpa';}))pick[pick.length-1]=PHONE_INDEX;
+  var far=1+Math.floor(r()*2),devs=[];
+  function make(t,mode){
+    var d={id:devs.length,tpl:t,kind:t.addr,pdu:t.pdu,tx:t.tx,bg:mode!=='near'};
+    var units=Math.round((t.ivl[0]+r()*(t.ivl[1]-t.ivl[0]))/0.625);
+    d.ivl=units*0.625;
+    var suf='',q;for(q=0;q<4;q++)suf+=Math.floor(r()*16).toString(16).toUpperCase();
+    d.name=t.named?t.pre+suf:null;
+    d.srName=!!t.srName;
+    d.addr=randAddr(r,t.addr);
+    if(mode==='near'){d.dist=0.4+r()*4.6;d.n=2.0+r()*1.0;d.loss=r()*6;}
+    else if(mode==='far'){d.dist=12+r()*23;d.n=2.6+r()*0.9;d.loss=8+r()*10;}
+    else{d.dist=2.5+r()*16;d.n=2.4+r()*1.0;d.loss=5+r()*13;}
+    d.sigma=3+r()*2.5;d.drift=0;
+    d.base=d.tx-40-d.loss-10*d.n*Math.log10(d.dist);
+    d.ad=buildPayload(d,t,r);
+    d.sr=d.srName?[{type:0x09,data:d.name.split('').map(function(c){return c.charCodeAt(0);})}]:null;
+    d.nextT=rt()*d.ivl;
+    d.nextRot=t.addr==='rpa'?600000+rt()*240000:null;
+    devs.push(d);
+  }
+  pick.forEach(function(k,n){make(TPL[k],n>=pick.length-far?'far':'near');});
+  var bgN=8+Math.floor(r()*7),k2;
+  for(k2=0;k2<bgN;k2++)make(BG[Math.floor(r()*BG.length)],'bg');
+  return {devs:devs,rt:rt};
+}
+
+/* ---------- simulation state ---------- */
+var S={devs:[],rt:null,simT:0,scanning:false,scanOrigin:0,scanMs:0,bestScanMs:0,scanId:0,miss:0.06,style:'android',idMap:{},rows:new Map(),catalog:[],selected:null,announced30:false,timer:null,seed:'',created:false};
+
+function emit(d,t){
+  var rt=S.rt;
+  d.drift=0.92*d.drift+gauss(rt)*1.2;
+  var rssi=Math.round(d.base+d.drift+gauss(rt)*d.sigma);
+  if(rt()<0.04)rssi-=Math.round(5+rt()*8);
+  if(rssi<-100)return;
+  var lossP=S.miss;if(rssi<-88)lossP=Math.min(0.92,lossP+(-88-rssi)*0.06);
+  if(rt()<lossP)return;
+  var ch=37+Math.floor(rt()*3),row=S.rows.get(d.addr);
+  if(!row){row={key:d.addr,name:d.srName?null:d.name,kind:d.kind,pdu:d.pdu,ad:d.ad,sr:null,pkts:[],order:S.rows.size};S.rows.set(d.addr,row);}
+  if(d.sr&&!row.sr&&rt()<0.5){row.sr=d.sr;row.name=d.name;}
+  row.pkts.push({t:t-S.scanOrigin,ch:ch,rssi:rssi});
+}
+function advance(dt,record){
+  var end=S.simT+dt;
+  S.devs.forEach(function(d){
+    while(d.nextRot!==null&&d.nextRot<=end){d.addr=randAddr(S.rt,'rpa');d.nextRot+=ROT_MS;}
+    while(d.nextT<=end){if(record)emit(d,d.nextT);d.nextT+=d.ivl+S.rt()*10;}
+  });
+  S.simT=end;
+}
+function rowStats(row){
+  var p=row.pkts,n=p.length,sum=0,mn=1000,mx=-1000,i;
+  for(i=0;i<n;i++){sum+=p[i].rssi;if(p[i].rssi<mn)mn=p[i].rssi;if(p[i].rssi>mx)mx=p[i].rssi;}
+  var gaps=[];for(i=1;i<n;i++)gaps.push(p[i].t-p[i-1].t);
+  var minGap=null,est=null;
+  if(gaps.length>=3){minGap=Math.min.apply(null,gaps);est=median(gaps.filter(function(g){return g<=minGap*1.5;}));}
+  return {n:n,avg:n?sum/n:null,min:n?mn:null,max:n?mx:null,gaps:gaps.length,minGap:minGap,est:est,now:n?p[n-1].rssi:null};
+}
+function distanceEstimate(row,avg,nExp){
+  var tx=null;row.ad.forEach(function(a){if(a.type===0x0A)tx=a.data[0]>127?a.data[0]-256:a.data[0];});
+  if(tx===null)return null;
+  return {tx:tx,d:Math.pow(10,(tx-40-avg)/(10*nExp))};
+}
+function powerCalc(v){
+  var bleMa=v.sl/1000+v.tx*v.ev/v.iv;
+  function rowOf(label,ma){return {label:label,ma:ma,h:v.cap/ma,d:v.cap/ma/24};}
+  return [rowOf('BLE advertising every '+v.iv+' ms',bleMa),rowOf('Wi-Fi connected, mostly idle',v.w1),rowOf('Wi-Fi sending data',v.w2)];
+}
+function fmtNum(x){if(x>=100)return Math.round(x).toLocaleString('en-US');if(x>=10)return x.toFixed(1);return x.toFixed(2);}
+
+var core={hashStr:hashStr,mulberry32:mulberry32,buildDevices:buildDevices,payloadBytes:payloadBytes,rowStats:rowStats,powerCalc:powerCalc,advance:advance,S:S,randAddr:randAddr,TPL:TPL,distanceEstimate:distanceEstimate,startScan:function(){S.rows.clear();S.scanOrigin=S.simT;S.scanning=true;}};
+if(typeof document==='undefined'){globalThis.__BLE=core;return;}
+
+/* ---------- DOM ---------- */
+function $(id){return document.getElementById(id);}
+var el={style:$('style'),mode:$('mode'),seed:$('seed'),create:$('createBtn'),ws:$('wsStatus'),app:$('app'),start:$('startBtn'),stop:$('stopBtn'),speed:$('speed'),sort:$('sortMode'),skip:$('skipBtn'),clock:$('scanClock'),ann:$('scanAnnounce'),empty:$('scanEmpty'),table:$('scanTable'),detailEmpty:$('detailEmpty'),detail:$('detail'),catCount:$('catCount'),catMsg:$('catMsg'),catTable:$('catTable'),pwDev:$('pwDev'),pwErr:$('pwErr'),pwSummary:$('pwSummary'),checklist:$('checklist'),box:$('exportBox'),exMsg:$('exportMsg')};
+var tbody=el.table.querySelector('tbody'),rowEls=new Map();
+
+function announce(msg){el.ann.textContent='';setTimeout(function(){el.ann.textContent=msg;},50);}
+function nameText(n){return n||'(no name advertised)';}
+function idOf(key){
+  if(S.style!=='ios')return key;
+  if(!S.idMap[key]){var r=mulberry32(hashStr(S.seed+'|'+key)),b=[],i;for(i=0;i<16;i++)b.push(hex2(Math.floor(r()*256)));var h=b.join('');S.idMap[key]=(h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20)).toUpperCase();}
+  return S.idMap[key];
+}
+function typeShort(kind){return S.style==='ios'?'Not shown by iPhone-style scanners':shortAddrType(kind);}
+function idWord(){return S.style==='ios'?'Identifier':'Address';}
+function applyStyleLabels(){
+  $('thAddr').textContent=idWord();$('thCatAddr').textContent=idWord();
+  $('thCatType').textContent=S.style==='ios'?'Address type':'Address type';
+}
+
+function createWorkspace(){
+  var text=el.seed.value.trim();
+  if(!text){el.ws.textContent='Type some text first, then select Create workspace.';el.seed.focus();return;}
+  stopScan(true);
+  var b=buildDevices(text);
+  S.devs=b.devs;S.rt=b.rt;S.simT=0;S.rows.clear();S.catalog=[];S.selected=null;S.scanMs=0;S.bestScanMs=0;S.scanId=0;S.seed=text;S.created=true;S.idMap={};S.miss=parseFloat(el.mode.value);S.style=el.style.value;applyStyleLabels();
+  tbody.innerHTML='';rowEls.clear();
+  el.app.hidden=false;el.create.textContent='Create a new workspace';
+  el.ws.textContent='Workspace ready for "'+text+'". Creating a new workspace clears your scan and catalog.';
+  renderScanTop();renderDetail();renderCatalog();renderPower();renderChecklist();renderExport();renderInstructor();
+  $('h-scan').scrollIntoView();
+}
+
+/* scan control */
+function startScan(){
+  S.rows.clear();rowEls.clear();tbody.innerHTML='';S.selected=null;
+  S.scanOrigin=S.simT;S.scanMs=0;S.scanning=true;S.scanId++;S.announced30=false;
+  el.start.disabled=true;el.stop.disabled=false;el.skip.disabled=true;
+  announce('Scan started.');
+  S.timer=setInterval(tick,TICK);
+  renderScanTop();renderDetail();renderCatalogStatus();
+}
+function stopScan(silent){
+  if(S.timer){clearInterval(S.timer);S.timer=null;}
+  var was=S.scanning;S.scanning=false;
+  el.start.disabled=false;el.start.textContent='Start new scan';el.stop.disabled=true;el.skip.disabled=false;
+  if(was&&!silent){
+    orderRows();renderScanTop();renderDetail();renderCatalogStatus();renderChecklist();renderExport();
+    announce('Scan stopped after '+Math.round(S.scanMs/1000)+' seconds. '+S.rows.size+' devices heard.');
+  }
+}
+function tick(){
+  var sp=parseInt(el.speed.value,10)||1;
+  advance(TICK*sp,true);
+  S.scanMs=S.simT-S.scanOrigin;if(S.scanMs>S.bestScanMs)S.bestScanMs=S.scanMs;
+  renderScanTop();updateDetailLive();renderCatalogStatus();renderChecklist();
+  if(!S.announced30&&S.scanMs>=MIN_SCAN_MS){S.announced30=true;announce('30 seconds reached. '+S.rows.size+' devices heard. You can stop now or keep scanning.');}
+  if(S.scanMs>=MAX_SCAN_MS)stopScan(false);
+}
+function skipAhead(){
+  if(S.scanning)return;
+  advance(ROT_MS,false);
+  S.rows.clear();rowEls.clear();tbody.innerHTML='';S.selected=null;S.scanMs=0;S.scanId++;
+  renderScanTop();renderDetail();renderCatalogStatus();
+  announce('Skipped ahead 15 minutes. Start a new scan to see which devices are still heard at the same address.');
+  el.clock.textContent='Skipped ahead 15 minutes. Start a new scan to see what changed.';
+  renderInstructor();
+}
+
+/* scan table */
+function ensureRowEl(row){
+  var tr=rowEls.get(row.key);
+  if(tr)return tr;
+  tr=document.createElement('tr');
+  tr.innerHTML='<td></td><td><code></code></td><td></td><td></td><td></td><td><button type="button" class="secondary"></button></td>';
+  tr.children[0].textContent=nameText(row.name);
+  tr.children[1].firstChild.textContent=idOf(row.key);
+  var btn=tr.children[5].firstChild;
+  btn.textContent='Inspect';
+  btn.setAttribute('aria-label','Inspect '+nameText(row.name)+', '+idWord().toLowerCase()+' '+idOf(row.key));
+  btn.setAttribute('aria-pressed','false');
+  btn.addEventListener('click',function(){selectRow(row.key,true);});
+  rowEls.set(row.key,tr);tbody.appendChild(tr);
+  return tr;
+}
+function renderScanTop(){
+  S.rows.forEach(function(row){
+    var tr=ensureRowEl(row),st=rowStats(row);
+    tr.children[0].textContent=nameText(row.name);
+    tr.children[1].firstChild.textContent=idOf(row.key);
+    tr.children[5].firstChild.setAttribute('aria-label','Inspect '+nameText(row.name)+', '+idWord().toLowerCase()+' '+idOf(row.key));
+    tr.children[2].textContent=st.now;
+    tr.children[3].textContent=st.avg.toFixed(1);
+    tr.children[4].textContent=st.n;
+  });
+  var n=S.rows.size;
+  el.table.hidden=n===0;el.empty.hidden=n!==0;
+  if(S.scanning||S.scanMs>0)el.clock.textContent='Scan time: '+Math.floor(S.scanMs/1000)+' s'+(S.scanMs>=MIN_SCAN_MS?' (30-second goal reached)':'')+'. Devices heard: '+n+'.';
+}
+function orderRows(){
+  var arr=Array.from(S.rows.values());
+  if(el.sort.value==='rssi')arr.sort(function(a,b){return rowStats(b).avg-rowStats(a).avg;});
+  else arr.sort(function(a,b){return a.order-b.order;});
+  arr.forEach(function(r){var tr=rowEls.get(r.key);if(tr)tbody.appendChild(tr);});
+}
+
+/* detail panel */
+function selectRow(key,focus){
+  S.selected=key;
+  rowEls.forEach(function(tr,k){var b=tr.children[5].firstChild,on=k===key;b.setAttribute('aria-pressed',on?'true':'false');b.textContent=on?'Inspecting':'Inspect';});
+  renderDetail();
+  if(focus){var h=$('dTitle');if(h){h.scrollIntoView();h.focus();}}
+}
+function renderDetail(){
+  var row=S.selected&&S.rows.get(S.selected);
+  if(!row){el.detail.hidden=true;el.detail.innerHTML='';el.detailEmpty.hidden=false;return;}
+  el.detailEmpty.hidden=true;el.detail.hidden=false;
+  el.detail.dataset.sr=row.sr?'1':'0';
+  var bytes=payloadBytes(row.ad);
+  var srHtml=row.sr?adTable(row.sr,'Scan response data decoded into fields'):'<p>No scan response heard from this device yet. Some devices send extra data, such as their name, only when a scanner asks for it. Keep scanning to give it a chance.</p>';
+  el.detail.innerHTML=
+   '<h3 id="dTitle" tabindex="-1">Device: '+esc(nameText(row.name))+'</h3>'+
+   '<dl class="facts">'+
+   '<dt>'+idWord()+'</dt><dd><code>'+esc(idOf(row.key))+'</code></dd>'+
+   '<dt>Address type</dt><dd>'+esc(S.style==='ios'?'Not shown. iPhone-style scanners do not reveal the Bluetooth address or its type.':addrTypeText(row.kind,row.key))+'</dd>'+
+   '<dt>Packet type</dt><dd>'+esc(PDU_TEXT[row.pdu])+'</dd>'+
+   '<dt>Packets heard</dt><dd id="dCount"></dd>'+
+   '<dt>RSSI (average, strongest, weakest)</dt><dd id="dRssi"></dd>'+
+   '<dt>Estimated advertising interval</dt><dd id="dIvl"></dd>'+
+   '</dl>'+
+   '<div class="note"><p><strong>How the interval is estimated:</strong> the simulator measures the time between packets you heard. A BLE device adds a small random delay (0 to 10 ms) to every advertising event, so measured gaps wobble by a few milliseconds. If you miss a packet, that gap is about double, so the estimate ignores gaps much larger than the smallest one.</p></div>'+
+   '<h4>Advertising data (the payload)</h4>'+
+   '<p>Raw bytes in hexadecimal (a legacy advertising packet carries at most 31 bytes; this one has '+bytes.length+'):</p>'+
+   '<p><code>'+bytes.map(hex2).join(' ')+'</code></p>'+
+   adTable(row.ad,'Advertising data decoded into fields')+
+   '<h4>Scan response (extra data on request)</h4>'+srHtml+
+   '<h4>Distance estimate from signal strength</h4>'+
+   '<label for="nExp">Path-loss exponent (about 2 in open space, 3 or more indoors)</label>'+
+   '<input id="nExp" type="number" min="1.5" max="4.5" step="0.1" value="2.5">'+
+   '<p id="dDist"></p>'+
+   '<h4>Most recent packets</h4>'+
+   '<div class="tablewrap" role="region" aria-label="Recent packets" tabindex="0"><table><caption>Last 8 packets heard from this device</caption><thead><tr><th scope="col">Time since scan start (s)</th><th scope="col">Advertising channel</th><th scope="col">RSSI (dBm)</th></tr></thead><tbody id="dPk"></tbody></table></div>'+
+   '<h4>Add to your catalog</h4>'+
+   '<p id="dAddHelp"></p>'+
+   '<button id="addBtn" type="button">Add this device to my catalog</button>';
+  $('nExp').addEventListener('input',updateDetailLive);
+  $('addBtn').addEventListener('click',addToCatalog);
+  updateDetailLive();
+}
+function adTable(list,cap){
+  var rows=list.map(function(a){return '<tr><td>'+(a.data.length+1)+'</td><td>0x'+hex2(a.type)+'</td><td>'+esc(AD_NAMES[a.type]||'Other')+'</td><td>'+esc(adValueText(a))+'</td></tr>';}).join('');
+  return '<div class="tablewrap" role="region" aria-label="'+esc(cap)+'" tabindex="0"><table><caption>'+esc(cap)+'</caption><thead><tr><th scope="col">Length byte</th><th scope="col">Type code</th><th scope="col">Field</th><th scope="col">Value</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function updateDetailLive(){
+  var row=S.selected&&S.rows.get(S.selected);if(!row||!$('dCount'))return;
+  var st=rowStats(row);
+  var ttl=$('dTitle');if(ttl&&ttl.dataset.n!==String(row.name)){ttl.dataset.n=String(row.name);ttl.textContent='Device: '+nameText(row.name);}
+  if(el.detail.dataset.sr!==(row.sr?'1':'0')){renderDetail();return;}
+  $('dCount').textContent=st.n;
+  $('dRssi').textContent=st.avg.toFixed(1)+' dBm average, '+st.max+' dBm strongest, '+st.min+' dBm weakest';
+  $('dIvl').textContent=st.est===null?'Not enough packets yet (need at least 4 to estimate). A weak or slow device may need a longer scan.':'about '+Math.round(st.est)+' ms (smallest gap '+Math.round(st.minGap)+' ms, from '+st.gaps+' gaps)';
+  var nExp=parseFloat($('nExp').value),de=distanceEstimate(row,st.avg,nExp);
+  $('dDist').textContent=!(nExp>0)?'Enter a path-loss exponent.':(de===null?'This advertisement has no TX Power Level field, so you cannot make this estimate from the packet alone. Real devices often leave it out.':'Using the advertised TX power ('+de.tx+' dBm), about 40 dB of loss in the first meter at 2.4 GHz, and your exponent, the distance is roughly '+de.d.toFixed(1)+' m. Treat this as a rough guess: walls, bodies, and reflections can change RSSI by many dB.');
+  var rows=row.pkts.slice(-8).reverse().map(function(p){return '<tr><td>'+(p.t/1000).toFixed(2)+'</td><td>'+p.ch+'</td><td>'+p.rssi+'</td></tr>';}).join('');
+  $('dPk').innerHTML=rows;
+  var ok=S.scanMs>=MIN_SCAN_MS||(!S.scanning&&S.scanMs>=MIN_SCAN_MS);
+  var already=S.catalog.some(function(c){return c.key===row.key;});
+  $('addBtn').disabled=!ok||already||S.catalog.length>=10;
+  $('dAddHelp').textContent=already?'This address is already in your catalog.':(ok?'The scan has run at least 30 seconds, so the numbers are steady enough to record.':'Keep scanning until 30 seconds have passed (now: '+Math.floor(S.scanMs/1000)+' s). Short scans give unreliable averages.');
+}
+
+/* catalog */
+function addToCatalog(){
+  var row=S.selected&&S.rows.get(S.selected);if(!row)return;
+  if(S.catalog.some(function(c){return c.key===row.key;}))return;
+  var st=rowStats(row);
+  S.catalog.push({key:row.key,name:row.name,kind:row.kind,pdu:row.pdu,avg:st.avg,ivl:st.est,n:st.n,notes:'',scanId:S.scanId});
+  el.catMsg.textContent='Added '+nameText(row.name)+'. '+S.catalog.length+' device'+(S.catalog.length===1?'':'s')+' in your catalog.';
+  renderCatalog();renderPower();renderChecklist();renderExport();updateDetailLive();
+}
+function renderCatalog(){
+  var tb=el.catTable.querySelector('tbody');tb.innerHTML='';
+  el.catTable.hidden=S.catalog.length===0;
+  S.catalog.forEach(function(c,i){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td></td><td></td><td><code></code></td><td></td><td></td><td></td><td></td><td class="st"></td><td><input type="text" maxlength="80"></td><td><button type="button" class="secondary">Remove</button></td>';
+    tr.children[0].textContent=i+1;tr.children[1].textContent=nameText(c.name);tr.children[2].firstChild.textContent=idOf(c.key);
+    tr.children[3].textContent=typeShort(c.kind);tr.children[4].textContent=c.avg.toFixed(1);
+    tr.children[5].textContent=c.ivl===null?'not measured':Math.round(c.ivl);
+    tr.children[6].textContent=c.pdu==='ADV_IND'?'ADV_IND (connectable)':'ADV_NONCONN_IND (non-connectable)';
+    var inp=tr.children[8].firstChild;inp.value=c.notes;inp.setAttribute('aria-label','Notes for catalog device '+(i+1));
+    inp.addEventListener('input',function(){c.notes=inp.value;renderExport();});
+    var b=tr.children[9].firstChild;b.setAttribute('aria-label','Remove catalog device '+(i+1)+', '+nameText(c.name));
+    b.addEventListener('click',function(){S.catalog.splice(i,1);el.catMsg.textContent='Removed a device. '+S.catalog.length+' in your catalog.';renderCatalog();renderPower();renderChecklist();renderExport();updateDetailLive();});
+    tb.appendChild(tr);
+  });
+  renderCatalogStatus();
+  el.catCount.textContent=Math.min(S.catalog.length,3)+' of 3 required devices cataloged'+(S.catalog.length>3?' ('+S.catalog.length+' total).':'.');
+}
+function renderCatalogStatus(){
+  var cells=el.catTable.querySelectorAll('tbody tr');
+  S.catalog.forEach(function(c,i){
+    var td=cells[i]&&cells[i].querySelector('.st');if(!td)return;
+    var t;
+    if(c.scanId===S.scanId)t='Recorded in this scan';
+    else if(S.scanMs<15000)t='Not enough scan time yet (scan at least 15 s)';
+    else t=S.rows.has(c.key)?'Yes. Heard with the same address or identifier.':'No. Not heard with this address or identifier (the device may have changed its address).';
+    if(td.textContent!==t)td.textContent=t;
+  });
+}
+
+/* power explorer */
+function readPower(){
+  var v={iv:parseFloat($('pwIv').value),cap:parseFloat($('pwCap').value),tx:parseFloat($('pwTx').value),ev:parseFloat($('pwEv').value),sl:parseFloat($('pwSl').value),w1:parseFloat($('pwW1').value),w2:parseFloat($('pwW2').value)};
+  var ok=v.iv>=20&&v.iv<=10240&&v.cap>0&&v.tx>0&&v.ev>0&&v.sl>=0&&v.w1>0&&v.w2>0&&v.ev<=v.iv;
+  return ok?v:null;
+}
+function renderPower(){
+  var sel=el.pwDev,cur=sel.value;
+  sel.innerHTML='<option value="">I will type my own</option>';
+  S.catalog.forEach(function(c,i){if(c.ivl!==null){var o=document.createElement('option');o.value=String(i);o.textContent='Catalog device '+(i+1)+': '+nameText(c.name)+' ('+Math.round(c.ivl)+' ms)';sel.appendChild(o);}});
+  if(cur&&sel.querySelector('option[value="'+cur+'"]'))sel.value=cur;
+  var v=readPower(),tb=$('pwTable').querySelector('tbody');
+  if(!v){el.pwErr.textContent='Check your numbers: the interval must be 20 to 10240 ms, the radio-on time cannot be longer than the interval, and every other value must be a positive number.';tb.innerHTML='';el.pwSummary.textContent='';return;}
+  el.pwErr.textContent='';
+  var rows=powerCalc(v);
+  tb.innerHTML=rows.map(function(r){return '<tr><td>'+esc(r.label)+'</td><td>'+fmtNum(r.ma)+'</td><td>'+fmtNum(r.h)+'</td><td>'+fmtNum(r.d)+'</td></tr>';}).join('');
+  var ratio=rows[0].h/rows[1].h;
+  el.pwSummary.textContent='With these assumptions, the BLE advertiser lasts about '+fmtNum(rows[0].d)+' days. The idle Wi-Fi radio lasts about '+fmtNum(rows[1].h)+' hours. BLE lasts roughly '+Math.round(ratio).toLocaleString('en-US')+' times longer than idle Wi-Fi on the same battery.';
+}
+
+/* checklist + export */
+function renderChecklist(){
+  var items=[
+   ['Workspace created',S.created],
+   ['Scan ran for at least 30 seconds ('+Math.floor(S.bestScanMs/1000)+' s so far)',S.bestScanMs>=MIN_SCAN_MS],
+   ['At least 3 devices in your catalog ('+S.catalog.length+' so far)',S.catalog.length>=3],
+   ['Step 5 numbers are valid',readPower()!==null]
+  ];
+  el.checklist.innerHTML=items.map(function(i){return '<li>'+(i[1]?'Done: ':'Not yet: ')+esc(i[0])+'</li>';}).join('');
+}
+function renderExport(){
+  var L=[];
+  L.push('CIS 308 Module 10 - BLE Scan Simulator results');
+  L.push('NOTE: These results come from a simulated practice environment, not from a real scan.');
+  L.push('Scanner style: '+(S.style==='ios'?'iPhone-style (identifiers)':'Android-style (addresses)')+'; scanner mode: '+el.mode.options[el.mode.selectedIndex].text);
+  L.push('Workspace text: '+S.seed);
+  L.push('Longest scan: '+Math.floor(S.bestScanMs/1000)+' s (simulated time)');
+  L.push('');
+  L.push('Cataloged devices');
+  L.push('# | Advertised name | '+idWord()+' | Address type | RSSI average (dBm) | Interval (ms) | Packet type | Notes');
+  S.catalog.forEach(function(c,i){L.push((i+1)+' | '+nameText(c.name)+' | '+idOf(c.key)+' | '+typeShort(c.kind)+' | '+c.avg.toFixed(1)+' | '+(c.ivl===null?'not measured':Math.round(c.ivl))+' | '+c.pdu+' | '+(c.notes||''));});
+  if(!S.catalog.length)L.push('(none yet)');
+  L.push('');
+  var v=readPower();
+  L.push('Power explorer');
+  if(v){
+    L.push('Assumptions: battery '+v.cap+' mAh; BLE transmit '+v.tx+' mA for '+v.ev+' ms per event; sleep '+v.sl+' uA; BLE interval '+v.iv+' ms; Wi-Fi idle '+v.w1+' mA; Wi-Fi sending '+v.w2+' mA');
+    powerCalc(v).forEach(function(r){L.push(r.label+': '+fmtNum(r.ma)+' mA average, about '+fmtNum(r.h)+' hours ('+fmtNum(r.d)+' days)');});
+  } else L.push('(inputs not valid yet)');
+  el.box.value=L.join('\n');
+}
+function copySummary(){
+  renderExport();
+  var done=function(ok){el.exMsg.textContent=ok?'Summary copied.':'Could not copy automatically. Select the text in the box and copy it yourself.';};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(el.box.value).then(function(){done(true);},function(){done(false);});}
+  else{el.box.select();try{done(document.execCommand('copy'));}catch(e){done(false);}}
+}
+function downloadSummary(){
+  renderExport();
+  var blob=new Blob([el.box.value],{type:'text/plain'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='module10-ble-simulator-results.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  el.exMsg.textContent='Download started.';
+}
+function renderInstructor(){
+  var sec=$('instructor');
+  if(location.hash!=='#instructor'||!S.created){sec.hidden=true;return;}
+  sec.hidden=false;
+  $('instTable').querySelector('tbody').innerHTML=S.devs.map(function(d){return '<tr><td>'+esc(d.tpl.k)+(d.bg?'':' (core device)')+'</td><td>'+esc(nameText(d.name))+'</td><td><code>'+d.addr+'</code>'+(S.style==='ios'?' (shown to student as '+idOf(d.addr)+')':'')+'</td><td>'+esc(shortAddrType(d.kind))+'</td><td>'+d.ivl+'</td><td>'+d.tx+'</td><td>'+d.dist.toFixed(1)+'</td><td>'+d.pdu+'</td></tr>';}).join('');
+}
+
+/* wiring */
+el.create.addEventListener('click',createWorkspace);
+el.seed.addEventListener('keydown',function(e){if(e.key==='Enter')createWorkspace();});
+el.start.addEventListener('click',startScan);
+el.mode.addEventListener('change',function(){S.miss=parseFloat(el.mode.value);renderExport();});
+el.style.addEventListener('change',function(){S.style=el.style.value;applyStyleLabels();if(S.created){renderScanTop();renderDetail();renderCatalog();renderExport();renderInstructor();}});
+el.stop.addEventListener('click',function(){stopScan(false);});
+el.skip.addEventListener('click',skipAhead);
+el.sort.addEventListener('change',orderRows);
+['pwIv','pwCap','pwTx','pwEv','pwSl','pwW1','pwW2'].forEach(function(id){$(id).addEventListener('input',function(){if(id==='pwIv')el.pwDev.value='';renderPower();renderChecklist();renderExport();});});
+el.pwDev.addEventListener('change',function(){var i=el.pwDev.value;if(i!==''&&S.catalog[parseInt(i,10)]&&S.catalog[parseInt(i,10)].ivl!==null){$('pwIv').value=Math.round(S.catalog[parseInt(i,10)].ivl);renderPower();renderExport();}});
+$('copyBtn').addEventListener('click',copySummary);
+$('dlBtn').addEventListener('click',downloadSummary);
+window.addEventListener('hashchange',renderInstructor);
+renderChecklist();
+})();
+</script>
+</body>
+</html>
